@@ -49,6 +49,12 @@ body,
   padding: 0.5rem;
 }
 
+.success-box {
+  background: #efe;
+  color: #070;
+  padding: 0.5rem;
+}
+
 .app-container {
   display: flex;
   flex-direction: column;
