@@ -3,6 +3,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -10,9 +11,16 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
+	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/auth"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/api/option"
+	"gorm.io/datatypes"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type TransformRequest struct {
@@ -26,8 +34,19 @@ type TransformResponse struct {
 }
 
 type AppConfig struct {
-	Port       string `json:"port"`
-	SaxonPath  string `json:"saxon_path"`
+	Port                string `json:"port"`
+	SaxonClasspath      string `json:"saxon_classpath"`
+	DatabaseURL         string `json:"database_url"`
+	FirebaseCredentials string `json:"firebase_credentials"`
+}
+
+type Transformation struct {
+	ID         uint           `json:"id" gorm:"primaryKey"`
+	UserID     string         `json:"user_id"`
+	XSLT       string         `json:"xslt"`
+	Parameters datatypes.JSON `json:"parameters"`
+	Note       string         `json:"note"`
+	CreatedAt  time.Time      `json:"created_at"`
 }
 
 func loadConfig(filename string) (*AppConfig, error) {
@@ -39,7 +58,50 @@ func loadConfig(filename string) (*AppConfig, error) {
 	if err := json.Unmarshal(data, &config); err != nil {
 		return nil, err
 	}
+	if v := os.Getenv("DATABASE_URL"); v != "" {
+		config.DatabaseURL = v
+	}
+	if v := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"); v != "" {
+		config.FirebaseCredentials = v
+	}
+	if v := os.Getenv("SAXON_CLASSPATH"); v != "" {
+		config.SaxonClasspath = v
+	}
 	return &config, nil
+}
+
+func authMiddleware(client *auth.Client) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		header := c.GetHeader("Authorization")
+		if header == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing authorization"})
+			return
+		}
+		tokenStr := strings.TrimPrefix(header, "Bearer ")
+		tok, err := client.VerifyIDToken(c, tokenStr)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+			return
+		}
+		c.Set("uid", tok.UID)
+		if email, ok := tok.Claims["email"].(string); ok {
+			c.Set("email", email)
+		}
+		c.Next()
+	}
+}
+
+func corsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+		c.Next()
+	}
 }
 
 func main() {
@@ -48,7 +110,30 @@ func main() {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
+	ctx := context.Background()
+	var fbOpt option.ClientOption
+	if config.FirebaseCredentials != "" {
+		fbOpt = option.WithCredentialsFile(config.FirebaseCredentials)
+	}
+	fbApp, err := firebase.NewApp(ctx, nil, fbOpt)
+	if err != nil {
+		log.Fatalf("firebase init: %v", err)
+	}
+	authClient, err := fbApp.Auth(ctx)
+	if err != nil {
+		log.Fatalf("auth client: %v", err)
+	}
+
+	db, err := gorm.Open(postgres.Open(config.DatabaseURL), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("db connect: %v", err)
+	}
+	if err := db.AutoMigrate(&Transformation{}); err != nil {
+		log.Fatalf("auto migrate: %v", err)
+	}
+
 	r := gin.Default()
+	r.Use(corsMiddleware())
 
 	r.POST("/transform", func(c *gin.Context) {
 		var req TransformRequest
@@ -79,7 +164,7 @@ func main() {
 		}
 
 		cmdArgs := []string{
-			"-cp", config.SaxonPath,
+			"-cp", config.SaxonClasspath,
 			"net.sf.saxon.Transform",
 			"-s:" + inputPath,
 			"-xsl:" + xsltPath,
@@ -120,6 +205,52 @@ func main() {
 
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
+	authRoutes := r.Group("/history").Use(authMiddleware(authClient))
+	authRoutes.GET("", func(c *gin.Context) {
+		uid := c.GetString("uid")
+		var recs []Transformation
+		if err := db.Where("user_id = ?", uid).Order("created_at desc").Find(&recs).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "db error"})
+			return
+		}
+		c.JSON(http.StatusOK, recs)
+	})
+
+	authRoutes.POST("", func(c *gin.Context) {
+		uid := c.GetString("uid")
+		var req struct {
+			XSLT       string            `json:"xslt"`
+			Parameters map[string]string `json:"parameters"`
+			Note       string            `json:"note"`
+		}
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		paramJSON, _ := json.Marshal(req.Parameters)
+		rec := Transformation{UserID: uid, XSLT: req.XSLT, Parameters: datatypes.JSON(paramJSON), Note: req.Note}
+		if err := db.Create(&rec).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "db error"})
+			return
+		}
+		c.JSON(http.StatusOK, rec)
+	})
+
+	authRoutes.DELETE(":id", func(c *gin.Context) {
+		uid := c.GetString("uid")
+		id := c.Param("id")
+		res := db.Where("id = ? AND user_id = ?", id, uid).Delete(&Transformation{})
+		if res.Error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "db error"})
+			return
+		}
+		if res.RowsAffected == 0 {
+			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+			return
+		}
+		c.Status(http.StatusNoContent)
 	})
 
 	r.Run(":" + config.Port)
