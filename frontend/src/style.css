@@ -16,6 +16,11 @@ body,
   border-bottom: 1px solid #ddd;
 }
 
+.logo {
+  height: 24px;
+  margin-right: 0.5rem;
+}
+
 .tabs {
   display: flex;
   border-bottom: 1px solid #ddd;
@@ -67,10 +72,11 @@ body,
   width: 70%;
   padding: 0.5rem;
   overflow: hidden;
+  height: 100%;
 }
 
 .result {
-  height: 30%;
+  height: 50vh;
   border-top: 1px solid #ddd;
 }
 

@@ -7,6 +7,7 @@ import {
   signInWithPopup,
   signOut,
 } from "firebase/auth";
+import logo from "./logo.svg";
 
 const PARAM_START = "<!--PARAMS_START-->";
 const PARAM_END = "<!--PARAMS_END-->";
@@ -183,6 +184,30 @@ export default function App() {
     reader.readAsText(file);
   };
 
+  const handleDropNewParam = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const name = file.name.replace(/\.[^.]+$/, "");
+      setTabs((tabs) =>
+        tabs.map((t) =>
+          t.id === active
+            ? {
+                ...t,
+                params: [
+                  ...t.params,
+                  { name, value: reader.result, open: false },
+                ],
+              }
+            : t,
+        ),
+      );
+    };
+    reader.readAsText(file);
+  };
+
   const download = (data, filename) => {
     const blob = new Blob([data], { type: "text/xml" });
     const url = URL.createObjectURL(blob);
@@ -196,7 +221,10 @@ export default function App() {
   return (
     <div className="app-container">
       <div className="header">
-        <div><strong>xsltplayground.com</strong></div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <img src={logo} alt="logo" className="logo" />
+          <strong>xsltplayground.com</strong>
+        </div>
         {goPro && auth && (
           <div>
             {user ? (
@@ -230,7 +258,11 @@ export default function App() {
         </div>
       )}
       <div className="main">
-        <div className="params">
+        <div
+          className="params"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleDropNewParam}
+        >
           <div style={{ marginBottom: "0.5rem" }}>
             <button onClick={addParam}>Add Parameter</button>
           </div>
@@ -247,7 +279,13 @@ export default function App() {
                 <button onClick={() => removeParam(i)}>x</button>
               </div>
               {p.open && (
-                <div onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, (t) => updateParam(i, "value", t))}>
+                <div
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.stopPropagation();
+                    handleDrop(e, (t) => updateParam(i, "value", t));
+                  }}
+                >
                   <Editor
                     height="150px"
                     language="xml"
