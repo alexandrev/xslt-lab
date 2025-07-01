@@ -49,6 +49,8 @@ docker build -t xslt-playground-backend backend
 ```
 
 By default it listens on port `8000` as configured in `backend/app.config`.
+The same file sets `saxon_classpath` so the Java process can load Saxon and
+its dependencies from `/opt/saxon/*`.
 
 ### Environment
 
@@ -58,6 +60,7 @@ authentication. Provide these via environment variables:
 ```bash
 export DATABASE_URL="postgres://user:pass@localhost/dbname"
 export GOOGLE_APPLICATION_CREDENTIALS=/path/to/serviceAccount.json
+export SAXON_CLASSPATH=/opt/saxon/*
 ```
 
 The Firebase project ID is read from the credentials file.
