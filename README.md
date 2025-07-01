@@ -13,13 +13,21 @@ npm run dev
 This starts the playground at `http://localhost:3000`.
 
 The app will call the Go backend at `/transform` to perform XSLT transformations.
+Set the backend URL by creating a `.env` file inside `frontend/`:
+
+```bash
+VITE_BACKEND_URL=http://localhost:8000
+```
+
+If omitted the app assumes the backend runs on the same host and port.
 
 ### Docker
 
 To build a container with the compiled frontend run:
 
 ```bash
-docker build -t xslt-playground-frontend frontend
+docker build -t xslt-playground-frontend \
+  --build-arg VITE_BACKEND_URL=http://localhost:8000 frontend
 ```
 
 The resulting image serves the static files with nginx on port 80.
@@ -79,5 +87,8 @@ To run the entire stack locally with PostgreSQL use:
 make backend-image frontend-image
 docker compose up
 ```
+
+The compose file builds the frontend with `VITE_BACKEND_URL=http://backend:8000`
+so it talks to the backend container.
 
 This starts the backend on port `8000`, the frontend on `3000` and a PostgreSQL instance on `5432`.

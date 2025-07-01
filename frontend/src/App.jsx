@@ -20,13 +20,18 @@ export default function App() {
   const [version, setVersion] = useState("1.0");
   const [error, setError] = useState("");
 
+  const backendBase = (import.meta.env.VITE_BACKEND_URL || "").replace(
+    /\/$/,
+    "",
+  );
+
   const runTransform = debounce(async (xsltText, ver, p) => {
     const paramObj = {};
     p.forEach((pr) => {
       if (pr.name) paramObj[pr.name] = pr.value;
     });
     try {
-      const res = await fetch("/transform", {
+      const res = await fetch(`${backendBase}/transform`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
