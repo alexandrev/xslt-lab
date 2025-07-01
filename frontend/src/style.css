@@ -1,0 +1,47 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.main {
+  display: flex;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.params {
+  width: 30%;
+  overflow-y: auto;
+  border-right: 1px solid #ddd;
+  padding: 0.5rem;
+}
+
+.editor {
+  width: 70%;
+  padding: 0.5rem;
+  overflow: hidden;
+}
+
+.result {
+  height: 30%;
+  border-top: 1px solid #ddd;
+}
+
+.banner {
+  text-align: center;
+  padding: 0.5rem;
+  background: #f0f0f0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
