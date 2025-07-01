@@ -41,3 +41,15 @@ docker build -t xslt-playground-backend backend
 ```
 
 By default it listens on port `8000` as configured in `backend/app.config`.
+
+### Environment
+
+The backend requires a PostgreSQL database and Firebase credentials for
+authentication. Provide these via environment variables:
+
+```bash
+export DATABASE_URL="postgres://user:pass@localhost/dbname"
+export GOOGLE_APPLICATION_CREDENTIALS=/path/to/serviceAccount.json
+```
+
+The Firebase project ID is read from the credentials file.
