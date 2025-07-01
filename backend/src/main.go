@@ -30,7 +30,8 @@ type TransformRequest struct {
 }
 
 type TransformResponse struct {
-	Result string `json:"result"`
+	Result     string `json:"result"`
+	DurationMs int64  `json:"duration_ms"`
 }
 
 type AppConfig struct {
@@ -177,6 +178,7 @@ func main() {
 		cmd := exec.Command("java", cmdArgs...)
 		var stderr bytes.Buffer
 		cmd.Stderr = &stderr
+		start := time.Now()
 
 		timeout := time.Second * 10
 		errChan := make(chan error, 1)
@@ -200,7 +202,8 @@ func main() {
 			return
 		}
 
-		c.JSON(http.StatusOK, TransformResponse{Result: string(result)})
+		duration := time.Since(start).Milliseconds()
+		c.JSON(http.StatusOK, TransformResponse{Result: string(result), DurationMs: duration})
 	})
 
 	r.GET("/", func(c *gin.Context) {
