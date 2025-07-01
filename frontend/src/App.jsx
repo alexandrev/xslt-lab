@@ -8,7 +8,11 @@ function stripParamBlock(text) {
   const start = text.indexOf(PARAM_START);
   const end = text.indexOf(PARAM_END);
   if (start !== -1 && end !== -1 && end > start) {
-    return text.slice(0, start) + text.slice(end + PARAM_END.length);
+    let before = text.slice(0, start);
+    let after = text.slice(end + PARAM_END.length);
+    if (before.endsWith("\n")) before = before.slice(0, -1);
+    if (after.startsWith("\n")) after = after.slice(1);
+    return before + after;
   }
   return text;
 }
@@ -41,6 +45,7 @@ export default function App() {
   const [xslt, setXslt] = useState(
     `<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">\n<xsl:template match="/">\n<root/>\n</xsl:template>\n</xsl:stylesheet>`,
   );
+  const [editorFocused, setEditorFocused] = useState(false);
   const [result, setResult] = useState("");
   const [version, setVersion] = useState("1.0");
   const [error, setError] = useState("");
@@ -205,8 +210,10 @@ export default function App() {
           <Editor
             height="calc(100% - 40px)"
             language="xml"
-            value={injectParamBlock(xslt, params)}
+            value={editorFocused ? xslt : injectParamBlock(xslt, params)}
             onChange={(v) => setXslt(stripParamBlock(v || ""))}
+            onFocus={() => setEditorFocused(true)}
+            onBlur={() => setEditorFocused(false)}
             options={{ minimap: { enabled: false } }}
           />
         </div>
