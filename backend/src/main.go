@@ -26,8 +26,8 @@ type TransformResponse struct {
 }
 
 type AppConfig struct {
-	Port       string `json:"port"`
-	SaxonPath  string `json:"saxon_path"`
+	Port      string `json:"port"`
+	SaxonPath string `json:"saxon_path"`
 }
 
 func loadConfig(filename string) (*AppConfig, error) {

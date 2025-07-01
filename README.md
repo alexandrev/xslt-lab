@@ -13,3 +13,13 @@ npm run dev
 This starts the playground at `http://localhost:3000`.
 
 The app will call the Go backend at `/transform` to perform XSLT transformations.
+
+### Docker
+
+To build a container with the compiled frontend run:
+
+```bash
+docker build -t xslt-playground-frontend frontend
+```
+
+The resulting image serves the static files with nginx on port 80.

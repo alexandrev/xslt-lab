@@ -110,7 +110,7 @@ export default function App() {
                   />
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <input type="file" accept=".xml" onChange={(e) => loadFile(e, (text) => updateParam(i, 'value', text))} />
-                    <button onClick={() => download(p.value, `${p.name||'param'}.xml`)}>Download</button>
+                    <button onClick={() => download(p.value, `${p.name || "param"}.xml`)}>Download</button>
                   </div>
                 </div>
               )
