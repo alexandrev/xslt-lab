@@ -38,6 +38,17 @@ function injectParamBlock(text, params) {
   return clean.slice(0, idx) + block + clean.slice(idx);
 }
 
+function extractParamNames(text) {
+  const clean = stripParamBlock(text);
+  const names = new Set();
+  const regex = /<xsl:param[^>]*name="([^"]+)"[^>]*>/g;
+  let m;
+  while ((m = regex.exec(clean))) {
+    names.add(m[1]);
+  }
+  return Array.from(names);
+}
+
 function debounce(fn, delay) {
   let t;
   return (...args) => {
@@ -134,6 +145,29 @@ export default function App() {
       activeTab.params,
     );
   }, [activeTab]);
+
+  useEffect(() => {
+    const names = extractParamNames(activeTab.xslt);
+    setTabs((tabs) =>
+      tabs.map((t) => {
+        if (t.id !== active) return t;
+        let params = [...t.params];
+        let changed = false;
+        names.forEach((n) => {
+          if (!params.some((p) => p.name === n)) {
+            params.push({ name: n, value: "", open: false });
+            changed = true;
+          }
+        });
+        const filtered = params.filter((p) => names.includes(p.name) || p.value);
+        if (filtered.length !== params.length) {
+          params = filtered;
+          changed = true;
+        }
+        return changed ? { ...t, params } : t;
+      }),
+    );
+  }, [activeTab.xslt]);
 
   const updateParam = (index, field, value) => {
     setTabs((tabs) =>
@@ -247,13 +281,14 @@ export default function App() {
             </button>
           ))}
           <button
+            className="icon-button"
             onClick={() => {
               const nt = defaultTab();
               setTabs((tabs) => [...tabs, nt]);
               setActive(nt.id);
             }}
           >
-            +
+            ➕
           </button>
         </div>
       )}
@@ -264,7 +299,7 @@ export default function App() {
           onDrop={handleDropNewParam}
         >
           <div style={{ marginBottom: "0.5rem" }}>
-            <button onClick={addParam}>Add Parameter</button>
+            <button className="icon-button" onClick={addParam}>➕</button>
           </div>
           {activeTab.params.map((p, i) => (
             <div key={i} style={{ border: "1px solid #ccc", marginBottom: "0.5rem" }}>
@@ -275,8 +310,8 @@ export default function App() {
                   value={p.name}
                   onChange={(e) => updateParam(i, "name", e.target.value)}
                 />
-                <button onClick={() => updateParam(i, "open", !p.open)}>{p.open ? "-" : "+"}</button>
-                <button onClick={() => removeParam(i)}>x</button>
+                <button className="icon-button" onClick={() => updateParam(i, "open", !p.open)}>{p.open ? "▼" : "▶"}</button>
+                <button className="icon-button" onClick={() => removeParam(i)}>❌</button>
               </div>
               {p.open && (
                 <div
@@ -294,12 +329,16 @@ export default function App() {
                     options={{ minimap: { enabled: false }, automaticLayout: true }}
                   />
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <input
-                      type="file"
-                      accept=".xml"
-                      onChange={(e) => loadFile(e, (t) => updateParam(i, "value", t))}
-                    />
-                    <button onClick={() => download(p.value, `${p.name || "param"}.xml`)}>Download</button>
+                    <label className="icon-button file-label">
+                      📤
+                      <input
+                        type="file"
+                        accept=".xml"
+                        className="file-input"
+                        onChange={(e) => loadFile(e, (t) => updateParam(i, "value", t))}
+                      />
+                    </label>
+                    <button className="icon-button" onClick={() => download(p.value, `${p.name || "param"}.xml`)}>📥</button>
                   </div>
                 </div>
               )}
@@ -328,19 +367,25 @@ export default function App() {
             >
               XSLT 2.0
             </button>
-            <input
-              type="file"
-              accept=".xsl,.xslt"
-              onChange={(e) => loadFile(e, (t) =>
-                setTabs((tabs) =>
-                  tabs.map((tab) =>
-                    tab.id === active ? { ...tab, xslt: stripParamBlock(t) } : tab,
-                  ),
-                )
-              )}
-              style={{ marginLeft: "0.5rem" }}
-            />
+            <label className="icon-button file-label" style={{ marginLeft: "0.5rem" }}>
+              📤
+              <input
+                type="file"
+                accept=".xsl,.xslt"
+                className="file-input"
+                onChange={(e) =>
+                  loadFile(e, (t) =>
+                    setTabs((tabs) =>
+                      tabs.map((tab) =>
+                        tab.id === active ? { ...tab, xslt: stripParamBlock(t) } : tab,
+                      ),
+                    )
+                  )
+                }
+              />
+            </label>
             <button
+              className="icon-button"
               onClick={() =>
                 download(
                   injectParamBlock(activeTab.xslt, activeTab.params),
@@ -349,7 +394,7 @@ export default function App() {
               }
               style={{ marginLeft: "0.5rem" }}
             >
-              Download
+              📥
             </button>
           </div>
           <div
