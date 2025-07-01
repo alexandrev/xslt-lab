@@ -26,8 +26,8 @@ services:
   frontend:
     build:
       context: ./frontend
-      args:
-        VITE_BACKEND_URL: http://backend:8000
+    environment:
+      VITE_BACKEND_URL: http://localhost:8000
     ports:
       - "3000:80"
     depends_on:
