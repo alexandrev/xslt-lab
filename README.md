@@ -26,12 +26,12 @@ The resulting image serves the static files with nginx on port 80.
 
 ## Backend
 
-The Go backend resides under `backend/`. To build and run it locally you need Go
-installed. Before compiling, ensure dependencies are downloaded by running `go mod tidy` inside `backend/src`:
+The Go backend resides under `backend/`. Compile it using the Makefile which
+downloads Go modules automatically:
 
 ```bash
-cd backend/src
-go run .
+make backend-build
+./backend/server
 ```
 
 You can also produce a container image using the provided Dockerfile:

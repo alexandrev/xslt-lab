@@ -6,7 +6,7 @@ FRONTEND_IMAGE=xslt-playground-frontend
 .PHONY: backend-build frontend-build backend-image frontend-image compose-up compose-down
 
 backend-build:
-	cd $(BACKEND_DIR)/src && go build -o ../server
+	cd $(BACKEND_DIR)/src && go mod tidy && go build -o ../server
 
 frontend-build:
 	cd $(FRONTEND_DIR) && npm install && npm run build
