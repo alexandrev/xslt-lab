@@ -53,3 +53,28 @@ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/serviceAccount.json
 ```
 
 The Firebase project ID is read from the credentials file.
+
+### Makefile
+
+Common tasks are defined in the provided `Makefile`:
+
+```bash
+# Build Go binary
+make backend-build
+# Build React production files
+make frontend-build
+# Create container images
+make backend-image
+make frontend-image
+```
+
+### Docker Compose
+
+To run the entire stack locally with PostgreSQL use:
+
+```bash
+make backend-image frontend-image
+docker compose up
+```
+
+This starts the backend on port `8000`, the frontend on `3000` and a PostgreSQL instance on `5432`.

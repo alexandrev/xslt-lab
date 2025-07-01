@@ -32,4 +32,6 @@ COPY src/app.config .
 RUN mkdir -p /opt/saxon && \
     curl -L -o /opt/saxon/saxon-he.jar https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/11.6/Saxon-HE-11.6.jar
 
-# Puerto por defecto (puede ser sobre
+# Exponer el puerto por defecto y ejecutar el binario
+EXPOSE 8000
+CMD ["./server"]
