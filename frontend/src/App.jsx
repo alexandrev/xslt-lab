@@ -82,6 +82,7 @@ export default function App() {
   const [editorFocused, setEditorFocused] = useState(false);
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
+  const [duration, setDuration] = useState(null);
   const [user, setUser] = useState(null);
   const [auth, setAuth] = useState(null);
 
@@ -126,15 +127,18 @@ export default function App() {
       if (!res.ok) {
         const txt = await res.text();
         setError(txt || res.statusText);
+        setDuration(null);
         setResult("");
         return;
       }
       const data = await res.json();
       setResult(data.result);
+      setDuration(data.duration_ms);
       setError("");
     } catch (e) {
       setError(String(e));
       setResult("");
+      setDuration(null);
     }
   }, 500);
 
@@ -429,7 +433,13 @@ export default function App() {
         </div>
       </div>
       <div className="result" style={{ position: "relative" }}>
-        {error && <div className="error-box">{error}</div>}
+        {error ? (
+          <div className="error-box">{error}</div>
+        ) : (
+          duration !== null && (
+            <div className="success-box">Success in {duration} ms</div>
+          )
+        )}
         <Editor
           height="100%"
           language="xml"
