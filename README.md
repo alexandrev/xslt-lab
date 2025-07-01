@@ -21,6 +21,11 @@ VITE_BACKEND_URL=http://localhost:8000
 
 If omitted the app assumes the backend runs on the same host and port.
 
+When `VITE_GO_PRO=true` the UI exposes additional features like Google
+authentication and multiple transformation tabs. For authentication you must
+provide Firebase configuration via `VITE_FIREBASE_CONFIG` containing the JSON
+object used by `initializeApp`.
+
 ### Docker
 
 To build a container with the compiled frontend run:
