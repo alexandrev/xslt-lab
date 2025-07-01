@@ -17,7 +17,7 @@ services:
       DATABASE_URL: postgres://postgres:postgres@db/xslt?sslmode=disable
       GOOGLE_APPLICATION_CREDENTIALS: /firebase/credentials.json
     volumes:
-      - ./firebase-credentials.json:/firebase/credentials.json:ro
+      - ./config:/firebase:ro
     ports:
       - "8000:8000"
     depends_on:
