@@ -56,7 +56,10 @@ The Firebase project ID is read from the credentials file.
 
 ### Makefile
 
-Common tasks are defined in the provided `Makefile`:
+Common tasks are defined in the provided `Makefile`.
+Running `make` without arguments will build both binaries,
+create the container images and start Docker Compose
+without shutting it down automatically:
 
 ```bash
 # Build Go binary
