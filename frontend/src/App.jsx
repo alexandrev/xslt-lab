@@ -1,6 +1,35 @@
 import { useState, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 
+const PARAM_START = "<!--PARAMS_START-->";
+const PARAM_END = "<!--PARAMS_END-->";
+
+function stripParamBlock(text) {
+  const start = text.indexOf(PARAM_START);
+  const end = text.indexOf(PARAM_END);
+  if (start !== -1 && end !== -1 && end > start) {
+    let before = text.slice(0, start);
+    let after = text.slice(end + PARAM_END.length);
+    if (before.endsWith("\n")) before = before.slice(0, -1);
+    if (after.startsWith("\n")) after = after.slice(1);
+    return before + after;
+  }
+  return text;
+}
+
+function injectParamBlock(text, params) {
+  const clean = stripParamBlock(text);
+  const match = clean.match(/<xsl:stylesheet[^>]*>/);
+  if (!match) return clean;
+  const idx = match.index + match[0].length;
+  const paramLines = params
+    .filter((p) => p.name)
+    .map((p) => `<xsl:param name="${p.name}"/>`)
+    .join("\n");
+  const block = `\n${PARAM_START}\n${paramLines}\n${PARAM_END}`;
+  return clean.slice(0, idx) + block + clean.slice(idx);
+}
+
 function debounce(fn, delay) {
   let t;
   return (...args) => {
@@ -16,6 +45,7 @@ export default function App() {
   const [xslt, setXslt] = useState(
     `<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">\n<xsl:template match="/">\n<root/>\n</xsl:template>\n</xsl:stylesheet>`,
   );
+  const [editorFocused, setEditorFocused] = useState(false);
   const [result, setResult] = useState("");
   const [version, setVersion] = useState("1.0");
   const [error, setError] = useState("");
@@ -56,7 +86,7 @@ export default function App() {
   }, 500);
 
   useEffect(() => {
-    runTransform(xslt, version, params);
+    runTransform(injectParamBlock(xslt, params), version, params);
   }, [xslt, params, version]);
 
   const updateParam = (index, field, value) => {
@@ -75,11 +105,11 @@ export default function App() {
     setParams((p) => p.filter((_, i) => i !== index));
   };
 
-  const loadFile = (e, setter) => {
+  const loadFile = (e, setter, prep = (t) => t) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => setter(reader.result);
+    reader.onload = () => setter(prep(reader.result));
     reader.readAsText(file);
   };
 
@@ -124,7 +154,7 @@ export default function App() {
                 <button onClick={() => removeParam(i)}>x</button>
               </div>
               {p.open && (
-                <div style={{ height: "150px" }}>
+                <div>
                   <Editor
                     height="150px"
                     language="xml"
@@ -167,11 +197,11 @@ export default function App() {
             <input
               type="file"
               accept=".xsl,.xslt"
-              onChange={(e) => loadFile(e, setXslt)}
+              onChange={(e) => loadFile(e, (t) => setXslt(stripParamBlock(t)))}
               style={{ marginLeft: "0.5rem" }}
             />
             <button
-              onClick={() => download(xslt, "transform.xsl")}
+              onClick={() => download(injectParamBlock(xslt, params), "transform.xsl")}
               style={{ marginLeft: "0.5rem" }}
             >
               Download
@@ -180,8 +210,10 @@ export default function App() {
           <Editor
             height="calc(100% - 40px)"
             language="xml"
-            value={xslt}
-            onChange={(v) => setXslt(v || "")}
+            value={editorFocused ? xslt : injectParamBlock(xslt, params)}
+            onChange={(v) => setXslt(stripParamBlock(v || ""))}
+            onFocus={() => setEditorFocused(true)}
+            onBlur={() => setEditorFocused(false)}
             options={{ minimap: { enabled: false } }}
           />
         </div>
