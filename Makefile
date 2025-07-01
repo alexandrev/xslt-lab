@@ -3,7 +3,9 @@ FRONTEND_DIR=frontend
 BACKEND_IMAGE=xslt-playground-backend
 FRONTEND_IMAGE=xslt-playground-frontend
 
-.PHONY: backend-build frontend-build backend-image frontend-image compose-up compose-down
+.PHONY: all backend-build frontend-build backend-image frontend-image compose-up compose-down
+
+all: backend-build frontend-build backend-image frontend-image compose-up
 
 backend-build:
 	cd $(BACKEND_DIR)/src && go mod tidy && go build -o ../server
