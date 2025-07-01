@@ -352,15 +352,21 @@ export default function App() {
               Download
             </button>
           </div>
-          <div onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, (t) =>
-            setTabs((tabs) =>
-              tabs.map((tab) =>
-                tab.id === active ? { ...tab, xslt: stripParamBlock(t) } : tab,
-              ),
-            )
-          )}>
+          <div
+            className="editor-area"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) =>
+              handleDrop(e, (t) =>
+                setTabs((tabs) =>
+                  tabs.map((tab) =>
+                    tab.id === active ? { ...tab, xslt: stripParamBlock(t) } : tab,
+                  ),
+                )
+              )
+            }
+          >
             <Editor
-              height="calc(100% - 40px)"
+              height="100%"
               language="xml"
               value={editorFocused ? activeTab.xslt : injectParamBlock(activeTab.xslt, activeTab.params)}
               onChange={(v) =>
