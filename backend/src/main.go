@@ -88,6 +88,19 @@ func authMiddleware(client *auth.Client) gin.HandlerFunc {
 	}
 }
 
+func corsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+		c.Next()
+	}
+}
+
 func main() {
 	config, err := loadConfig("app.config")
 	if err != nil {
@@ -117,6 +130,7 @@ func main() {
 	}
 
 	r := gin.Default()
+	r.Use(corsMiddleware())
 
 	r.POST("/transform", func(c *gin.Context) {
 		var req TransformRequest
