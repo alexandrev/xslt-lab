@@ -23,3 +23,21 @@ docker build -t xslt-playground-frontend frontend
 ```
 
 The resulting image serves the static files with nginx on port 80.
+
+## Backend
+
+The Go backend resides under `backend/`. To build and run it locally you need Go
+installed:
+
+```bash
+cd backend/src
+go run .
+```
+
+You can also produce a container image using the provided Dockerfile:
+
+```bash
+docker build -t xslt-playground-backend backend
+```
+
+By default it listens on port `8000` as configured in `backend/app.config`.
