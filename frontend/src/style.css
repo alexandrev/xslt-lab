@@ -85,11 +85,6 @@ body,
   min-height: 0;
 }
 
-.editor-area {
-  flex: 1 1 auto;
-  height: 100%;
-  min-height: 0;
-}
 
 .result {
   height: 50vh;

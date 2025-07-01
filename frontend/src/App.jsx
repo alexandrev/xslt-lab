@@ -401,35 +401,33 @@ export default function App() {
               📥
             </button>
           </div>
-          <div
-            className="editor-area"
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) =>
-              handleDrop(e, (t) =>
-                setTabs((tabs) =>
-                  tabs.map((tab) =>
-                    tab.id === active ? { ...tab, xslt: stripParamBlock(t) } : tab,
+          <Editor
+            height="100%"
+            language="xml"
+            wrapperProps={{
+              style: { flex: 1, height: "100%", minHeight: 0 },
+              onDragOver: (e) => e.preventDefault(),
+              onDrop: (e) =>
+                handleDrop(e, (t) =>
+                  setTabs((tabs) =>
+                    tabs.map((tab) =>
+                      tab.id === active ? { ...tab, xslt: stripParamBlock(t) } : tab,
+                    ),
                   ),
-                )
+                ),
+            }}
+            value={editorFocused ? activeTab.xslt : injectParamBlock(activeTab.xslt, activeTab.params)}
+            onChange={(v) =>
+              setTabs((tabs) =>
+                tabs.map((tab) =>
+                  tab.id === active ? { ...tab, xslt: stripParamBlock(v || "") } : tab,
+                ),
               )
             }
-          >
-            <Editor
-              height="100%"
-              language="xml"
-              value={editorFocused ? activeTab.xslt : injectParamBlock(activeTab.xslt, activeTab.params)}
-              onChange={(v) =>
-                setTabs((tabs) =>
-                  tabs.map((tab) =>
-                    tab.id === active ? { ...tab, xslt: stripParamBlock(v || "") } : tab,
-                  ),
-                )
-              }
-              onFocus={() => setEditorFocused(true)}
-              onBlur={() => setEditorFocused(false)}
-              options={{ minimap: { enabled: false }, automaticLayout: true }}
-            />
-          </div>
+            onFocus={() => setEditorFocused(true)}
+            onBlur={() => setEditorFocused(false)}
+            options={{ minimap: { enabled: false }, automaticLayout: true }}
+          />
         </div>
       </div>
       <div className="result" style={{ position: "relative" }}>
