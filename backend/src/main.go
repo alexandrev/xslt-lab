@@ -35,7 +35,7 @@ type TransformResponse struct {
 
 type AppConfig struct {
 	Port                string `json:"port"`
-	SaxonPath           string `json:"saxon_path"`
+	SaxonClasspath      string `json:"saxon_classpath"`
 	DatabaseURL         string `json:"database_url"`
 	FirebaseCredentials string `json:"firebase_credentials"`
 }
@@ -63,6 +63,9 @@ func loadConfig(filename string) (*AppConfig, error) {
 	}
 	if v := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"); v != "" {
 		config.FirebaseCredentials = v
+	}
+	if v := os.Getenv("SAXON_CLASSPATH"); v != "" {
+		config.SaxonClasspath = v
 	}
 	return &config, nil
 }
@@ -161,7 +164,7 @@ func main() {
 		}
 
 		cmdArgs := []string{
-			"-cp", config.SaxonPath,
+			"-cp", config.SaxonClasspath,
 			"net.sf.saxon.Transform",
 			"-s:" + inputPath,
 			"-xsl:" + xsltPath,
