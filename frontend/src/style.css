@@ -39,8 +39,20 @@ body,
   font-weight: bold;
 }
 
-.toggle button {
+.toggle {
+  display: flex;
+  align-items: center;
+}
+
+.toggle button,
+.toggle select {
   margin-right: 0.25rem;
+}
+
+.toggle .right-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
 }
 
 .error-box {
