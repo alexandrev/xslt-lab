@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "xslt-playground.fullname" . }}-backend
+  labels:
+    {{- include "xslt-playground.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount.backend }}
+  selector:
+    matchLabels:
+      {{- include "xslt-playground.selectorLabels" . | nindent 6 }}
+      component: backend
+  template:
+    metadata:
+      labels:
+        {{- include "xslt-playground.selectorLabels" . | nindent 8 }}
+        component: backend
+    spec:
+      containers:
+        - name: backend
+          image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+          imagePullPolicy: {{ .Values.image.backend.pullPolicy }}
+          env:
+            - name: DATABASE_URL
+              value: {{ .Values.databaseUrl | quote }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: {{ printf "%s/%s" .Values.firebase.credentialsMountPath .Values.firebase.credentialsKey | quote }}
+          volumeMounts:
+            - name: firebase
+              mountPath: {{ .Values.firebase.credentialsMountPath }}
+              readOnly: true
+          ports:
+            - containerPort: {{ .Values.service.backend.port }}
+      volumes:
+        - name: firebase
+          secret:
+            secretName: {{ .Values.firebaseSecretName }}
+            items:
+              - key: {{ .Values.firebase.credentialsKey }}
+                path: {{ .Values.firebase.credentialsKey }}
+
