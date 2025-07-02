@@ -1,0 +1,6 @@
+apiVersion: v2
+name: xslt-playground
+description: Helm chart for xslt-playground frontend and backend
+version: 0.1.0
+appVersion: "0.1.0"
+
