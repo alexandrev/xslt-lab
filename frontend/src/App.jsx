@@ -163,15 +163,12 @@ export default function App() {
             changed = true;
           }
         });
-        const filtered = params.filter((p) => names.includes(p.name) || p.value);
-        if (filtered.length !== params.length) {
-          params = filtered;
-          changed = true;
-        }
+        // Preserve parameters even if not present in the XSLT so users can add
+        // new ones via the UI. Only add missing parameters from the stylesheet.
         return changed ? { ...t, params } : t;
       }),
     );
-  }, [activeTab.xslt]);
+  }, [active, activeTab.xslt]);
 
   const updateParam = (index, field, value) => {
     setTabs((tabs) =>
