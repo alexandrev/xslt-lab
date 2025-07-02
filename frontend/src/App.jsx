@@ -57,6 +57,19 @@ function debounce(fn, delay) {
   };
 }
 
+function setStylesheetVersion(text, version) {
+  const regex = /<xsl:stylesheet\b([^>]*)>/;
+  const match = text.match(regex);
+  if (!match) return text;
+  let attrs = match[1];
+  if (/version=['"][^'"]*['"]/.test(attrs)) {
+    attrs = attrs.replace(/version=['"][^'"]*['"]/, `version="${version}"`);
+  } else {
+    attrs += ` version="${version}"`;
+  }
+  return text.replace(regex, `<xsl:stylesheet${attrs}>`);
+}
+
 const goPro = import.meta.env.VITE_GO_PRO === "true";
 
 function defaultTab() {
@@ -351,55 +364,57 @@ export default function App() {
         </div>
         <div className="editor">
           <div style={{ marginBottom: "0.5rem" }} className="toggle">
-            <button
-              className={activeTab.version === "1.0" ? "active" : ""}
-              onClick={() =>
+            <select
+              value={activeTab.version}
+              onChange={(e) =>
                 setTabs((tabs) =>
-                  tabs.map((t) => (t.id === active ? { ...t, version: "1.0" } : t)),
+                  tabs.map((t) =>
+                    t.id === active
+                      ? {
+                          ...t,
+                          version: e.target.value,
+                          xslt: setStylesheetVersion(t.xslt, e.target.value),
+                        }
+                      : t,
+                  ),
                 )
               }
             >
-              XSLT 1.0
-            </button>
-            <button
-              className={activeTab.version === "2.0" ? "active" : ""}
-              onClick={() =>
-                setTabs((tabs) =>
-                  tabs.map((t) => (t.id === active ? { ...t, version: "2.0" } : t)),
-                )
-              }
-            >
-              XSLT 2.0
-            </button>
-            <label className="icon-button file-label" style={{ marginLeft: "0.5rem" }}>
-              📤
-              <input
-                type="file"
-                accept=".xsl,.xslt"
-                className="file-input"
-                onChange={(e) =>
-                  loadFile(e, (t) =>
-                    setTabs((tabs) =>
-                      tabs.map((tab) =>
-                        tab.id === active ? { ...tab, xslt: stripParamBlock(t) } : tab,
-                      ),
+              <option value="1.0">XSLT 1.0</option>
+              <option value="2.0">XSLT 2.0</option>
+            </select>
+            <div className="right-actions">
+              <label className="icon-button file-label">
+                📤
+                <input
+                  type="file"
+                  accept=".xsl,.xslt"
+                  className="file-input"
+                  onChange={(e) =>
+                    loadFile(e, (t) =>
+                      setTabs((tabs) =>
+                        tabs.map((tab) =>
+                          tab.id === active
+                            ? { ...tab, xslt: stripParamBlock(t) }
+                            : tab,
+                        ),
+                      )
                     )
+                  }
+                />
+              </label>
+              <button
+                className="icon-button"
+                onClick={() =>
+                  download(
+                    injectParamBlock(activeTab.xslt, activeTab.params),
+                    "transform.xsl",
                   )
                 }
-              />
-            </label>
-            <button
-              className="icon-button"
-              onClick={() =>
-                download(
-                  injectParamBlock(activeTab.xslt, activeTab.params),
-                  "transform.xsl",
-                )
-              }
-              style={{ marginLeft: "0.5rem" }}
-            >
-              📥
-            </button>
+              >
+                📥
+              </button>
+            </div>
           </div>
           <Editor
             height="100%"
