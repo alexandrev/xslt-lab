@@ -85,6 +85,12 @@ body,
   min-height: 0;
 }
 
+/* Ensure the Monaco editor fills the available space */
+.editor .monaco-editor,
+.editor .monaco-editor .overflow-guard {
+  height: 100% !important;
+}
+
 
 .result {
   height: 50vh;

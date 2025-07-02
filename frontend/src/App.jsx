@@ -150,7 +150,9 @@ export default function App() {
     );
   }, [activeTab]);
 
+  // Sync parameters from the XSLT when editing finishes or a new XSLT is loaded
   useEffect(() => {
+    if (editorFocused) return;
     const names = extractParamNames(activeTab.xslt);
     setTabs((tabs) =>
       tabs.map((t) => {
@@ -163,12 +165,15 @@ export default function App() {
             changed = true;
           }
         });
-        // Preserve parameters even if not present in the XSLT so users can add
-        // new ones via the UI. Only add missing parameters from the stylesheet.
+        const filtered = params.filter((p) => names.includes(p.name));
+        if (filtered.length !== params.length) {
+          params = filtered;
+          changed = true;
+        }
         return changed ? { ...t, params } : t;
       }),
     );
-  }, [active, activeTab.xslt]);
+  }, [active, activeTab.xslt, editorFocused]);
 
   const updateParam = (index, field, value) => {
     setTabs((tabs) =>
