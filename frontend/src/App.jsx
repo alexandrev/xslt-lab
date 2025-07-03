@@ -30,9 +30,7 @@ function stripParamBlock(text) {
 function getParamBlock(text) {
   const start = text.indexOf(PARAM_START);
   const end = text.indexOf(PARAM_END);
-  console.log(`####### ${start} - ${end}`)
   if (start !== -1 && end !== -1 && end > start) {
-    console.log(`####### ${start} - ${end}`)
     return text.slice(start, end);
   }
   return text;
@@ -52,6 +50,7 @@ function injectParamBlock(text, params) {
 }
 
 function addParams(text, tab) {
+  console.log("AQUI!!!!")
   const extractedParams = extractParamNames(text);
   const existingNames = new Set(tab.params.map(p => p.name));
   const newParams = [...tab.params];
@@ -67,12 +66,10 @@ function addParams(text, tab) {
 
 function extractParamNames(text) {
   const clean = getParamBlock(text);
-  console.log(`##########111 ${clean}`)
   const names = new Set();
   const regex = /<xsl:param[^>]*name="([^"]+)"[^>]*>/g;
   let m;
   while ((m = regex.exec(clean))) {
-    console.log(`##########-- ${m[1]}`)
     names.add(m[1]);
   }
   return Array.from(names);
@@ -155,14 +152,10 @@ export default function App() {
 
   const syncParams = useCallback(() => {
     const names = extractParamNames(injectParamBlock(activeTab.xslt, activeTab.params));
-    console.log(`######### names ${names}`)
     setTabs((tabs) =>
       tabs.map((t) => {
-        console.log("#####1")
         if (t.id !== active) return t;
-         console.log("#####2")
         let params = [...t.params];
-        console.log("#####2")
         let changed = false;
         names.forEach((n) => {
           if (!params.some((p) => p.name === n)) {
@@ -171,7 +164,6 @@ export default function App() {
           }
         });
         const filtered = params.filter((p) => names.includes(p.name) || p.value);
-        console.log(`#####3.  ${filtered}`)
         if (filtered.length !== params.length) {
           params = filtered;
           changed = true;
@@ -180,6 +172,8 @@ export default function App() {
       }),
     );
   }, [active, activeTab.xslt]);
+
+  
 
   const runTransform = debounce(async (xsltText, ver, p) => {
     const paramObj = {};
@@ -473,13 +467,12 @@ export default function App() {
             height="100%"
             language="xml"
             wrapperProps={{
-              style: { flex: 1, height: "100%", minHeight: 0 },
               onDragOver: (e) => e.preventDefault(),
               onDrop: (e) =>
                 handleDrop(e, (t) =>
                   setTabs((tabs) =>
                     tabs.map((tab) =>
-                      tab.id === active ? { ...tab, xslt: stripParamBlock(t) } : tab,
+                      tab.id === active ? { ...tab, xslt: stripParamBlock(t), params: addParams(t,tab) } : tab,
                     ),
                   ),
                 ),
@@ -488,7 +481,7 @@ export default function App() {
             onChange={(v) =>
               setTabs((tabs) =>
                 tabs.map((tab) =>
-                  tab.id === active ? { ...tab, xslt: stripParamBlock(v || "") } : tab,
+                  tab.id === active ? { ...tab, xslt: stripParamBlock(v || ""), params: addParams(v,tab) } : tab,
                 ),
               )
             }
