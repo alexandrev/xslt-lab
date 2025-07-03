@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Editor from "@monaco-editor/react";
 import { initializeApp } from "firebase/app";
 import {
@@ -124,6 +124,29 @@ export default function App() {
 
   const activeTab = tabs.find((t) => t.id === active) || tabs[0];
 
+  const syncParams = useCallback(() => {
+    const names = extractParamNames(activeTab.xslt);
+    setTabs((tabs) =>
+      tabs.map((t) => {
+        if (t.id !== active) return t;
+        let params = [...t.params];
+        let changed = false;
+        names.forEach((n) => {
+          if (!params.some((p) => p.name === n)) {
+            params.push({ name: n, value: "", open: false });
+            changed = true;
+          }
+        });
+        const filtered = params.filter((p) => names.includes(p.name) || p.value);
+        if (filtered.length !== params.length) {
+          params = filtered;
+          changed = true;
+        }
+        return changed ? { ...t, params } : t;
+      }),
+    );
+  }, [active, activeTab.xslt]);
+
   const runTransform = debounce(async (xsltText, ver, p) => {
     const paramObj = {};
     p.forEach((pr) => {
@@ -166,27 +189,13 @@ export default function App() {
   }, [activeTab]);
 
   useEffect(() => {
-    const names = extractParamNames(activeTab.xslt);
-    setTabs((tabs) =>
-      tabs.map((t) => {
-        if (t.id !== active) return t;
-        let params = [...t.params];
-        let changed = false;
-        names.forEach((n) => {
-          if (!params.some((p) => p.name === n)) {
-            params.push({ name: n, value: "", open: false });
-            changed = true;
-          }
-        });
-        const filtered = params.filter((p) => names.includes(p.name) || p.value);
-        if (filtered.length !== params.length) {
-          params = filtered;
-          changed = true;
-        }
-        return changed ? { ...t, params } : t;
-      }),
-    );
-  }, [activeTab.xslt]);
+    syncParams();
+  }, [active, syncParams]);
+
+  useEffect(() => {
+    if (!editorFocused) syncParams();
+  }, [editorFocused, syncParams]);
+
 
   const updateParam = (index, field, value) => {
     setTabs((tabs) =>
@@ -450,7 +459,10 @@ export default function App() {
               )
             }
             onFocus={() => setEditorFocused(true)}
-            onBlur={() => setEditorFocused(false)}
+            onBlur={() => {
+              setEditorFocused(false);
+              syncParams();
+            }}
             options={{ minimap: { enabled: false }, automaticLayout: true }}
           />
         </div>
