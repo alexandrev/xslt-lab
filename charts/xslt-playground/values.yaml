@@ -47,12 +47,14 @@ hpa:
     maxReplicas: 5
     targetCPUUtilizationPercentage: 80
 
-firebaseSecretName: firebase-config
 firebase:
+  enabled: true
+  secretName: firebase-config
   credentialsKey: service-account.json
   configKey: firebase-config.json
   credentialsMountPath: /var/secrets/firebase
 
-# Example database URL
-databaseUrl: postgres://postgres:postgres@db/xslt?sslmode=disable
+storage:
+  enabled: true
+  databaseUrl: postgres://postgres:postgres@db/xslt?sslmode=disable
 
