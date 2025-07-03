@@ -107,10 +107,15 @@ body,
   text-align: center;
   padding: 0.5rem;
   background: #f0f0f0;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  border-top: 1px solid #ddd;
+}
+
+.footer {
+  text-align: center;
+  padding: 0.5rem;
+  background: #fafafa;
+  border-top: 1px solid #ddd;
+  font-size: 0.85rem;
 }
 
 .icon-button {
