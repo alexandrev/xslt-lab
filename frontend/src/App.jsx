@@ -25,6 +25,19 @@ function stripParamBlock(text) {
   return text;
 }
 
+
+
+function getParamBlock(text) {
+  const start = text.indexOf(PARAM_START);
+  const end = text.indexOf(PARAM_END);
+  console.log(`####### ${start} - ${end}`)
+  if (start !== -1 && end !== -1 && end > start) {
+    console.log(`####### ${start} - ${end}`)
+    return text.slice(start, end);
+  }
+  return text;
+}
+
 function injectParamBlock(text, params) {
   const clean = stripParamBlock(text);
   const match = clean.match(/<xsl:stylesheet[^>]*>/);
@@ -38,12 +51,28 @@ function injectParamBlock(text, params) {
   return clean.slice(0, idx) + block + clean.slice(idx);
 }
 
+function addParams(text, tab) {
+  const extractedParams = extractParamNames(text);
+  const existingNames = new Set(tab.params.map(p => p.name));
+  const newParams = [...tab.params];
+
+  extractedParams.forEach(name => {
+    if (!existingNames.has(name)) {
+      newParams.push({ name, value: "<root/>", open: false });
+    }
+  });
+
+  return newParams;
+}
+
 function extractParamNames(text) {
-  const clean = stripParamBlock(text);
+  const clean = getParamBlock(text);
+  console.log(`##########111 ${clean}`)
   const names = new Set();
   const regex = /<xsl:param[^>]*name="([^"]+)"[^>]*>/g;
   let m;
   while ((m = regex.exec(clean))) {
+    console.log(`##########-- ${m[1]}`)
     names.add(m[1]);
   }
   return Array.from(names);
@@ -125,11 +154,15 @@ export default function App() {
   const activeTab = tabs.find((t) => t.id === active) || tabs[0];
 
   const syncParams = useCallback(() => {
-    const names = extractParamNames(activeTab.xslt);
+    const names = extractParamNames(injectParamBlock(activeTab.xslt, activeTab.params));
+    console.log(`######### names ${names}`)
     setTabs((tabs) =>
       tabs.map((t) => {
+        console.log("#####1")
         if (t.id !== active) return t;
+         console.log("#####2")
         let params = [...t.params];
+        console.log("#####2")
         let changed = false;
         names.forEach((n) => {
           if (!params.some((p) => p.name === n)) {
@@ -138,6 +171,7 @@ export default function App() {
           }
         });
         const filtered = params.filter((p) => names.includes(p.name) || p.value);
+        console.log(`#####3.  ${filtered}`)
         if (filtered.length !== params.length) {
           params = filtered;
           changed = true;
@@ -414,7 +448,7 @@ export default function App() {
                       setTabs((tabs) =>
                         tabs.map((tab) =>
                           tab.id === active
-                            ? { ...tab, xslt: stripParamBlock(t) }
+                            ? { ...tab, xslt: stripParamBlock(t), params: addParams(t,tab) }
                             : tab,
                         ),
                       )
