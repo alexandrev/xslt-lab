@@ -71,6 +71,8 @@ function setStylesheetVersion(text, version) {
 }
 
 const goPro = import.meta.env.VITE_GO_PRO === "true";
+const adsenseClient = import.meta.env.VITE_ADSENSE_CLIENT;
+const adsenseSlot = import.meta.env.VITE_ADSENSE_SLOT;
 
 function defaultTab() {
   return {
@@ -269,6 +271,14 @@ export default function App() {
     URL.revokeObjectURL(url);
   };
 
+  useEffect(() => {
+    if (adsenseClient && adsenseSlot && window.adsbygoogle) {
+      try {
+        window.adsbygoogle.push({});
+      } catch {}
+    }
+  }, []);
+
   return (
     <div className="app-container">
       <div className="header">
@@ -460,7 +470,30 @@ export default function App() {
           options={{ readOnly: true, minimap: { enabled: false }, automaticLayout: true }}
         />
       </div>
-      <div className="banner">Anuncio</div>
+      <div className="banner">
+        {adsenseClient && adsenseSlot ? (
+          <ins
+            className="adsbygoogle"
+            style={{ display: "block" }}
+            data-ad-client={adsenseClient}
+            data-ad-slot={adsenseSlot}
+            data-ad-format="auto"
+            data-full-width-responsive="true"
+          />
+        ) : (
+          "Anuncio"
+        )}
+      </div>
+      <div className="footer">
+        © 2025 Alexandre Vazquez. All rights reserved.{' '}
+        <a
+          href="https://alexandre-vazquez.com"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          alexandre-vazquez.com
+        </a>
+      </div>
     </div>
   );
 }
