@@ -39,7 +39,11 @@ function injectParamBlock(text, params) {
 }
 
 function extractParamNames(text) {
-  const clean = stripParamBlock(text);
+  // Parse parameter names from the full stylesheet, including any temporary
+  // PARAM_START/PARAM_END block that might be present while editing.
+  // We don't strip the block here so that parameters typed inside it are
+  // detected correctly on blur.
+  const clean = text;
   const names = new Set();
   const regex = /<xsl:param[^>]*name="([^"]+)"[^>]*>/g;
   let m;
@@ -123,11 +127,8 @@ export default function App() {
             changed = true;
           }
         });
-        const filtered = params.filter((p) => names.includes(p.name));
-        if (filtered.length !== params.length) {
-          params = filtered;
-          changed = true;
-        }
+        // Do not remove parameters that are not present in the stylesheet so
+        // users can keep custom ones.
         return changed ? { ...t, params } : t;
       }),
     );
