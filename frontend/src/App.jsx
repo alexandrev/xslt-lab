@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Editor from "@monaco-editor/react";
 import { initializeApp } from "firebase/app";
 import {
@@ -25,6 +25,17 @@ function stripParamBlock(text) {
   return text;
 }
 
+
+
+function getParamBlock(text) {
+  const start = text.indexOf(PARAM_START);
+  const end = text.indexOf(PARAM_END);
+  if (start !== -1 && end !== -1 && end > start) {
+    return text.slice(start, end);
+  }
+  return text;
+}
+
 function injectParamBlock(text, params) {
   const clean = stripParamBlock(text);
   const match = clean.match(/<xsl:stylesheet[^>]*>/);
@@ -38,8 +49,23 @@ function injectParamBlock(text, params) {
   return clean.slice(0, idx) + block + clean.slice(idx);
 }
 
+function addParams(text, tab) {
+  console.log("AQUI!!!!")
+  const extractedParams = extractParamNames(text);
+  const existingNames = new Set(tab.params.map(p => p.name));
+  const newParams = [...tab.params];
+
+  extractedParams.forEach(name => {
+    if (!existingNames.has(name)) {
+      newParams.push({ name, value: "<root/>", open: false });
+    }
+  });
+
+  return newParams;
+}
+
 function extractParamNames(text) {
-  const clean = stripParamBlock(text);
+  const clean = getParamBlock(text);
   const names = new Set();
   const regex = /<xsl:param[^>]*name="([^"]+)"[^>]*>/g;
   let m;
@@ -124,6 +150,31 @@ export default function App() {
 
   const activeTab = tabs.find((t) => t.id === active) || tabs[0];
 
+  const syncParams = useCallback(() => {
+    const names = extractParamNames(injectParamBlock(activeTab.xslt, activeTab.params));
+    setTabs((tabs) =>
+      tabs.map((t) => {
+        if (t.id !== active) return t;
+        let params = [...t.params];
+        let changed = false;
+        names.forEach((n) => {
+          if (!params.some((p) => p.name === n)) {
+            params.push({ name: n, value: "", open: false });
+            changed = true;
+          }
+        });
+        const filtered = params.filter((p) => names.includes(p.name) || p.value);
+        if (filtered.length !== params.length) {
+          params = filtered;
+          changed = true;
+        }
+        return changed ? { ...t, params } : t;
+      }),
+    );
+  }, [active, activeTab.xslt]);
+
+  
+
   const runTransform = debounce(async (xsltText, ver, p) => {
     const paramObj = {};
     p.forEach((pr) => {
@@ -166,27 +217,13 @@ export default function App() {
   }, [activeTab]);
 
   useEffect(() => {
-    const names = extractParamNames(activeTab.xslt);
-    setTabs((tabs) =>
-      tabs.map((t) => {
-        if (t.id !== active) return t;
-        let params = [...t.params];
-        let changed = false;
-        names.forEach((n) => {
-          if (!params.some((p) => p.name === n)) {
-            params.push({ name: n, value: "", open: false });
-            changed = true;
-          }
-        });
-        const filtered = params.filter((p) => names.includes(p.name) || p.value);
-        if (filtered.length !== params.length) {
-          params = filtered;
-          changed = true;
-        }
-        return changed ? { ...t, params } : t;
-      }),
-    );
-  }, [activeTab.xslt]);
+    syncParams();
+  }, [active, syncParams]);
+
+  useEffect(() => {
+    if (!editorFocused) syncParams();
+  }, [editorFocused, syncParams]);
+
 
   const updateParam = (index, field, value) => {
     setTabs((tabs) =>
@@ -405,7 +442,7 @@ export default function App() {
                       setTabs((tabs) =>
                         tabs.map((tab) =>
                           tab.id === active
-                            ? { ...tab, xslt: stripParamBlock(t) }
+                            ? { ...tab, xslt: stripParamBlock(t), params: addParams(t,tab) }
                             : tab,
                         ),
                       )
@@ -430,13 +467,12 @@ export default function App() {
             height="100%"
             language="xml"
             wrapperProps={{
-              style: { flex: 1, height: "100%", minHeight: 0 },
               onDragOver: (e) => e.preventDefault(),
               onDrop: (e) =>
                 handleDrop(e, (t) =>
                   setTabs((tabs) =>
                     tabs.map((tab) =>
-                      tab.id === active ? { ...tab, xslt: stripParamBlock(t) } : tab,
+                      tab.id === active ? { ...tab, xslt: stripParamBlock(t), params: addParams(t,tab) } : tab,
                     ),
                   ),
                 ),
@@ -445,12 +481,15 @@ export default function App() {
             onChange={(v) =>
               setTabs((tabs) =>
                 tabs.map((tab) =>
-                  tab.id === active ? { ...tab, xslt: stripParamBlock(v || "") } : tab,
+                  tab.id === active ? { ...tab, xslt: stripParamBlock(v || ""), params: addParams(v,tab) } : tab,
                 ),
               )
             }
             onFocus={() => setEditorFocused(true)}
-            onBlur={() => setEditorFocused(false)}
+            onBlur={() => {
+              setEditorFocused(false);
+              syncParams();
+            }}
             options={{ minimap: { enabled: false }, automaticLayout: true }}
           />
         </div>
