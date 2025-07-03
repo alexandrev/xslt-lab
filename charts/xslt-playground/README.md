@@ -7,16 +7,18 @@ This chart deploys the frontend and backend of xslt-playground.
 Key parameters in `values.yaml`:
 
 - `image.frontend` and `image.backend` – container images.
-- `firebaseSecretName` – name of the secret containing Firebase credentials.
-  - `firebase.credentialsKey` is mounted for the backend and referenced by
-    `GOOGLE_APPLICATION_CREDENTIALS`.
-  - `firebase.configKey` is used for the `VITE_FIREBASE_CONFIG` environment
-    variable of the frontend.
-- `databaseUrl` – connection string used by the backend.
+- `firebase.enabled` – set to `false` to disable Firebase integration entirely.
+  When enabled you must provide a secret named by `firebase.secretName` with the
+  keys `firebase.credentialsKey` and `firebase.configKey`. The backend mounts the
+  credentials file at `firebase.credentialsMountPath` and the frontend reads the
+  config JSON.
+- `storage.enabled` – disable database usage when `false`. If enabled the backend
+  gets `DATABASE_URL` from `storage.databaseUrl`; otherwise the environment
+  variable `DISABLE_DATABASE=true` is set.
 - `ingress` – configure ingress for the frontend service.
 - `hpa` – enable CPU-based autoscaling for both deployments.
 
-Create the secret before installing the chart:
+When `firebase.enabled` is true you must create the secret before installing the chart:
 
 ```bash
 kubectl create secret generic firebase-config \

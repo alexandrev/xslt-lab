@@ -23,11 +23,13 @@ spec:
           env:
             - name: VITE_BACKEND_URL
               value: http://{{ include "xslt-playground.fullname" . }}-backend:{{ .Values.service.backend.port }}
+{{- if .Values.firebase.enabled }}
             - name: VITE_FIREBASE_CONFIG
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.firebaseSecretName }}
+                  name: {{ .Values.firebase.secretName }}
                   key: {{ .Values.firebase.configKey }}
+{{- end }}
           ports:
             - containerPort: {{ .Values.service.frontend.port }}
           resources: {{- toYaml .Values.resources.frontend | nindent 12 }}

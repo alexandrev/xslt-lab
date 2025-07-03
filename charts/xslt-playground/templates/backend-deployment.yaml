@@ -21,21 +21,32 @@ spec:
           image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
           imagePullPolicy: {{ .Values.image.backend.pullPolicy }}
           env:
+{{- if .Values.storage.enabled }}
             - name: DATABASE_URL
-              value: {{ .Values.databaseUrl | quote }}
+              value: {{ .Values.storage.databaseUrl | quote }}
+{{- else }}
+            - name: DISABLE_DATABASE
+              value: "true"
+{{- end }}
+{{- if .Values.firebase.enabled }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: {{ printf "%s/%s" .Values.firebase.credentialsMountPath .Values.firebase.credentialsKey | quote }}
+{{- end }}
           volumeMounts:
+{{- if .Values.firebase.enabled }}
             - name: firebase
               mountPath: {{ .Values.firebase.credentialsMountPath }}
               readOnly: true
+{{- end }}
           ports:
             - containerPort: {{ .Values.service.backend.port }}
+{{- if .Values.firebase.enabled }}
       volumes:
         - name: firebase
           secret:
-            secretName: {{ .Values.firebaseSecretName }}
+            secretName: {{ .Values.firebase.secretName }}
             items:
               - key: {{ .Values.firebase.credentialsKey }}
                 path: {{ .Values.firebase.credentialsKey }}
+{{- end }}
 
