@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { initializeApp } from "firebase/app";
 import {
@@ -126,6 +126,7 @@ export default function App() {
   const [duration, setDuration] = useState(null);
   const [user, setUser] = useState(null);
   const [auth, setAuth] = useState(null);
+  const resultEditorRef = useRef(null);
 
   const backendBase = (env.VITE_BACKEND_URL || "").replace(/\/$/, "");
   console.log("Using this URL as backendURL:", backendBase);
@@ -505,11 +506,25 @@ export default function App() {
             <div className="success-box">Success in {duration} ms</div>
           )
         )}
+        <button
+          className="icon-button result-format-button"
+          onClick={() =>
+            resultEditorRef.current?.getAction("editor.action.formatDocument").run()
+          }
+        >
+          📝
+        </button>
         <Editor
           height="100%"
           language="xml"
           value={result}
-          options={{ readOnly: true, minimap: { enabled: false }, automaticLayout: true }}
+          onMount={(editor) => (resultEditorRef.current = editor)}
+          options={{
+            readOnly: true,
+            minimap: { enabled: false },
+            automaticLayout: true,
+            wordWrap: "on",
+          }}
         />
       </div>
       <div className="banner">
