@@ -157,3 +157,9 @@ body,
   display: inline-flex;
   align-items: center;
 }
+
+.result-format-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
