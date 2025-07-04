@@ -58,3 +58,8 @@ storage:
   enabled: true
   databaseUrl: postgres://postgres:postgres@db/xslt?sslmode=disable
 
+frontend:
+  # URL used by the frontend to reach the backend. Defaults to the
+  # internal service URL when empty.
+  backendUrl: ""
+
