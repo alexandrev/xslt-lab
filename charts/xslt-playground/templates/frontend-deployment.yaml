@@ -30,7 +30,23 @@ spec:
                   name: {{ .Values.firebase.secretName }}
                   key: {{ .Values.firebase.configKey }}
 {{- end }}
+{{- if .Values.adsTxt }}
+          volumeMounts:
+            - name: ads
+              mountPath: /usr/share/nginx/html/ads.txt
+              subPath: ads.txt
+              readOnly: true
+{{- end }}
           ports:
             - containerPort: {{ .Values.service.frontend.port }}
           resources: {{- toYaml .Values.resources.frontend | nindent 12 }}
+{{- if .Values.adsTxt }}
+      volumes:
+        - name: ads
+          configMap:
+            name: {{ include "xslt-playground.fullname" . }}-ads
+            items:
+              - key: ads.txt
+                path: ads.txt
+{{- end }}
 

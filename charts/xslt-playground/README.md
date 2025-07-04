@@ -22,6 +22,7 @@ Key parameters in `values.yaml`:
     The frontend reads this variable at runtime so changing the deployment does
     not require rebuilding the image. When empty it defaults to the internal
     backend service URL.
+- `adsTxt` – optional content for an `ads.txt` file served by the frontend pod.
 - `hpa` – enable CPU-based autoscaling for both deployments.
 
 When `firebase.enabled` is true you must create the secret before installing the chart:
