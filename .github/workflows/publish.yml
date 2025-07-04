@@ -38,7 +38,6 @@ jobs:
           OWNER: ${{ github.repository_owner }}
           PACKAGE: xslt-playground-backend
         run: |
-          echo "$GH_TOKEN" | gh auth login --with-token
           if gh api orgs/$OWNER > /dev/null 2>&1; then
             gh api -X PATCH /orgs/$OWNER/packages/container/$PACKAGE --field visibility=public
           else
@@ -58,7 +57,6 @@ jobs:
           OWNER: ${{ github.repository_owner }}
           PACKAGE: xslt-playground-frontend
         run: |
-          echo "$GH_TOKEN" | gh auth login --with-token
           if gh api orgs/$OWNER > /dev/null 2>&1; then
             gh api -X PATCH /orgs/$OWNER/packages/container/$PACKAGE --field visibility=public
           else
