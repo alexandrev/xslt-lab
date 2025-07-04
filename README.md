@@ -28,6 +28,7 @@ When `VITE_GO_PRO=true` the UI exposes additional features like Google
 authentication and multiple transformation tabs. For authentication you must
 provide Firebase configuration via `VITE_FIREBASE_CONFIG` containing the JSON
 object used by `initializeApp`.
+Set `VITE_GA_ID` to enable Google Analytics tracking.
 
 ### Docker
 
