@@ -32,13 +32,6 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/xslt-playground-backend:latest
 
-      - name: Make backend image public
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
-          PACKAGE: xslt-playground-backend
-        run: |
-            gh api -X PATCH /users/alexandrev/packages/container/$PACKAGE --field visibility=public
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
@@ -47,11 +40,5 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/xslt-playground-frontend:latest
 
-      - name: Make frontend image public
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
-          PACKAGE: xslt-playground-frontend
-        run: |
-          gh api -X PATCH /users/alexandrev/packages/container/$PACKAGE --field visibility=public
+
           
