@@ -95,9 +95,10 @@ function setStylesheetVersion(text, version) {
   return text.replace(regex, `<xsl:stylesheet${attrs}>`);
 }
 
-const goPro = import.meta.env.VITE_GO_PRO === "true";
-const adsenseClient = import.meta.env.VITE_ADSENSE_CLIENT;
-const adsenseSlot = import.meta.env.VITE_ADSENSE_SLOT;
+const env = window.env || import.meta.env;
+const goPro = env.VITE_GO_PRO === "true";
+const adsenseClient = env.VITE_ADSENSE_CLIENT;
+const adsenseSlot = env.VITE_ADSENSE_SLOT;
 
 function defaultTab() {
   return {
@@ -126,7 +127,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [auth, setAuth] = useState(null);
 
-  const backendBase = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
+  const backendBase = (env.VITE_BACKEND_URL || "").replace(/\/$/, "");
   console.log("Using this URL as backendURL:", backendBase);
 
   useEffect(() => {
@@ -138,7 +139,7 @@ export default function App() {
   useEffect(() => {
     if (!goPro) return;
     try {
-      const cfg = import.meta.env.VITE_FIREBASE_CONFIG;
+      const cfg = env.VITE_FIREBASE_CONFIG;
       if (cfg) {
         const app = initializeApp(JSON.parse(cfg));
         const a = getAuth(app);

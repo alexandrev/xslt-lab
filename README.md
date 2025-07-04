@@ -13,13 +13,16 @@ npm run dev
 This starts the playground at `http://localhost:3000`.
 
 The app will call the Go backend at `/transform` to perform XSLT transformations.
-Set the backend URL by creating a `.env` file inside `frontend/`:
+Set the backend URL by creating a `.env` file inside `frontend/` or by exporting
+`VITE_BACKEND_URL` when starting the dev server:
 
 ```bash
-VITE_BACKEND_URL=http://localhost:8000
+VITE_BACKEND_URL=http://localhost:8000 npm run dev
 ```
 
-If omitted the app assumes the backend runs on the same host and port.
+If omitted the app assumes the backend runs on the same host and port. In the
+containerized version the URL is now read at **runtime** from environment
+variables so you can configure it directly in the pod.
 
 When `VITE_GO_PRO=true` the UI exposes additional features like Google
 authentication and multiple transformation tabs. For authentication you must
@@ -31,13 +34,13 @@ object used by `initializeApp`.
 To build a container with the compiled frontend run:
 
 ```bash
-docker build -t xslt-playground-frontend \
-  --build-arg VITE_BACKEND_URL=http://localhost:8000 frontend
+docker build -t xslt-playground-frontend frontend
 ```
 
 The resulting image serves the static files with nginx on port 80. When the
 container starts it logs the value of `VITE_BACKEND_URL` so you can confirm the
-backend in use in the pod logs:
+backend in use in the pod logs. The URL is now picked up **at runtime** from the
+container environment.
 
 ```
 Using this URL as backendURL: http://localhost:8000
@@ -114,8 +117,8 @@ docker compose -f docker-compose.local.yml up
 
 This starts just the frontend and backend with `VITE_GO_PRO=false`.
 
-The compose file builds the frontend with `VITE_BACKEND_URL=http://backend:8000`
-so it talks to the backend container.
+The compose file passes `VITE_BACKEND_URL=http://backend:8000` to the frontend
+container so it talks to the backend container.
 
 This starts the backend on port `8000`, the frontend on `3000` and a PostgreSQL instance on `5432`.
 
