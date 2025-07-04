@@ -100,6 +100,14 @@ make backend-image frontend-image
 docker compose up
 ```
 
+For a lightweight setup without PostgreSQL run:
+
+```bash
+docker compose -f docker-compose.local.yml up
+```
+
+This starts just the frontend and backend with `VITE_GO_PRO=false`.
+
 The compose file builds the frontend with `VITE_BACKEND_URL=http://backend:8000`
 so it talks to the backend container.
 
