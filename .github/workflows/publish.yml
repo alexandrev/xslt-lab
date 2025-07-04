@@ -38,11 +38,7 @@ jobs:
           OWNER: ${{ github.repository_owner }}
           PACKAGE: xslt-playground-backend
         run: |
-          if gh api orgs/$OWNER > /dev/null 2>&1; then
-            gh api -X PATCH /orgs/$OWNER/packages/container/$PACKAGE --field visibility=public
-          else
             gh api -X PATCH /user/packages/container/$PACKAGE --field visibility=public
-          fi
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
@@ -57,8 +53,5 @@ jobs:
           OWNER: ${{ github.repository_owner }}
           PACKAGE: xslt-playground-frontend
         run: |
-          if gh api orgs/$OWNER > /dev/null 2>&1; then
-            gh api -X PATCH /orgs/$OWNER/packages/container/$PACKAGE --field visibility=public
-          else
-            gh api -X PATCH /user/packages/container/$PACKAGE --field visibility=public
-          fi
+          gh api -X PATCH /user/packages/container/$PACKAGE --field visibility=public
+          
