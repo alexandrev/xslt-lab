@@ -21,11 +21,18 @@
     <meta property="og:url" content="https://xsltplayground.com/" />
     <meta property="og:image" content="/logo.svg" />
     <link rel="canonical" href="https://xsltplayground.com/" />
-    <script
-      async
-      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=%VITE_ADSENSE_CLIENT%"
-      crossorigin="anonymous"
-    ></script>
+    <script type="module" src="/env.js"></script>
+    <script>
+      if (window.env && window.env.VITE_ADSENSE_CLIENT) {
+        const s = document.createElement('script');
+        s.async = true;
+        s.src =
+          'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' +
+          window.env.VITE_ADSENSE_CLIENT;
+        s.crossOrigin = 'anonymous';
+        document.head.appendChild(s);
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
