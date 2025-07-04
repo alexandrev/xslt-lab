@@ -362,7 +362,8 @@ export default function App() {
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDropNewParam}
         >
-          <div style={{ marginBottom: "0.5rem" }}>
+          <div className="params-header">
+            <div className="title">Data Pipeline</div>
             <button className="icon-button" onClick={addParam}>➕</button>
           </div>
           {activeTab.params.map((p, i) => (
@@ -408,6 +409,7 @@ export default function App() {
               )}
             </div>
           ))}
+          <div className="drop-hint">Drop your input XML files here..</div>
         </div>
         <div className="editor">
           <div style={{ marginBottom: "0.5rem" }} className="toggle">

@@ -87,6 +87,29 @@ body,
   padding: 0.5rem;
 }
 
+.params-header {
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.params-header .title {
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+}
+
+.params-header button {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.drop-hint {
+  text-align: center;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
 .editor {
   width: 70%;
   padding: 0.5rem;
