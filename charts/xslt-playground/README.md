@@ -18,6 +18,8 @@ Key parameters in `values.yaml`:
 - `ingress` – configure ingress for the frontend service. The backend is exposed
   through a second ingress using the hostname `backend.<hostname>` with the same
   settings.
+- `frontend.backendUrl` – value for `VITE_BACKEND_URL` used by the frontend.
+  When empty it defaults to the internal backend service URL.
 - `hpa` – enable CPU-based autoscaling for both deployments.
 
 When `firebase.enabled` is true you must create the secret before installing the chart:

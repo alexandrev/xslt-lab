@@ -22,7 +22,7 @@ spec:
           imagePullPolicy: {{ .Values.image.frontend.pullPolicy }}
           env:
             - name: VITE_BACKEND_URL
-              value: http://{{ include "xslt-playground.fullname" . }}-backend:{{ .Values.service.backend.port }}
+              value: {{ default (printf "http://%s-backend:%d" (include "xslt-playground.fullname" .) .Values.service.backend.port) .Values.frontend.backendUrl | quote }}
 {{- if .Values.firebase.enabled }}
             - name: VITE_FIREBASE_CONFIG
               valueFrom:
