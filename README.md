@@ -35,7 +35,13 @@ docker build -t xslt-playground-frontend \
   --build-arg VITE_BACKEND_URL=http://localhost:8000 frontend
 ```
 
-The resulting image serves the static files with nginx on port 80.
+The resulting image serves the static files with nginx on port 80. When the
+container starts it logs the value of `VITE_BACKEND_URL` so you can confirm the
+backend in use in the pod logs:
+
+```
+Using this URL as backendURL: http://localhost:8000
+```
 
 ## Backend
 
