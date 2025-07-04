@@ -50,7 +50,6 @@ function injectParamBlock(text, params) {
 }
 
 function addParams(text, tab) {
-  console.log("AQUI!!!!")
   const extractedParams = extractParamNames(text);
   const existingNames = new Set(tab.params.map(p => p.name));
   const newParams = [...tab.params];
@@ -128,6 +127,7 @@ export default function App() {
   const [auth, setAuth] = useState(null);
 
   const backendBase = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
+  console.log("Using this URL as backendURL:", backendBase);
 
   useEffect(() => {
     if (goPro) {
