@@ -59,7 +59,8 @@ its dependencies from `/opt/saxon/*`.
 
 ### Environment
 
-The backend requires a PostgreSQL database and Firebase credentials for
+When `VITE_GO_PRO=true` the backend stores transformation history and
+requires a PostgreSQL database as well as Firebase credentials for
 authentication. Provide these via environment variables:
 
 ```bash
@@ -69,6 +70,9 @@ export SAXON_CLASSPATH=/opt/saxon/*
 ```
 
 The Firebase project ID is read from the credentials file.
+
+If `VITE_GO_PRO` is not set or is `false` the backend skips database and
+Firebase initialization and only exposes the `/transform` endpoint.
 
 ### Makefile
 
@@ -95,6 +99,14 @@ To run the entire stack locally with PostgreSQL use:
 make backend-image frontend-image
 docker compose up
 ```
+
+For a lightweight setup without PostgreSQL run:
+
+```bash
+docker compose -f docker-compose.local.yml up
+```
+
+This starts just the frontend and backend with `VITE_GO_PRO=false`.
 
 The compose file builds the frontend with `VITE_BACKEND_URL=http://backend:8000`
 so it talks to the backend container.
