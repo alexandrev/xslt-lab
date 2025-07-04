@@ -3,11 +3,11 @@ entries:
   xslt-playground:
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2025-07-04T09:33:16.825471264Z"
+    created: "2025-07-04T09:42:55.934066577Z"
     description: Helm chart for xslt-playground frontend and backend
-    digest: ac037922030acf99cf32a88be39c3eb58ad372fa53d158bd58d37c1a637b0cfd
+    digest: fcb63858b4338a599f30b3534125c91730d5eb1d47d5a1217965b44e2b7e72bd
     name: xslt-playground
     urls:
-    - https://alexandrev.github.io/xslt-lab/xslt-playground-0.1.0.tgz
-    version: 0.1.0
-generated: "2025-07-04T09:33:16.824824637Z"
+    - https://alexandrev.github.io/xslt-lab/xslt-playground-0.1.1.tgz
+    version: 0.1.1
+generated: "2025-07-04T09:42:55.933506775Z"
