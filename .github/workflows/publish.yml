@@ -38,7 +38,7 @@ jobs:
           OWNER: ${{ github.repository_owner }}
           PACKAGE: xslt-playground-backend
         run: |
-            gh api -X PATCH /user/packages/container/$PACKAGE --field visibility=public
+            gh api -X PATCH /users/alexandrev/packages/container/$PACKAGE --field visibility=public
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
@@ -53,5 +53,5 @@ jobs:
           OWNER: ${{ github.repository_owner }}
           PACKAGE: xslt-playground-frontend
         run: |
-          gh api -X PATCH /user/packages/container/$PACKAGE --field visibility=public
+          gh api -X PATCH /users/alexandrev/packages/container/$PACKAGE --field visibility=public
           
