@@ -1,0 +1,11 @@
+{{- if .Values.adsTxt }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "xslt-playground.fullname" . }}-ads
+  labels:
+    {{- include "xslt-playground.labels" . | nindent 4 }}
+data:
+  ads.txt: |
+{{ .Values.adsTxt | indent 4 }}
+{{- end }}

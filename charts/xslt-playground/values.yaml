@@ -63,3 +63,6 @@ frontend:
   # internal service URL when empty.
   backendUrl: ""
 
+# Content for the optional ads.txt file served by the frontend
+adsTxt: ""
+
