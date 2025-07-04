@@ -181,7 +181,7 @@ func main() {
 			"-o:" + outputPath,
 		}
 		for k, v := range req.Parameters {
-			cmdArgs = append(cmdArgs, k+"='"+v+"'")
+			cmdArgs = append(cmdArgs, k+"="+v)
 		}
 
 		cmd := exec.Command("java", cmdArgs...)
