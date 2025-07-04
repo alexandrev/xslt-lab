@@ -111,26 +111,35 @@ func main() {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	ctx := context.Background()
-	var fbOpt option.ClientOption
-	if config.FirebaseCredentials != "" {
-		fbOpt = option.WithCredentialsFile(config.FirebaseCredentials)
-	}
-	fbApp, err := firebase.NewApp(ctx, nil, fbOpt)
-	if err != nil {
-		log.Fatalf("firebase init: %v", err)
-	}
-	authClient, err := fbApp.Auth(ctx)
-	if err != nil {
-		log.Fatalf("auth client: %v", err)
-	}
+	goPro := strings.ToLower(os.Getenv("VITE_GO_PRO")) == "true"
 
-	db, err := gorm.Open(postgres.Open(config.DatabaseURL), &gorm.Config{})
-	if err != nil {
-		log.Fatalf("db connect: %v", err)
-	}
-	if err := db.AutoMigrate(&Transformation{}); err != nil {
-		log.Fatalf("auto migrate: %v", err)
+	var (
+		authClient *auth.Client
+		db         *gorm.DB
+	)
+
+	if goPro {
+		ctx := context.Background()
+		var fbOpt option.ClientOption
+		if config.FirebaseCredentials != "" {
+			fbOpt = option.WithCredentialsFile(config.FirebaseCredentials)
+		}
+		fbApp, err := firebase.NewApp(ctx, nil, fbOpt)
+		if err != nil {
+			log.Fatalf("firebase init: %v", err)
+		}
+		authClient, err = fbApp.Auth(ctx)
+		if err != nil {
+			log.Fatalf("auth client: %v", err)
+		}
+
+		db, err = gorm.Open(postgres.Open(config.DatabaseURL), &gorm.Config{})
+		if err != nil {
+			log.Fatalf("db connect: %v", err)
+		}
+		if err := db.AutoMigrate(&Transformation{}); err != nil {
+			log.Fatalf("auto migrate: %v", err)
+		}
 	}
 
 	r := gin.Default()
@@ -210,51 +219,53 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	authRoutes := r.Group("/history").Use(authMiddleware(authClient))
-	authRoutes.GET("", func(c *gin.Context) {
-		uid := c.GetString("uid")
-		var recs []Transformation
-		if err := db.Where("user_id = ?", uid).Order("created_at desc").Find(&recs).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "db error"})
-			return
-		}
-		c.JSON(http.StatusOK, recs)
-	})
+	if goPro {
+		authRoutes := r.Group("/history").Use(authMiddleware(authClient))
+		authRoutes.GET("", func(c *gin.Context) {
+			uid := c.GetString("uid")
+			var recs []Transformation
+			if err := db.Where("user_id = ?", uid).Order("created_at desc").Find(&recs).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "db error"})
+				return
+			}
+			c.JSON(http.StatusOK, recs)
+		})
 
-	authRoutes.POST("", func(c *gin.Context) {
-		uid := c.GetString("uid")
-		var req struct {
-			XSLT       string            `json:"xslt"`
-			Parameters map[string]string `json:"parameters"`
-			Note       string            `json:"note"`
-		}
-		if err := c.ShouldBindJSON(&req); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		paramJSON, _ := json.Marshal(req.Parameters)
-		rec := Transformation{UserID: uid, XSLT: req.XSLT, Parameters: datatypes.JSON(paramJSON), Note: req.Note}
-		if err := db.Create(&rec).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "db error"})
-			return
-		}
-		c.JSON(http.StatusOK, rec)
-	})
+		authRoutes.POST("", func(c *gin.Context) {
+			uid := c.GetString("uid")
+			var req struct {
+				XSLT       string            `json:"xslt"`
+				Parameters map[string]string `json:"parameters"`
+				Note       string            `json:"note"`
+			}
+			if err := c.ShouldBindJSON(&req); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			paramJSON, _ := json.Marshal(req.Parameters)
+			rec := Transformation{UserID: uid, XSLT: req.XSLT, Parameters: datatypes.JSON(paramJSON), Note: req.Note}
+			if err := db.Create(&rec).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "db error"})
+				return
+			}
+			c.JSON(http.StatusOK, rec)
+		})
 
-	authRoutes.DELETE(":id", func(c *gin.Context) {
-		uid := c.GetString("uid")
-		id := c.Param("id")
-		res := db.Where("id = ? AND user_id = ?", id, uid).Delete(&Transformation{})
-		if res.Error != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "db error"})
-			return
-		}
-		if res.RowsAffected == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
-			return
-		}
-		c.Status(http.StatusNoContent)
-	})
+		authRoutes.DELETE(":id", func(c *gin.Context) {
+			uid := c.GetString("uid")
+			id := c.Param("id")
+			res := db.Where("id = ? AND user_id = ?", id, uid).Delete(&Transformation{})
+			if res.Error != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "db error"})
+				return
+			}
+			if res.RowsAffected == 0 {
+				c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+				return
+			}
+			c.Status(http.StatusNoContent)
+		})
+	}
 
 	r.Run(":" + config.Port)
 }
