@@ -20,7 +20,7 @@ frontend-image:
 	docker build -t $(FRONTEND_IMAGE) $(FRONTEND_DIR)
 
 compose-up:
-	docker compose up
+	docker compose -f docker-compose.local.yml up
 
 compose-down:
-	docker compose down
+	docker compose -f docker-compose.local.yml down
