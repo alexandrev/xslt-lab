@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Editor from "@monaco-editor/react";
+import formatXML from "xml-formatter";
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
@@ -508,9 +509,12 @@ export default function App() {
         )}
         <button
           className="icon-button result-format-button"
-          onClick={() =>
-            resultEditorRef.current?.getAction("editor.action.formatDocument").run()
-          }
+          onClick={() => {
+            try {
+              const formatted = formatXML(result);
+              setResult(formatted);
+            } catch {}
+          }}
         >
           📝
         </button>
