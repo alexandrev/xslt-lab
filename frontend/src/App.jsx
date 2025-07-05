@@ -16,14 +16,18 @@ const PARAM_END = "<!--PARAMS_END-->";
 function stripParamBlock(text) {
   const start = text.indexOf(PARAM_START);
   const end = text.indexOf(PARAM_END);
+  let result = text;
   if (start !== -1 && end !== -1 && end > start) {
     let before = text.slice(0, start);
     let after = text.slice(end + PARAM_END.length);
     if (before.endsWith("\n")) before = before.slice(0, -1);
     if (after.startsWith("\n")) after = after.slice(1);
-    return before + after;
+    result = before + after;
   }
-  return text;
+  return result.replace(
+    /[ \t]*<xsl:param\b[^>]*?(?:\/>|>[\s\S]*?<\/xsl:param>)[ \t]*(?:\r?\n)?/g,
+    "",
+  );
 }
 
 
