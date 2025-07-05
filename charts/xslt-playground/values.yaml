@@ -62,6 +62,8 @@ frontend:
   # URL used by the frontend to reach the backend. Defaults to the
   # internal service URL when empty.
   backendUrl: ""
+  # Optional Google Analytics measurement ID
+  googleAnalyticsId: ""
 
 # Content for the optional ads.txt file served by the frontend
 adsTxt: ""

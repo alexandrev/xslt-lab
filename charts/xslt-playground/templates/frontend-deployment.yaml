@@ -30,6 +30,10 @@ spec:
                   name: {{ .Values.firebase.secretName }}
                   key: {{ .Values.firebase.configKey }}
 {{- end }}
+{{- if .Values.frontend.googleAnalyticsId }}
+            - name: VITE_GA_ID
+              value: {{ .Values.frontend.googleAnalyticsId | quote }}
+{{- end }}
 {{- if .Values.adsTxt }}
           volumeMounts:
             - name: ads
