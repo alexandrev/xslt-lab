@@ -523,7 +523,8 @@ export default function App() {
             readOnly: true,
             minimap: { enabled: false },
             automaticLayout: true,
-            wordWrap: "on",
+            wordWrap: "bounded",
+            wordWrapBreakAfterCharacters: ' \t})]?|>'
           }}
         />
       </div>
