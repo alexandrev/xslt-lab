@@ -10,6 +10,7 @@
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "firebase": "^9.23.0",
+    "ga-4-react": "^0.1.281",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-ga": "^3.3.1",

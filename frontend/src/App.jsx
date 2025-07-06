@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import ReactGA from 'react-ga';
+import GA4React from 'ga-4-react';
 import Editor from "@monaco-editor/react";
 import formatXML from "xml-formatter";
 import { initializeApp } from "firebase/app";
@@ -139,7 +139,8 @@ export default function App() {
   console.log("Using this URL as backendURL:", backendBase);
 
   useEffect(() => {
-   ReactGA.initialize(env.VITE_GA_ID);
+    const ga4react = new GA4React(env.VITE_GA_ID);
+    ga4react.initialize().catch(err => console.error(err));
  }, []);
 
   useEffect(() => {
