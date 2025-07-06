@@ -9,6 +9,7 @@ import {
   signOut,
 } from "firebase/auth";
 import logo from "./logo.svg";
+import Buymeacoffee from "./BuyMeACoffee";
 
 const PARAM_START = "<!--PARAMS_START-->";
 const PARAM_END = "<!--PARAMS_END-->";
@@ -340,6 +341,7 @@ export default function App() {
               )}
             </div>
           )}
+          <Buymeacoffee />
         </div>
       </div>
       {goPro && (
