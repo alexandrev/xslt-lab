@@ -32,17 +32,6 @@
           s.crossOrigin = 'anonymous';
           document.head.appendChild(s);
         }
-        if (window.env && window.env.VITE_GA_ID) {
-          const g = document.createElement('script');
-          g.async = true;
-          g.src =
-            'https://www.googletagmanager.com/gtag/js?id=' + window.env.VITE_GA_ID;
-          document.head.appendChild(g);
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', window.env.VITE_GA_ID);
-        }
       </script>
     </head>
   <body>

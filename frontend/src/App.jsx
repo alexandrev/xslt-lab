@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import ReactGA from 'react-ga';
 import Editor from "@monaco-editor/react";
 import formatXML from "xml-formatter";
 import { initializeApp } from "firebase/app";
@@ -138,9 +139,14 @@ export default function App() {
   console.log("Using this URL as backendURL:", backendBase);
 
   useEffect(() => {
+   ReactGA.initialize(env.VITE_GA_ID);
+ }, []);
+
+  useEffect(() => {
     if (goPro) {
       sessionStorage.setItem("tabs", JSON.stringify(tabs));
     }
+    
   }, [tabs]);
 
   useEffect(() => {
