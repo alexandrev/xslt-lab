@@ -11,6 +11,7 @@ import {
 } from "firebase/auth";
 import logo from "./logo.svg";
 import Buymeacoffee from "./BuyMeACoffee";
+import Feedback from "./Feedback";
 
 const PARAM_START = "<!--PARAMS_START-->";
 const PARAM_END = "<!--PARAMS_END-->";
@@ -571,6 +572,7 @@ export default function App() {
           alexandre-vazquez.com
         </a>
       </div>
+      <Feedback />
     </div>
   );
 }
