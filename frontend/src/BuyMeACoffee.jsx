@@ -27,5 +27,5 @@ export default function Buymeacoffee() {
 		div.appendChild(script);
 	}, []);
 
-	return <div id="supportByBMC"></div>;
-}
+        return <div id="supportByBMC"></div>;
+ }
