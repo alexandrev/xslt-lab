@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -185,8 +186,16 @@ func main() {
 			"-xsl:" + xsltPath,
 			"-o:" + outputPath,
 		}
+		idx := 0
 		for k, v := range req.Parameters {
-			cmdArgs = append(cmdArgs, k+"="+v)
+			paramFile := filepath.Join(tmpDir, fmt.Sprintf("param_%d", idx))
+			if err := os.WriteFile(paramFile, []byte(v), 0644); err != nil {
+				log.Printf("write parameter %s failed: %v", k, err)
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write parameter"})
+				return
+			}
+			cmdArgs = append(cmdArgs, fmt.Sprintf("%s=@%s", k, paramFile))
+			idx++
 		}
 
 		cmd := exec.Command("java", cmdArgs...)
