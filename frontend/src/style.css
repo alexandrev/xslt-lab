@@ -163,3 +163,46 @@ body,
   top: 0;
   right: 0;
 }
+
+.feedback-widget {
+  position: fixed;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  z-index: 1000;
+}
+
+.feedback-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #007acc;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedback-form {
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  width: 220px;
+}
+
+.feedback-form input,
+.feedback-form select,
+.feedback-form textarea {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.feedback-form textarea {
+  height: 80px;
+}
