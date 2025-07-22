@@ -148,12 +148,15 @@ func main() {
 	r.POST("/transform", func(c *gin.Context) {
 		var req TransformRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
+			log.Printf("bind request failed: %v (content-length=%d)", err, c.Request.ContentLength)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+		log.Printf("processing transform: xslt %d bytes, %d parameters", len(req.XSLT), len(req.Parameters))
 
 		tmpDir, err := ioutil.TempDir("", "xslt")
 		if err != nil {
+			log.Printf("temp dir creation failed: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot create temp dir"})
 			return
 		}
@@ -164,11 +167,13 @@ func main() {
 		outputPath := filepath.Join(tmpDir, "result.xml")
 
 		if err := os.WriteFile(xsltPath, []byte(req.XSLT), 0644); err != nil {
+			log.Printf("write xslt failed: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write xslt"})
 			return
 		}
 
 		if err := os.WriteFile(inputPath, []byte("<root/>"), 0644); err != nil {
+			log.Printf("write input failed: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write input"})
 			return
 		}
@@ -196,22 +201,26 @@ func main() {
 		select {
 		case err := <-errChan:
 			if err != nil {
+				log.Printf("saxon error: %v; stderr: %s", err, stderr.String())
 				c.JSON(http.StatusBadRequest, gin.H{"error": stderr.String()})
 				return
 			}
 		case <-time.After(timeout):
 			cmd.Process.Kill()
+			log.Printf("saxon timeout after %v", timeout)
 			c.JSON(http.StatusRequestTimeout, gin.H{"error": "transformation timeout"})
 			return
 		}
 
 		result, err := os.ReadFile(outputPath)
 		if err != nil {
+			log.Printf("read result failed: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot read result"})
 			return
 		}
 
 		duration := time.Since(start).Milliseconds()
+		log.Printf("transformation done in %dms", duration)
 		c.JSON(http.StatusOK, TransformResponse{Result: string(result), DurationMs: duration})
 	})
 
