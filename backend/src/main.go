@@ -179,26 +179,26 @@ func main() {
 			return
 		}
 
-		cmdArgs := []string{
-			"-cp", config.SaxonClasspath,
+		argsPath := filepath.Join(tmpDir, "args")
+		var cmdArgs []string
+		cmdArgs = append(cmdArgs,
+			"-cp",
+			config.SaxonClasspath,
 			"net.sf.saxon.Transform",
-			"-s:" + inputPath,
-			"-xsl:" + xsltPath,
-			"-o:" + outputPath,
-		}
-		idx := 0
+			"-s:"+inputPath,
+			"-xsl:"+xsltPath,
+			"-o:"+outputPath,
+		)
 		for k, v := range req.Parameters {
-			paramFile := filepath.Join(tmpDir, fmt.Sprintf("param_%d", idx))
-			if err := os.WriteFile(paramFile, []byte(v), 0644); err != nil {
-				log.Printf("write parameter %s failed: %v", k, err)
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write parameter"})
-				return
-			}
-			cmdArgs = append(cmdArgs, fmt.Sprintf("%s=@%s", k, paramFile))
-			idx++
+			cmdArgs = append(cmdArgs, fmt.Sprintf("%s=%s", k, v))
+		}
+		if err := os.WriteFile(argsPath, []byte(strings.Join(cmdArgs, "\n")), 0644); err != nil {
+			log.Printf("write args file failed: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write args"})
+			return
 		}
 
-		cmd := exec.Command("java", cmdArgs...)
+		cmd := exec.Command("java", "@"+argsPath)
 		var stderr bytes.Buffer
 		cmd.Stderr = &stderr
 		start := time.Now()
