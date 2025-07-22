@@ -189,9 +189,19 @@ func main() {
 			"-xsl:"+xsltPath,
 			"-o:"+outputPath,
 		)
+
+		idx := 0
 		for k, v := range req.Parameters {
-			cmdArgs = append(cmdArgs, fmt.Sprintf("%s=%s", k, v))
+			paramFile := filepath.Join(tmpDir, fmt.Sprintf("param_%d", idx))
+			if err := os.WriteFile(paramFile, []byte(v), 0644); err != nil {
+				log.Printf("write parameter %s failed: %v", k, err)
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write parameter"})
+				return
+			}
+			cmdArgs = append(cmdArgs, fmt.Sprintf("%s=@%s", k, paramFile))
+			idx++
 		}
+
 		if err := os.WriteFile(argsPath, []byte(strings.Join(cmdArgs, "\n")), 0644); err != nil {
 			log.Printf("write args file failed: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write args"})
