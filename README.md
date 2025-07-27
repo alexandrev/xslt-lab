@@ -67,6 +67,13 @@ By default it listens on port `8000` as configured in `backend/app.config`.
 The same file sets `saxon_classpath` so the Java process can load Saxon and
 its dependencies from `/opt/saxon/*`.
 
+The backend image also builds a small jar with custom Saxon extension
+functions. It gets copied to `/opt/saxon/custom-functions.jar` during the
+Docker build. You can call these from XSLT using the namespace
+`xmlns:tib="java:com.xsltplayground.ext.CustomFunctions"`. The jar exposes
+many helper functions such as `tib:uuid()`, `tib:timestamp()` and
+`tib:addToDate()`.
+
 ### Environment
 
 When `VITE_GO_PRO=true` the backend stores transformation history and
