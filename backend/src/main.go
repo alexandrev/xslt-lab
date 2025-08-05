@@ -198,7 +198,13 @@ func main() {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write parameter"})
 				return
 			}
-			cmdArgs = append(cmdArgs, fmt.Sprintf("%s=@%s", k, paramFile))
+			// Heuristic check: if value looks like XML (starts with '<' and ends with '>'), treat it as file-based
+			trimmed := strings.TrimSpace(v)
+			if strings.HasPrefix(trimmed, "&lt;") || strings.HasPrefix(trimmed, "<") {
+				cmdArgs = append(cmdArgs, fmt.Sprintf("+%s=%s", k, paramFile))
+			} else {
+				cmdArgs = append(cmdArgs, fmt.Sprintf("%s=%s", k, v))
+			}
 			idx++
 		}
 
