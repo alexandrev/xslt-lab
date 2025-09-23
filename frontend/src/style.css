@@ -59,6 +59,38 @@ body,
   background: #fee;
   color: #900;
   padding: 0.5rem;
+  border: 1px solid #f3c2c2;
+  border-left: 4px solid #d00;
+  max-height: 30vh; /* limit height */
+  overflow: auto;   /* enable scroll when needed */
+}
+
+/* Tabular error list */
+.error-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.error-row {
+  vertical-align: top;
+}
+
+.error-icon {
+  width: 1.75rem;
+  text-align: center;
+  padding-right: 0.25rem;
+  color: #d00;
+}
+
+.error-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.error-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
 }
 
 .success-box {
@@ -118,6 +150,54 @@ body,
   display: flex;
   flex-direction: column;
   min-height: 0;
+}
+
+.editor-split {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.xslt-editor-wrap {
+  flex: 1 1 auto;
+  min-width: 0; /* allow editor to shrink */
+}
+
+.trace-panel {
+  width: 30%;
+  background: #fff;
+  border: 1px solid #ddd;
+  overflow: auto;
+}
+
+.trace-header {
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid #eee;
+  font-weight: bold;
+  background: #fafafa;
+}
+
+.trace-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.trace-name {
+  width: 30%;
+  vertical-align: top;
+  padding: 0.25rem;
+  font-family: monospace;
+  color: #333;
+  border-right: 1px solid #f0f0f0;
+}
+
+.trace-value {
+  vertical-align: top;
+  padding: 0.25rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: monospace;
 }
 
 

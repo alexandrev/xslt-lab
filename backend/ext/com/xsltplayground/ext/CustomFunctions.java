@@ -382,4 +382,233 @@ public class CustomFunctions {
     public static boolean xor(boolean a, boolean b) {
         return a ^ b;
     }
+
+    // ---------------------------------------------------------------------
+    // Saxon HE integration
+    // ---------------------------------------------------------------------
+    // Saxon-HE doesn't support reflexive java: calls. To keep XSLT unchanged
+    // (e.g., xmlns:java="java:com.xsltplayground.ext.CustomFunctions" and
+    // java:uuid()), register integrated extension functions programmatically.
+    // Call CustomFunctions.registerAll(processor) once during initialization.
+
+    public static void registerAll(net.sf.saxon.s9api.Processor processor) {
+        final String namespace = "java:" + CustomFunctions.class.getName();
+
+        java.lang.reflect.Method[] methods = CustomFunctions.class.getDeclaredMethods();
+        for (java.lang.reflect.Method m : methods) {
+            int mods = m.getModifiers();
+            if (!java.lang.reflect.Modifier.isStatic(mods) || !java.lang.reflect.Modifier.isPublic(mods)) {
+                continue;
+            }
+            if (m.getName().equals("registerAll")) {
+                continue;
+            }
+
+            String camel = m.getName();
+            String kebab = camelToKebab(camel);
+
+            if (m.isVarArgs()) {
+                int fixed = m.getParameterCount() - 1;
+                int maxVarargs = 8;
+                for (int extra = 0; extra <= maxVarargs; extra++) {
+                    int arity = fixed + (extra == 0 ? 1 : extra);
+                    processor.registerExtensionFunction(new SaxonDynamicFunction(namespace, camel, m, arity));
+                    if (!kebab.equals(camel)) {
+                        processor.registerExtensionFunction(new SaxonDynamicFunction(namespace, kebab, m, arity));
+                    }
+                }
+            } else {
+                int arity = m.getParameterCount();
+                processor.registerExtensionFunction(new SaxonDynamicFunction(namespace, camel, m, arity));
+                if (!kebab.equals(camel)) {
+                    processor.registerExtensionFunction(new SaxonDynamicFunction(namespace, kebab, m, arity));
+                }
+            }
+        }
+
+        // Back-compat alias: support XSLT calls named "parse-dateTime"
+        // in addition to the canonical kebab-case "parse-date-time".
+        try {
+            java.lang.reflect.Method pdt = CustomFunctions.class.getDeclaredMethod("parseDateTime", String.class, String.class);
+            processor.registerExtensionFunction(new SaxonDynamicFunction(namespace, "parse-dateTime", pdt, 2));
+        } catch (NoSuchMethodException ignore) {
+        }
+    }
+
+    private static String camelToKebab(String s) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (Character.isUpperCase(c)) {
+                if (i > 0) sb.append('-');
+                sb.append(Character.toLowerCase(c));
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    private static final class SaxonDynamicFunction implements net.sf.saxon.s9api.ExtensionFunction {
+        private final String namespace;
+        private final String localName;
+        private final java.lang.reflect.Method method;
+        private final int arity;
+
+        SaxonDynamicFunction(String namespace, String localName, java.lang.reflect.Method method, int arity) {
+            this.namespace = namespace;
+            this.localName = localName;
+            this.method = method;
+            this.arity = arity;
+        }
+
+        @Override
+        public net.sf.saxon.s9api.QName getName() {
+            return new net.sf.saxon.s9api.QName(namespace, localName);
+        }
+
+        @Override
+        public net.sf.saxon.s9api.SequenceType[] getArgumentTypes() {
+            net.sf.saxon.s9api.SequenceType any = net.sf.saxon.s9api.SequenceType
+                    .makeSequenceType(net.sf.saxon.s9api.ItemType.ANY_ITEM,
+                            net.sf.saxon.s9api.OccurrenceIndicator.ZERO_OR_MORE);
+            net.sf.saxon.s9api.SequenceType[] arr = new net.sf.saxon.s9api.SequenceType[arity];
+            for (int i = 0; i < arity; i++) arr[i] = any;
+            return arr;
+        }
+
+        @Override
+        public net.sf.saxon.s9api.SequenceType getResultType() {
+            // Be permissive on result typing as well
+            return net.sf.saxon.s9api.SequenceType
+                    .makeSequenceType(net.sf.saxon.s9api.ItemType.ANY_ITEM,
+                            net.sf.saxon.s9api.OccurrenceIndicator.ZERO_OR_MORE);
+        }
+
+        @Override
+        public net.sf.saxon.s9api.XdmValue call(net.sf.saxon.s9api.XdmValue[] arguments) throws net.sf.saxon.s9api.SaxonApiException {
+            try {
+                Object[] args = buildJavaArgs(arguments);
+                Object result = method.invoke(null, args);
+                return toXdmValue(result);
+            } catch (java.lang.reflect.InvocationTargetException ite) {
+                Throwable cause = ite.getTargetException() != null ? ite.getTargetException() : ite;
+                throw new net.sf.saxon.s9api.SaxonApiException("Error in extension function '" + method.getName() + "': " + cause.getMessage(), cause);
+            } catch (Exception e) {
+                throw new net.sf.saxon.s9api.SaxonApiException("Failed to invoke extension function '" + method.getName() + "'", e);
+            }
+        }
+
+        private Object[] buildJavaArgs(net.sf.saxon.s9api.XdmValue[] arguments) throws Exception {
+            Class<?>[] params = method.getParameterTypes();
+            boolean isVarArgs = method.isVarArgs();
+
+            if (!isVarArgs) {
+                Object[] out = new Object[params.length];
+                for (int i = 0; i < params.length; i++) {
+                    out[i] = fromXdm(arguments[i], params[i]);
+                }
+                return out;
+            } else {
+                int fixed = params.length - 1;
+                Object[] out = new Object[params.length];
+                for (int i = 0; i < fixed; i++) {
+                    out[i] = fromXdm(arguments[i], params[i]);
+                }
+                // Collect remaining args into the varargs array
+                Class<?> comp = params[params.length - 1].getComponentType();
+                int varCount = Math.max(0, arguments.length - fixed);
+                Object varArray = java.lang.reflect.Array.newInstance(comp, varCount);
+                for (int i = 0; i < varCount; i++) {
+                    Object v = fromXdm(arguments[fixed + i], comp);
+                    java.lang.reflect.Array.set(varArray, i, v);
+                }
+                out[out.length - 1] = varArray;
+                return out;
+            }
+        }
+
+        // Type mapping helpers removed; using ANY_SEQUENCE for resilience across versions.
+
+        private static net.sf.saxon.s9api.XdmValue toXdmValue(Object result) {
+            if (result == null) return net.sf.saxon.s9api.XdmEmptySequence.getInstance();
+            if (result instanceof net.sf.saxon.s9api.XdmValue) return (net.sf.saxon.s9api.XdmValue) result;
+            if (result instanceof String) return new net.sf.saxon.s9api.XdmAtomicValue((String) result);
+            if (result instanceof Integer) return new net.sf.saxon.s9api.XdmAtomicValue(((Integer) result).longValue());
+            if (result instanceof Long) return new net.sf.saxon.s9api.XdmAtomicValue(((Long) result).longValue());
+            if (result instanceof Double) return new net.sf.saxon.s9api.XdmAtomicValue(((Double) result).doubleValue());
+            if (result instanceof Boolean) return new net.sf.saxon.s9api.XdmAtomicValue(((Boolean) result).booleanValue());
+            if (result instanceof org.w3c.dom.Node) {
+                // Serialize DOM node to string for portability
+                try {
+                    javax.xml.transform.TransformerFactory tf = javax.xml.transform.TransformerFactory.newInstance();
+                    javax.xml.transform.Transformer t = tf.newTransformer();
+                    java.io.StringWriter sw = new java.io.StringWriter();
+                    t.transform(new javax.xml.transform.dom.DOMSource((org.w3c.dom.Node) result), new javax.xml.transform.stream.StreamResult(sw));
+                    return new net.sf.saxon.s9api.XdmAtomicValue(sw.toString());
+                } catch (Exception e) {
+                    return new net.sf.saxon.s9api.XdmAtomicValue("");
+                }
+            }
+            // Generic fallback to string
+            return new net.sf.saxon.s9api.XdmAtomicValue(String.valueOf(result));
+        }
+
+        private static Object fromXdm(net.sf.saxon.s9api.XdmValue value, Class<?> target) throws Exception {
+            if (target == String.class) {
+                if (value == null || value.size() == 0) return "";
+                for (net.sf.saxon.s9api.XdmItem it : value) { return it.getStringValue(); }
+                return "";
+            }
+            if (target == int.class || target == Integer.class) {
+                if (value == null || value.size() == 0) return (target == Integer.class ? null : 0);
+                String s = ""; for (net.sf.saxon.s9api.XdmItem it : value) { s = it.getStringValue(); break; }
+                return Integer.parseInt(s);
+            }
+            if (target == long.class || target == Long.class) {
+                if (value == null || value.size() == 0) return (target == Long.class ? null : 0L);
+                String s = ""; for (net.sf.saxon.s9api.XdmItem it : value) { s = it.getStringValue(); break; }
+                return Long.parseLong(s);
+            }
+            if (target == double.class || target == Double.class) {
+                if (value == null || value.size() == 0) return (target == Double.class ? null : 0d);
+                String s = ""; for (net.sf.saxon.s9api.XdmItem it : value) { s = it.getStringValue(); break; }
+                return Double.parseDouble(s);
+            }
+            if (target == boolean.class || target == Boolean.class) {
+                if (value == null || value.size() == 0) return (target == Boolean.class ? null : false);
+                String s = ""; for (net.sf.saxon.s9api.XdmItem it : value) { s = it.getStringValue(); break; }
+                return Boolean.parseBoolean(s);
+            }
+            if (target == org.w3c.dom.Node.class) {
+                if (value == null || value.size() == 0) return null;
+                if (value instanceof net.sf.saxon.s9api.XdmNode) {
+                    javax.xml.transform.Source src = ((net.sf.saxon.s9api.XdmNode) value).asSource();
+                    javax.xml.transform.TransformerFactory tf = javax.xml.transform.TransformerFactory.newInstance();
+                    javax.xml.transform.Transformer tr = tf.newTransformer();
+                    javax.xml.transform.dom.DOMResult res = new javax.xml.transform.dom.DOMResult();
+                    tr.transform(src, res);
+                    return res.getNode();
+                }
+                // Fallback: try to parse string as XML
+                String xml = ""; for (net.sf.saxon.s9api.XdmItem it : value) { xml = it.getStringValue(); break; }
+                javax.xml.parsers.DocumentBuilderFactory dbf = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+                dbf.setNamespaceAware(true);
+                return dbf.newDocumentBuilder().parse(new org.xml.sax.InputSource(new java.io.StringReader(xml)));
+            }
+            if (target.isArray() && target.getComponentType() == String.class) {
+                // Expect a sequence of strings in a single argument
+                if (value == null || value.size() == 0) return new String[0];
+                java.util.List<String> items = new java.util.ArrayList<>();
+                for (net.sf.saxon.s9api.XdmItem it : value) {
+                    items.add(it.getStringValue());
+                }
+                return items.toArray(new String[0]);
+            }
+            // Default to string conversion
+            if (value == null || value.size() == 0) return null;
+            for (net.sf.saxon.s9api.XdmItem it : value) { return it.getStringValue(); }
+            return null;
+        }
+    }
 }

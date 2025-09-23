@@ -2,7 +2,7 @@
 FROM golang:1.23-alpine AS builder
 
 # Instalar dependencias necesarias
-RUN apk add --no-cache git openjdk17
+RUN apk add --no-cache git openjdk17 curl
 
 # Establecer directorio de trabajo
 WORKDIR /app/src
@@ -21,8 +21,10 @@ RUN go mod init xslt-playground && \
 # Build extension functions jar
 WORKDIR /app/ext
 COPY ext/ .
-RUN javac com/xsltplayground/ext/CustomFunctions.java && \
-    jar cf custom-functions.jar com/xsltplayground/ext/CustomFunctions.class
+RUN mkdir -p /tmp/saxon && \
+    curl -L -o /tmp/saxon/saxon-he.jar https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/11.6/Saxon-HE-11.6.jar && \
+    javac -cp /tmp/saxon/saxon-he.jar com/xsltplayground/ext/CustomFunctions.java com/xsltplayground/Runner.java && \
+    jar cf custom-functions.jar com
 
 WORKDIR /app/src
 

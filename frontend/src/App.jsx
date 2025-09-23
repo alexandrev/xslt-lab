@@ -15,6 +15,31 @@ import Buymeacoffee from "./BuyMeACoffee";
 const PARAM_START = "<!--PARAMS_START-->";
 const PARAM_END = "<!--PARAMS_END-->";
 
+function parseErrorLines(txt) {
+  if (!txt) return [];
+  const starts = [];
+  const regex = /(^|\r?\n)(Warning|Error)\b/g; // tokens at start or after newline
+  let m;
+  while ((m = regex.exec(txt)) !== null) {
+    const start = m.index + (m[1] ? m[1].length : 0);
+    starts.push(start);
+  }
+  if (starts.length === 0) {
+    return [txt.trim()].filter(Boolean);
+  }
+  const lines = [];
+  // Any leading text before the first token as its own entry
+  const leading = txt.slice(0, starts[0]).trim();
+  if (leading) lines.push(leading);
+  for (let i = 0; i < starts.length; i++) {
+    const s = starts[i];
+    const e = i + 1 < starts.length ? starts[i + 1] : txt.length;
+    const chunk = txt.slice(s, e).trim();
+    if (chunk) lines.push(chunk);
+  }
+  return lines;
+}
+
 function stripParamBlock(text) {
   const start = text.indexOf(PARAM_START);
   const end = text.indexOf(PARAM_END);
@@ -117,23 +142,33 @@ function defaultTab() {
 }
 
 export default function App() {
-  const [tabs, setTabs] = useState(() => {
-    if (goPro) {
-      try {
-        const stored = sessionStorage.getItem("tabs");
-        if (stored) return JSON.parse(stored);
-      } catch {}
-    }
-    return [defaultTab()];
-  });
-  const [active, setActive] = useState(() => tabs[0].id);
+  // Load persisted workspace from localStorage (if present)
+  let initialTabs = [defaultTab()];
+  try {
+    const stored = localStorage.getItem("tabs");
+    if (stored) initialTabs = JSON.parse(stored);
+  } catch {}
+  let initialActive = initialTabs[0]?.id;
+  try {
+    const sAct = localStorage.getItem("active");
+    if (sAct) initialActive = JSON.parse(sAct);
+  } catch {}
+
+  const [tabs, setTabs] = useState(initialTabs);
+  const [active, setActive] = useState(initialActive);
   const [editorFocused, setEditorFocused] = useState(false);
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
+  const [errorLines, setErrorLines] = useState([]);
   const [duration, setDuration] = useState(null);
   const [user, setUser] = useState(null);
   const [auth, setAuth] = useState(null);
   const resultEditorRef = useRef(null);
+  const [traceEnabled, setTraceEnabled] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("traceEnabled") || "false"); } catch { return false; }
+  });
+  const [traceEntries, setTraceEntries] = useState([]);
+  const [traceCollapsed, setTraceCollapsed] = useState(false);
 
   const backendBase = (env.VITE_BACKEND_URL || "").replace(/\/$/, "");
   console.log("Using this URL as backendURL:", backendBase);
@@ -143,12 +178,17 @@ export default function App() {
     ga4react.initialize().catch(err => console.error(err));
  }, []);
 
+  // Persist workspace on change
   useEffect(() => {
-    if (goPro) {
-      sessionStorage.setItem("tabs", JSON.stringify(tabs));
-    }
-    
-  }, [tabs]);
+    try {
+      localStorage.setItem("tabs", JSON.stringify(tabs));
+      localStorage.setItem("active", JSON.stringify(active));
+    } catch {}
+  }, [tabs, active]);
+
+  useEffect(() => {
+    try { localStorage.setItem("traceEnabled", JSON.stringify(traceEnabled)); } catch {}
+  }, [traceEnabled]);
 
   useEffect(() => {
     if (!goPro) return;
@@ -203,23 +243,44 @@ export default function App() {
           xslt: xsltText,
           version: ver,
           parameters: paramObj,
+          trace: traceEnabled,
         }),
       });
       if (!res.ok) {
-        const txt = await res.text();
+        let txt = "";
+        try {
+          // Prefer JSON to decode escaped newlines (\n)
+          const j = await res.json();
+          if (j && typeof j.error === "string") {
+            txt = j.error;
+          } else {
+            txt = JSON.stringify(j);
+          }
+        } catch {
+          // Fallback to raw text
+          txt = await res.text();
+        }
+        const lines = parseErrorLines(txt || res.statusText || "");
         setError(txt || res.statusText);
+        setErrorLines(lines);
         setDuration(null);
         setResult("");
+        setTraceEntries([]);
         return;
       }
       const data = await res.json();
       setResult(data.result);
       setDuration(data.duration_ms);
       setError("");
+      setErrorLines([]);
+      setTraceEntries(traceEnabled ? (data.trace || []) : []);
     } catch (e) {
-      setError(String(e));
+      const txt = String(e);
+      setError(txt);
+      setErrorLines(parseErrorLines(txt));
       setResult("");
       setDuration(null);
+      setTraceEntries([]);
     }
   }, 500);
 
@@ -229,7 +290,7 @@ export default function App() {
       activeTab.version,
       activeTab.params,
     );
-  }, [activeTab]);
+  }, [activeTab, traceEnabled]);
 
   useEffect(() => {
     syncParams();
@@ -339,6 +400,26 @@ export default function App() {
           <strong>xsltplayground.com</strong>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <button
+            className="icon-button"
+            title="Clear workspace"
+            onClick={() => {
+              if (window.confirm("¿Limpiar el workspace? Se perderán los cambios no guardados.")) {
+                const nt = { ...defaultTab(), params: [] };
+                setTabs([nt]);
+                setActive(nt.id);
+                setResult("");
+                setError("");
+                setErrorLines([]);
+                try {
+                  localStorage.removeItem("tabs");
+                  localStorage.removeItem("active");
+                } catch {}
+              }
+            }}
+          >
+            🧹
+          </button>
           {goPro && auth && (
             <div>
               {user ? (
@@ -450,6 +531,10 @@ export default function App() {
               <option value="1.0">XSLT 1.0</option>
               <option value="2.0">XSLT 2.0</option>
             </select>
+            <label style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", marginLeft: "0.5rem" }}>
+              <input type="checkbox" checked={traceEnabled} onChange={(e) => setTraceEnabled(e.target.checked)} />
+              Trace
+            </label>
             <div className="right-actions">
               <label className="icon-button file-label">
                 📤
@@ -483,40 +568,93 @@ export default function App() {
               </button>
             </div>
           </div>
-          <Editor
-            height="100%"
-            language="xml"
-            wrapperProps={{
-              onDragOver: (e) => e.preventDefault(),
-              onDrop: (e) =>
-                handleDrop(e, (t) =>
+          <div className="editor-split">
+            <div className="xslt-editor-wrap">
+              <Editor
+                height="100%"
+                language="xml"
+                wrapperProps={{
+                  onDragOver: (e) => e.preventDefault(),
+                  onDrop: (e) =>
+                    handleDrop(e, (t) =>
+                      setTabs((tabs) =>
+                        tabs.map((tab) =>
+                          tab.id === active ? { ...tab, xslt: stripParamBlock(t), params: addParams(t,tab) } : tab,
+                        ),
+                      ),
+                    ),
+                }}
+                value={editorFocused ? activeTab.xslt : injectParamBlock(activeTab.xslt, activeTab.params)}
+                onChange={(v) =>
                   setTabs((tabs) =>
                     tabs.map((tab) =>
-                      tab.id === active ? { ...tab, xslt: stripParamBlock(t), params: addParams(t,tab) } : tab,
+                      tab.id === active ? { ...tab, xslt: stripParamBlock(v || ""), params: addParams(v,tab) } : tab,
                     ),
-                  ),
-                ),
-            }}
-            value={editorFocused ? activeTab.xslt : injectParamBlock(activeTab.xslt, activeTab.params)}
-            onChange={(v) =>
-              setTabs((tabs) =>
-                tabs.map((tab) =>
-                  tab.id === active ? { ...tab, xslt: stripParamBlock(v || ""), params: addParams(v,tab) } : tab,
-                ),
-              )
-            }
-            onFocus={() => setEditorFocused(true)}
-            onBlur={() => {
-              setEditorFocused(false);
-              syncParams();
-            }}
-            options={{ minimap: { enabled: false }, automaticLayout: true }}
-          />
+                  )
+                }
+                onFocus={() => setEditorFocused(true)}
+                onBlur={() => {
+                  setEditorFocused(false);
+                  syncParams();
+                }}
+                options={{ minimap: { enabled: false }, automaticLayout: true }}
+              />
+            </div>
+            {traceEnabled && (
+              <div className="trace-panel" style={{ width: traceCollapsed ? '2rem' : '30%' }}>
+                <div className="trace-header" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <button
+                    className="icon-button"
+                    title={traceCollapsed ? 'Show trace' : 'Hide trace'}
+                    onClick={() => setTraceCollapsed(v => !v)}
+                    aria-label={traceCollapsed ? 'Show trace panel' : 'Hide trace panel'}
+                  >
+                    {traceCollapsed ? '▶' : '▼'}
+                  </button>
+                  {!traceCollapsed && (
+                    <span style={{ fontWeight: 'bold' }}>
+                      Trace Variables {traceEntries.length ? `(${traceEntries.length})` : ''}
+                    </span>
+                  )}
+                </div>
+                {!traceCollapsed && (
+                  <table className="trace-table">
+                    <tbody>
+                      {traceEntries.map((t, i) => (
+                        <tr key={i}>
+                          <td className="trace-name">{t.name}</td>
+                          <td className="trace-value">{t.value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <div className="result" style={{ position: "relative" }}>
         {error ? (
-          <div className="error-box">{error}</div>
+          <div className="error-box">
+            {errorLines && errorLines.length > 0 ? (
+              <table className="error-table">
+                <tbody>
+                  {errorLines.map((l, i) => (
+                    <tr key={i} className="error-row">
+                      <td className="error-icon" aria-hidden>🚨</td>
+                      <td className="error-text">{l}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="error-line">
+                <span className="error-icon" aria-hidden>🚨</span>
+                <span className="error-text">{error}</span>
+              </div>
+            )}
+          </div>
         ) : (
           duration !== null && (
             <div className="success-box">Success in {duration} ms</div>
