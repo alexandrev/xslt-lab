@@ -16,6 +16,8 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Node;
 
 public class CustomFunctions {
+    private static final String NAMESPACE_URI = "http://www.tibco.com/bw/xslt/custom-functions";
+
     public static String uuid() {
         return UUID.randomUUID().toString();
     }
@@ -387,12 +389,12 @@ public class CustomFunctions {
     // Saxon HE integration
     // ---------------------------------------------------------------------
     // Saxon-HE doesn't support reflexive java: calls. To keep XSLT unchanged
-    // (e.g., xmlns:java="java:com.xsltplayground.ext.CustomFunctions" and
-    // java:uuid()), register integrated extension functions programmatically.
+    // (e.g., xmlns:tib="http://www.tibco.com/bw/xslt/custom-functions" and
+    // tib:uuid()), register integrated extension functions programmatically.
     // Call CustomFunctions.registerAll(processor) once during initialization.
 
     public static void registerAll(net.sf.saxon.s9api.Processor processor) {
-        final String namespace = "java:" + CustomFunctions.class.getName();
+        final String namespace = NAMESPACE_URI;
 
         java.lang.reflect.Method[] methods = CustomFunctions.class.getDeclaredMethods();
         for (java.lang.reflect.Method m : methods) {

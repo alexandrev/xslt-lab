@@ -10,19 +10,15 @@ WORKDIR /app/src
 # Copiar los archivos
 COPY src/ .
 
-RUN rm -rf go.mod go.sum
-
 # Compilar el binario estático
-RUN go mod init xslt-playground && \
-    go get github.com/gin-gonic/gin && \
-    go mod tidy && \
+RUN go mod tidy && \
     go build -o server .
 
 # Build extension functions jar
 WORKDIR /app/ext
 COPY ext/ .
 RUN mkdir -p /tmp/saxon && \
-    curl -L -o /tmp/saxon/saxon-he.jar https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/11.6/Saxon-HE-11.6.jar && \
+    curl -L -o /tmp/saxon/saxon-he.jar https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/12.5/Saxon-HE-12.5.jar && \
     javac -cp /tmp/saxon/saxon-he.jar com/xsltplayground/ext/CustomFunctions.java com/xsltplayground/Runner.java && \
     jar cf custom-functions.jar com
 
@@ -43,7 +39,7 @@ COPY app.config .
 
 # Crear carpeta para Saxon y descargarlo
 RUN mkdir -p /opt/saxon && \
-    curl -L -o /opt/saxon/saxon-he.jar https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/11.6/Saxon-HE-11.6.jar && \
+    curl -L -o /opt/saxon/saxon-he.jar https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/12.5/Saxon-HE-12.5.jar && \
     curl -L -o /opt/saxon/xmlresolver.jar https://repo1.maven.org/maven2/org/xmlresolver/xmlresolver/4.5.0/xmlresolver-4.5.0.jar
 
 # Extension functions jar

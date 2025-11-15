@@ -270,55 +270,67 @@ func main() {
 		duration := time.Since(start).Milliseconds()
 		log.Printf("transformation done in %dms", duration)
 
-        var traceEntries []TraceEntry
-        var traceText string
-        if req.Trace {
-            // Load trace text from file (preferred) or stderr
-            if tracePath != "" {
-                if data, err := os.ReadFile(tracePath); err == nil {
-                    traceText = string(data)
-                }
-            }
-            if traceText == "" {
-                traceText = stderr.String()
-            }
+		var traceEntries []TraceEntry
+		var traceText string
+		if req.Trace {
+			// Load trace text from file (preferred) or stderr
+			if tracePath != "" {
+				if data, err := os.ReadFile(tracePath); err == nil {
+					traceText = string(data)
+					log.Printf("trace file %s size=%d bytes", tracePath, len(traceText))
+				} else {
+					log.Printf("trace read error: %v", err)
+				}
+			}
+			if traceText == "" {
+				traceText = stderr.String()
+				if traceText != "" {
+					log.Printf("trace fallback from stderr size=%d bytes", len(traceText))
+				}
+			}
 
-            // Parse block-based variable traces and legacy single-line ones
-            lines := strings.Split(traceText, "\n")
-            capturing := false
-            var currName string
-            var buf []string
-            for _, l := range lines {
-                if strings.HasPrefix(l, "TRACE_VAR_START|") {
-                    capturing = true
-                    currName = strings.TrimPrefix(l, "TRACE_VAR_START|")
-                    buf = nil
-                    continue
-                }
-                if strings.HasPrefix(l, "TRACE_VAR_END") {
-                    if capturing {
-                        value := strings.Join(buf, "\n")
-                        traceEntries = append(traceEntries, TraceEntry{Name: currName, Value: value})
-                    }
-                    capturing = false
-                    currName = ""
-                    buf = nil
-                    continue
-                }
-                if capturing {
-                    buf = append(buf, l)
-                    continue
-                }
-                if strings.HasPrefix(l, "TRACE_VAR|") {
-                    parts := strings.SplitN(l, "|", 3)
-                    if len(parts) == 3 {
-                        traceEntries = append(traceEntries, TraceEntry{Name: parts[1], Value: parts[2]})
-                    }
-                }
-            }
-        }
+			// Parse block-based variable traces and legacy single-line ones
+			lines := strings.Split(traceText, "\n")
+			filtered := make([]string, 0, len(lines))
+			capturing := false
+			var currName string
+			var buf []string
+			for _, l := range lines {
+				if strings.HasPrefix(l, "TRACE_DEBUG") {
+					continue
+				}
+				filtered = append(filtered, l)
+				if strings.HasPrefix(l, "TRACE_VAR_START|") {
+					capturing = true
+					currName = strings.TrimPrefix(l, "TRACE_VAR_START|")
+					buf = nil
+					continue
+				}
+				if strings.HasPrefix(l, "TRACE_VAR_END") {
+					if capturing {
+						value := strings.Join(buf, "\n")
+						traceEntries = append(traceEntries, TraceEntry{Name: currName, Value: value})
+					}
+					capturing = false
+					currName = ""
+					buf = nil
+					continue
+				}
+				if capturing {
+					buf = append(buf, l)
+					continue
+				}
+				if strings.HasPrefix(l, "TRACE_VAR|") {
+					parts := strings.SplitN(l, "|", 3)
+					if len(parts) == 3 {
+						traceEntries = append(traceEntries, TraceEntry{Name: parts[1], Value: parts[2]})
+					}
+				}
+			}
+			traceText = strings.Join(filtered, "\n")
+		}
 
-        c.JSON(http.StatusOK, TransformResponse{Result: string(result), DurationMs: duration, Trace: traceEntries, TraceText: traceText})
+		c.JSON(http.StatusOK, TransformResponse{Result: string(result), DurationMs: duration, Trace: traceEntries, TraceText: traceText})
 	})
 
 	r.GET("/", func(c *gin.Context) {
