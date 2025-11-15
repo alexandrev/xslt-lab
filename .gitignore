@@ -199,3 +199,6 @@ backend/server
 backend/src/.gocache
 /config/credentials.json
 credentials.json
+# Allow frontend source utilities
+!frontend/src/lib/
+!frontend/src/lib/**
