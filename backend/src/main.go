@@ -28,11 +28,19 @@ type TransformRequest struct {
 	XSLT       string            `json:"xslt"`
 	Version    string            `json:"version"`
 	Parameters map[string]string `json:"parameters"`
+	Trace      bool              `json:"trace"`
 }
 
 type TransformResponse struct {
-	Result     string `json:"result"`
-	DurationMs int64  `json:"duration_ms"`
+	Result     string       `json:"result"`
+	DurationMs int64        `json:"duration_ms"`
+	Trace      []TraceEntry `json:"trace,omitempty"`
+	TraceText  string       `json:"trace_text,omitempty"`
+}
+
+type TraceEntry struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }
 
 type AppConfig struct {
@@ -184,19 +192,50 @@ func main() {
 		cmdArgs = append(cmdArgs,
 			"-cp",
 			config.SaxonClasspath,
-			"net.sf.saxon.Transform",
+			"com.xsltplayground.Runner",
 			"-s:"+inputPath,
 			"-xsl:"+xsltPath,
 			"-o:"+outputPath,
 		)
-		for k, v := range req.Parameters {
-			cmdArgs = append(cmdArgs, fmt.Sprintf("%s=%s", k, v))
+
+		var tracePath string
+		if req.Trace {
+			// Enable Runner instrumentation and capture trace output
+			cmdArgs = append(cmdArgs, "-trace")
+			// Provide a trace output file to capture Saxon messages
+			tracePath = filepath.Join(tmpDir, "trace.log")
+			cmdArgs = append(cmdArgs, "-traceout:"+tracePath)
+			// Also enable Saxon CLI tracing flag for richer diagnostics
+			cmdArgs = append(cmdArgs, "-T")
 		}
+
+		log.Printf("+++++++++++++ msg %s", strings.Join(cmdArgs, "\n"))
+
+		idx := 0
+		for k, v := range req.Parameters {
+			paramFile := filepath.Join(tmpDir, fmt.Sprintf("param_%d", idx))
+			if err := os.WriteFile(paramFile, []byte(v), 0644); err != nil {
+				log.Printf("write parameter %s failed: %v", k, err)
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write parameter"})
+				return
+			}
+			// Heuristic check: if value looks like XML (starts with '<' and ends with '>'), treat it as file-based
+			trimmed := strings.TrimSpace(v)
+			if strings.HasPrefix(trimmed, "&lt;") || strings.HasPrefix(trimmed, "<") {
+				cmdArgs = append(cmdArgs, fmt.Sprintf("+%s=%s", k, paramFile))
+			} else {
+				cmdArgs = append(cmdArgs, fmt.Sprintf("%s=%s", k, v))
+			}
+			idx++
+		}
+
 		if err := os.WriteFile(argsPath, []byte(strings.Join(cmdArgs, "\n")), 0644); err != nil {
 			log.Printf("write args file failed: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write args"})
 			return
 		}
+
+		log.Printf("+++++++++++++ msg %s", strings.Join(cmdArgs, "\n"))
 
 		cmd := exec.Command("java", "@"+argsPath)
 		var stderr bytes.Buffer
@@ -230,7 +269,68 @@ func main() {
 
 		duration := time.Since(start).Milliseconds()
 		log.Printf("transformation done in %dms", duration)
-		c.JSON(http.StatusOK, TransformResponse{Result: string(result), DurationMs: duration})
+
+		var traceEntries []TraceEntry
+		var traceText string
+		if req.Trace {
+			// Load trace text from file (preferred) or stderr
+			if tracePath != "" {
+				if data, err := os.ReadFile(tracePath); err == nil {
+					traceText = string(data)
+					log.Printf("trace file %s size=%d bytes", tracePath, len(traceText))
+				} else {
+					log.Printf("trace read error: %v", err)
+				}
+			}
+			if traceText == "" {
+				traceText = stderr.String()
+				if traceText != "" {
+					log.Printf("trace fallback from stderr size=%d bytes", len(traceText))
+				}
+			}
+
+			// Parse block-based variable traces and legacy single-line ones
+			lines := strings.Split(traceText, "\n")
+			filtered := make([]string, 0, len(lines))
+			capturing := false
+			var currName string
+			var buf []string
+			for _, l := range lines {
+				if strings.HasPrefix(l, "TRACE_DEBUG") {
+					continue
+				}
+				filtered = append(filtered, l)
+				if strings.HasPrefix(l, "TRACE_VAR_START|") {
+					capturing = true
+					currName = strings.TrimPrefix(l, "TRACE_VAR_START|")
+					buf = nil
+					continue
+				}
+				if strings.HasPrefix(l, "TRACE_VAR_END") {
+					if capturing {
+						value := strings.Join(buf, "\n")
+						traceEntries = append(traceEntries, TraceEntry{Name: currName, Value: value})
+					}
+					capturing = false
+					currName = ""
+					buf = nil
+					continue
+				}
+				if capturing {
+					buf = append(buf, l)
+					continue
+				}
+				if strings.HasPrefix(l, "TRACE_VAR|") {
+					parts := strings.SplitN(l, "|", 3)
+					if len(parts) == 3 {
+						traceEntries = append(traceEntries, TraceEntry{Name: parts[1], Value: parts[2]})
+					}
+				}
+			}
+			traceText = strings.Join(filtered, "\n")
+		}
+
+		c.JSON(http.StatusOK, TransformResponse{Result: string(result), DurationMs: duration, Trace: traceEntries, TraceText: traceText})
 	})
 
 	r.GET("/", func(c *gin.Context) {

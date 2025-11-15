@@ -196,5 +196,6 @@ cython_debug/
 frontend/node_modules
 frontend/dist
 backend/server
+backend/src/.gocache
 /config/credentials.json
 credentials.json

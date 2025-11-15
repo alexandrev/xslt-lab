@@ -2,6 +2,11 @@
 
 Your Lab for XSLT Transformation.
 
+## News & Releases
+
+- Follow updates on the GitHub Pages blog: [alexandrev.github.io/xslt-lab](https://alexandrev.github.io/xslt-lab/).
+- Review detailed changes in [CHANGELOG.md](https://github.com/alexandrev/xslt-lab/blob/main/CHANGELOG.md).
+
 ## Frontend
 
 The React/Vite frontend lives in `frontend/`. Use `npm install` inside that folder and run:
@@ -25,10 +30,14 @@ containerized version the URL is now read at **runtime** from environment
 variables so you can configure it directly in the pod.
 
 When `VITE_GO_PRO=true` the UI exposes additional features like Google
-authentication and multiple transformation tabs. For authentication you must
+authentication. For authentication you must
 provide Firebase configuration via `VITE_FIREBASE_CONFIG` containing the JSON
 object used by `initializeApp`.
 Set `VITE_GA_ID` to enable Google Analytics tracking.
+
+The playground keeps up to three independent workspaces (tabs). Each workspace
+persists its own inputs, trace output, errors and results, and you can export or
+import them as JSON files to share setups easily.
 
 ### Docker
 
@@ -66,6 +75,13 @@ docker build -t xslt-playground-backend backend
 By default it listens on port `8000` as configured in `backend/app.config`.
 The same file sets `saxon_classpath` so the Java process can load Saxon and
 its dependencies from `/opt/saxon/*`.
+
+The backend image also builds a small jar with custom Saxon extension
+functions. It gets copied to `/opt/saxon/custom-functions.jar` during the
+Docker build. You can call these from XSLT using the namespace
+`xmlns:tib="http://www.tibco.com/bw/xslt/custom-functions"`. The jar exposes
+many helper functions such as `tib:uuid()`, `tib:timestamp()` and
+`tib:addToDate()`.
 
 ### Environment
 
@@ -141,4 +157,3 @@ helm install xslt charts/xslt-playground
 # helm install xslt charts/xslt-playground --set firebase.enabled=false
 # helm install xslt charts/xslt-playground --set storage.enabled=false
 ```
-
