@@ -27,5 +27,5 @@ lead = "Articles, release notes, and pointers to the Helm repo all live here. Bu
 
   [[menu.main]]
   name = "Charts"
-  url = "https://alexandrev.github.io/xslt-lab/charts/index.yaml"
+  url = "https://alexandrev.github.io/xslt-lab/index.yaml"
   weight = 4

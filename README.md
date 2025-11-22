@@ -3,8 +3,8 @@
 This repository hosts the Helm chart for the XSLT playground and now includes a Hugo-powered site for docs and updates.
 
 ## Layout
-- `charts/` – Helm repository index and supporting assets (served as-is via GitHub Pages with `.nojekyll`).
-- `xslt-playground-0.1.2.tgz` – packaged Helm chart referenced from `charts/index.yaml`.
+- `index.yaml` – Helm repository index (served as-is via GitHub Pages with `.nojekyll`).
+- `xslt-playground-0.1.2.tgz` – packaged Helm chart referenced from `index.yaml`.
 - `site/` – Hugo source (content, layouts, CSS). Publishes to `docs/`.
 - `docs/` – will contain generated static files after running Hugo; commit this folder if you want GitHub Pages to serve the site.
 
