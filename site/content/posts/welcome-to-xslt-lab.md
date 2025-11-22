@@ -2,6 +2,7 @@
 title: "Welcome to the XSLT Playground blog"
 description: "What you will find here and how it helps you get more from the online XSLT editor."
 date: 2025-02-28T00:00:00Z
+---
 
 [XSLT Playground](https://xsltplayground.com) is a browser-first XSLT editor that lets you run transforms with multiple inputs and parameters, see results instantly, and spot performance hotspots without installing anything. This blog gathers the practical pieces you need around it.
 
