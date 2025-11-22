@@ -1,15 +1,14 @@
 ---
-title: "Welcome to the XSLT Lab site"
-description: "A short walkthrough of what this Hugo site gives you."
+title: "Welcome to the XSLT Playground blog"
+description: "What you will find here and how it helps you get more from the online XSLT editor."
 date: 2025-02-28T00:00:00Z
----
 
-This repo now contains a Hugo site so you can publish notes, guides, and announcements next to the Helm chart.
+[XSLT Playground](https://xsltplayground.com) is a browser-first XSLT editor that lets you run transforms with multiple inputs and parameters, see results instantly, and spot performance hotspots without installing anything. This blog gathers the practical pieces you need around it.
 
-What you get:
+What you will find here:
 
-- A landing page that links to the chart index.
-- A posts section for updates and long-form guides.
-- A configurable menu and simple styling that lives entirely in this repo.
+- Product updates and release notes for the playground.
+- XSLT debugging recipes tailored to multi-parameter, real-world scenarios.
+- Deployment notes, including the Helm chart and self-hosting guidance.
 
-Run `hugo --source site --minify` to generate the static site into `docs/`, commit the output, and point GitHub Pages at the `docs` folder to go live.
+If you want to try it now, head straight to [xsltplayground.com](https://xsltplayground.com). If you want to contribute content, edit the Markdown in `site/content/` and rebuild the site with `hugo --source site --minify` to publish to `docs/`.

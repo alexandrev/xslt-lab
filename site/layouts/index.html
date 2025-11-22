@@ -1,23 +1,24 @@
 {{ define "main" }}
 <section class="hero">
-  <p class="eyebrow">Static Site + Helm Repo</p>
+  <p class="eyebrow">Online XSLT Editor</p>
   <h1>{{ .Title }}</h1>
   <p class="lead">{{ .Params.description | default .Site.Params.lead }}</p>
   <div class="cta-row">
-    <a class="button" href="{{ "/posts/" | relURL }}">Read updates</a>
-    <a class="button ghost" href="{{ "/charts/index.yaml" | relURL }}">Helm repo index</a>
+    <a class="button" href="https://xsltplayground.com">Open the playground</a>
+    <a class="button ghost" href="{{ "/posts/" | relURL }}">Read updates</a>
+    <a class="button ghost" href="https://alexandrev.github.io/xslt-lab/index.yaml">Helm chart index</a>
   </div>
 </section>
 
 <section class="grid">
   <article class="card">
-    <p class="eyebrow">How this fits</p>
-    <h2>Side-by-side with your chart</h2>
-    <p>The Hugo source lives in <code>site/</code> and publishes to <code>docs/</code>, keeping the existing chart index and packages intact.</p>
+    <p class="eyebrow">How the playground helps</p>
+    <h2>Built for real XSLT work</h2>
+    <p>Run XSLT online with multiple inputs and parameters, see results as you type, and get timing hints to spot regressions before they hit production.</p>
     <ul class="checks">
-      <li>Markdown content</li>
-      <li>No external theme dependency</li>
-      <li>Ready for GitHub Pages</li>
+      <li>Multi-parameter transforms</li>
+      <li>Live execution and inline output</li>
+      <li>Timing to guide optimization</li>
     </ul>
   </article>
   <article class="card">

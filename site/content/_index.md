@@ -1,6 +1,6 @@
 ---
-title: "XSLT Lab"
-description: "A Hugo-powered landing page that sits alongside the Helm chart repo."
+title: "XSLT Playground"
+description: "Run and debug XSLT online with multi-parameter inputs, timing, and a lightweight UX."
 ---
 
-Welcome! This site is generated with Hugo and lives in the `site/` directory so the existing Helm chart artifacts stay untouched. Build it locally or publish the generated `docs/` folder to GitHub Pages for a simple web presence.
+Welcome to the home of [XSLT Playground](https://xsltplayground.com): a browser-based XSLT editor built for real-world transforms. Find release notes, how-tos, and deployment tips (including Helm) that help you get the most out of the playground without a heavyweight IDE.

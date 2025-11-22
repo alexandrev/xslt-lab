@@ -1,13 +1,13 @@
 baseURL = "https://blog.xsltplayground.com/"
 languageCode = "en-us"
-title = "XSLT Lab"
+title = "XSLT Playground"
 paginate = 10
 publishDir = "../docs"
 enableRobotsTXT = true
 
 [params]
-subtitle = "Helm and XSLT playground with a lightweight docs site."
-lead = "Articles, release notes, and pointers to the Helm repo all live here. Build locally or publish from the docs folder without disturbing existing chart artifacts."
+subtitle = "Online XSLT editor built for real-world transformations."
+lead = "Run and debug XSLT online with multi-parameter inputs, timing hints, and fast feedback. This site hosts release notes, guides, and deployment options for XSLT Playground."
 
 [params.adsense]
 # Prefer setting ADSENSE_CLIENT and ADSENSE_INARTICLE_SLOT env vars when building if you don't want the values committed.

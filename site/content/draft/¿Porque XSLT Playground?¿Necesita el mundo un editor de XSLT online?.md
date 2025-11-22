@@ -1,0 +1,17 @@
+Desde el principio de mi experiencia profesional he estado muy ligado al mundo XPath y XSLT, principalmente por ser el estándar de transformación esencial del formato estándar durante gran parte de mi vida profesional, como es XML, pero siempre he sentido la necesidad de un editor xslt online potente que permita agilizar las tareas de depuración y optimización de las hojas XSLT.
+
+Durante mi carrera he utilizado o intentado diferentes editores para esta tarea. En mi carrera siempre tendrá un lugar especial XML Spy que a principios de los 2000 era como el editor de XML de referencia y permitía hacer una gran cantidad de tareas con los XML, pero la edición de los XSLT no era su fuerte.
+
+En momento opciones como JDeveloper, ese extinto IDE que tenia Oracle ofrecía algo bastante interesante desde el punto de vista de visualización de las hojas XSLT y poder ejecutarlas en aislamiento, cosas que luego cubriría la suite de Altova con productos como MapForce tambien, pero aun así, eran productos muy pesados que requerían de licencias y bastantes recursos para moverlas.
+
+Con la llegada del mundo web, los editores web simples para diferentes cuestiones cubrieron esa necesidad de un editor ligero que me permita hacer una tarea especifica de manera eficiente. No se si es algo generalizado, pero para mi sigo acudiendo a base64encoder para tratamiento de base64, o a epoch converter para la gestión de tiempos, o regex101 para la depuración de expresiones regulares.
+
+Luego ya con lenguajes mas complejos llegarons los diferentes playgrounds como JQ Playground para expresiones JQ y similares, y ahí es donde note que debería haber algo para XSLT. Y es que editores XSLT online existen, pero realmente no dan lo que creo que la gente que trabaja de manera continuo con XSLT necesita. Basicamente los editores se centran en una hoja XSLT que tiene un unico input relativamente sencillo y genera un output, ya esta.
+
+Pero normalmente cuando estas trabajando con XSLT la integración de diferentes fuentes de datos, es decir de diferentes parámetros, es fundamental, porque mas de una vez o especialmente si te dedicas a cuestiones de integración empresarial necesitas tener mas de una fuente, y eso simplemente no existe en el "mercado de editores xslt online".
+
+SI luego le sumamos la capacidad de que se vaya generando la respuesta segun haces modificaciones para mejorar la eficiencia, o tener un valor numerico del tiempo que tarda en ejecutarse para poder acomodarse a cuestiones de optimización mas carencias que están ahí.
+
+Y posiblemente esto viene porque el mercado es pequeño, porque la gente de trabaja con XSLT y que además recurre a recursos online, no esta buscando grandes cosas, pero yo realmente cree xsltplayground.com para mi, y si luego esto puede servir a mas gente pues bienvenido sea, pero realmente cree la aplicación que me hubiera gustado que existiese hace 5-10-15 años cuando creo que podría haberme hecho ahorrar una gran cantidad de horas, y espero que hoy se las ahorren a muchos desarrolladores o personas simplemente que trabajan con XSLT y que buscan un editor online ligero para hacer cierta depuración y optimización de sus hojas y que lo puedan hacer mientras disfrutan de una experiencia agradable. 
+
+Si consigo eso, habrá merecido la pena! 
