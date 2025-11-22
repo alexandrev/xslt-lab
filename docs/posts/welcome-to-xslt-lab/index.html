@@ -3,49 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to the XSLT Lab site | XSLT Lab</title>
-  <meta name="description" content="A short walkthrough of what this Hugo site gives you.">
-  <link rel="stylesheet" href="https://alexandrev.github.io/xslt-lab/css/main.css">
+  <title>Welcome to the XSLT Playground blog | XSLT Playground</title>
+  <meta name="description" content="What you will find here and how it helps you get more from the online XSLT editor.">
+  <link rel="stylesheet" href="https://blog.xsltplayground.com/css/main.css">
 </head>
 <body>
   <header class="site-header">
     <div class="container header-grid">
       <div>
-        <a class="brand" href="https://alexandrev.github.io/xslt-lab/">XSLT Lab</a>
-        <p class="tagline">Helm and XSLT playground with a lightweight docs site.</p>
+        <a class="brand" href="https://blog.xsltplayground.com/">XSLT Playground</a>
+        <p class="tagline">Online XSLT editor built for real-world transformations.</p>
       </div>
       <nav>
         <ul class="nav">
-          <li><a href="https://alexandrev.github.io/xslt-lab/">Home</a></li>
-          <li><a href="https://alexandrev.github.io/xslt-lab/posts/">Posts</a></li>
-          <li><a href="https://alexandrev.github.io/xslt-lab/about/">About</a></li>
-          <li><a href="https://alexandrev.github.io/xslt-lab/index.yaml">Charts</a></li>
+          <li><a href="https://blog.xsltplayground.com/">Home</a></li>
+          <li><a href="https://blog.xsltplayground.com/posts/">Posts</a></li>
+          <li><a href="https://blog.xsltplayground.com/about/">About</a></li>
+          <li><a href="https://blog.xsltplayground.com/index.yaml">Charts</a></li>
         </ul>
       </nav>
     </div>
   </header>
   <main class="container">
-    <article class="post">
+    <section class="page-header">
       <p class="eyebrow">Posts</p>
-      <h1>Welcome to the XSLT Lab site</h1>
+      <h1>Welcome to the XSLT Playground blog</h1>
       <p class="muted">28 Feb 2025</p>
-      <p class="lead">A short walkthrough of what this Hugo site gives you.</p>
+      <p class="lead">What you will find here and how it helps you get more from the online XSLT editor.</p>
+    </section>
+
+    <article class="post">
       <div class="content">
-        <p>This repo now contains a Hugo site so you can publish notes, guides, and announcements next to the Helm chart.</p>
-        <p>What you get:</p>
+        <p><a href="https://xsltplayground.com">XSLT Playground</a> is a browser-first XSLT editor that lets you run transforms with multiple inputs and parameters, see results instantly, and spot performance hotspots without installing anything. This blog gathers the practical pieces you need around it.</p>
+        <p>What you will find here:</p>
         <ul>
-          <li>A landing page that links to the chart index.</li>
-          <li>A posts section for updates and long-form guides.</li>
-          <li>A configurable menu and simple styling that lives entirely in this repo.</li>
+          <li>Product updates and release notes for the playground.</li>
+          <li>XSLT debugging recipes tailored to multi-parameter, real-world scenarios.</li>
+          <li>Deployment notes, including the Helm chart and self-hosting guidance.</li>
         </ul>
-        <p>Run <code>hugo --source site --minify</code> to generate the static site into <code>docs/</code>, commit the output, and point GitHub Pages at the <code>docs</code> folder to go live.</p>
+        <p>If you want to try it now, head straight to <a href="https://xsltplayground.com">xsltplayground.com</a>. If you want to contribute content, edit the Markdown in <code>site/content/</code> and rebuild the site with <code>hugo --source site --minify</code> to publish to <code>docs/</code>.</p>
       </div>
-      <p class="muted back-link"><a href="https://alexandrev.github.io/xslt-lab/posts/">← Back to Posts</a></p>
     </article>
+    <p class="back-link"><a href="https://blog.xsltplayground.com/posts/">← Back to posts</a></p>
   </main>
   <footer class="site-footer">
     <div class="container footer-grid">
-      <p>Built with Hugo · 2025-02-28</p>
+      <p>Built with Hugo · 2025-11-22</p>
       <p class="muted">Repo: <a href="https://github.com/alexandrev/xslt-lab">alexandrev/xslt-lab</a></p>
     </div>
   </footer>
