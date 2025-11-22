@@ -1,0 +1,41 @@
+{{ define "main" }}
+<section class="hero">
+  <p class="eyebrow">Static Site + Helm Repo</p>
+  <h1>{{ .Title }}</h1>
+  <p class="lead">{{ .Params.description | default .Site.Params.lead }}</p>
+  <div class="cta-row">
+    <a class="button" href="{{ "/posts/" | relURL }}">Read updates</a>
+    <a class="button ghost" href="{{ "/charts/index.yaml" | relURL }}">Helm repo index</a>
+  </div>
+</section>
+
+<section class="grid">
+  <article class="card">
+    <p class="eyebrow">How this fits</p>
+    <h2>Side-by-side with your chart</h2>
+    <p>The Hugo source lives in <code>site/</code> and publishes to <code>docs/</code>, keeping the existing chart index and packages intact.</p>
+    <ul class="checks">
+      <li>Markdown content</li>
+      <li>No external theme dependency</li>
+      <li>Ready for GitHub Pages</li>
+    </ul>
+  </article>
+  <article class="card">
+    <p class="eyebrow">Latest posts</p>
+    <h2>Recent updates</h2>
+    <ul class="post-list">
+      {{ $posts := first 3 (where .Site.RegularPages "Section" "posts") }}
+      {{ if gt (len $posts) 0 }}
+        {{ range $posts }}
+          <li>
+            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            <span class="muted">{{ .Date.Format "02 Jan 2006" }}</span>
+          </li>
+        {{ end }}
+      {{ else }}
+        <li class="muted">No posts yet. Add more in <code>site/content/posts/</code>.</li>
+      {{ end }}
+    </ul>
+  </article>
+</section>
+{{ end }}

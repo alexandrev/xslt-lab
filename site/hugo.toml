@@ -1,0 +1,31 @@
+baseURL = "https://alexandrev.github.io/xslt-lab/"
+languageCode = "en-us"
+title = "XSLT Lab"
+paginate = 10
+publishDir = "../docs"
+enableRobotsTXT = true
+
+[params]
+subtitle = "Helm and XSLT playground with a lightweight docs site."
+lead = "Articles, release notes, and pointers to the Helm repo all live here. Build locally or publish from the docs folder without disturbing existing chart artifacts."
+
+[menu]
+  [[menu.main]]
+  name = "Home"
+  url = "/"
+  weight = 1
+
+  [[menu.main]]
+  name = "Posts"
+  url = "/posts/"
+  weight = 2
+
+  [[menu.main]]
+  name = "About"
+  url = "/about/"
+  weight = 3
+
+  [[menu.main]]
+  name = "Charts"
+  url = "https://alexandrev.github.io/xslt-lab/charts/index.yaml"
+  weight = 4

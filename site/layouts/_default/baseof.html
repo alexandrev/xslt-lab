@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ block "title" . }}{{ with .Title }}{{ . }} | {{ end }}{{ .Site.Title }}{{ end }}</title>
+  <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.subtitle }}{{ end }}">
+  <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-grid">
+      <div>
+        <a class="brand" href="{{ "/" | relURL }}">{{ .Site.Title }}</a>
+        <p class="tagline">{{ .Site.Params.subtitle }}</p>
+      </div>
+      <nav>
+        <ul class="nav">
+          {{ range .Site.Menus.main }}
+            <li><a href="{{ .URL }}">{{ .Name }}</a></li>
+          {{ end }}
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main class="container">
+    {{ block "main" . }}{{ end }}
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <p>Built with Hugo · {{ now.Format "2006-01-02" }}</p>
+      <p class="muted">Repo: <a href="https://github.com/alexandrev/xslt-lab">alexandrev/xslt-lab</a></p>
+    </div>
+  </footer>
+</body>
+</html>
