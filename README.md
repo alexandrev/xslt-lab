@@ -12,8 +12,10 @@ This repository hosts the Helm chart for the XSLT playground and now includes a 
 1. Install Hugo (extended) locally, e.g. `brew install hugo` on macOS.
 2. Build the static site to `docs/` without touching chart assets:\
    `hugo --source site --minify`
-3. Preview locally with live reload:\
+3. Copy chart artifacts into `docs/` so GitHub Pages can serve them:\
+   `cp index.yaml docs/index.yaml && cp xslt-playground-0.1.2.tgz docs/`
+4. Preview locally with live reload:\
    `hugo server --source site --buildDrafts --watch`
-4. Commit the generated `docs/` folder and push to GitHub. Point GitHub Pages at the `docs` directory so the site appears at `https://alexandrev.github.io/xslt-lab/`.
+5. Commit the generated `docs/` folder and push to GitHub. Point GitHub Pages at the `docs` directory so the site appears at `https://alexandrev.github.io/xslt-lab/`.
 
 Content is written in Markdown under `site/content/`; layouts and styling live in `site/layouts/` and `site/static/`.
