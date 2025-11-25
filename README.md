@@ -19,3 +19,5 @@ This repository hosts the Helm chart for the XSLT playground and now includes a 
 5. Commit the generated `docs/` folder and push to GitHub. Point GitHub Pages at the `docs` directory so the site appears at `https://alexandrev.github.io/xslt-lab/`.
 
 Content is written in Markdown under `site/content/`; layouts and styling live in `site/layouts/` and `site/static/`.
+
+Hugo emits `docs/sitemap.xml` automatically, so you can submit `https://blog.xsltplayground.com/sitemap.xml` to Google Search Console. The current sitemap is checked in for convenience; rebuild with Hugo to refresh it when content changes.

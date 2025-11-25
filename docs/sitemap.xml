@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://blog.xsltplayground.com/</loc>
+    <lastmod>2025-11-25T12:43:51Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://blog.xsltplayground.com/about/</loc>
+    <lastmod>2025-11-25T12:43:51Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://blog.xsltplayground.com/posts/</loc>
+    <lastmod>2025-11-22T15:34:45Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://blog.xsltplayground.com/posts/welcome-to-xslt-lab/</loc>
+    <lastmod>2025-02-28T00:00:00Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://blog.xsltplayground.com/posts/why-xslt-playground-online-editor/</loc>
+    <lastmod>2025-11-22T15:34:45Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+</urlset>
