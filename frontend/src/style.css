@@ -798,6 +798,10 @@ body,
   flex-wrap: wrap;
 }
 
+.ethical-ad-placeholder {
+  width: 100%;
+}
+
 .icon-button {
   background: none;
   border: none;

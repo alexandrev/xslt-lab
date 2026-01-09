@@ -37,6 +37,7 @@ const env = window.env || import.meta.env;
 const goPro = env.VITE_GO_PRO === "true";
 const adsenseClient = env.VITE_ADSENSE_CLIENT;
 const adsenseSlot = env.VITE_ADSENSE_SLOT;
+const ethicalAdsPublisher = env.VITE_ETHICALADS_PUBLISHER || "xsltplaygroundcom";
 const defaultRepoUrl = "https://github.com/alexandrev/xslt-lab";
 const repoUrl = env.VITE_REPO_URL || defaultRepoUrl;
 const newsUrl = env.VITE_NEWS_URL || "https://alexandrev.github.io/xslt-lab/";
@@ -178,6 +179,7 @@ export default function App() {
   const [traceScrollLeft, setTraceScrollLeft] = useState(0);
   const [paramsCollapsed, setParamsCollapsed] = useState(false);
   const [errorCollapsed, setErrorCollapsed] = useState(false);
+  const [ethicalAdsReady, setEthicalAdsReady] = useState(false);
   const workspaceImportRef = useRef(null);
   const resultResizeState = useRef({ startY: 0, startHeight: MIN_RESULT_HEIGHT });
   const paramResizeState = useRef({ startX: 0, startWidth: DEFAULT_PARAM_WIDTH });
@@ -214,6 +216,7 @@ export default function App() {
   const [viewportWidth, setViewportWidth] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth : 0,
   );
+  const ethicalSlotRef = useRef(null);
 
   const backendBase = (env.VITE_BACKEND_URL || "").replace(/\/$/, "");
   console.log("Using this URL as backendURL:", backendBase);
@@ -1068,8 +1071,65 @@ export default function App() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!ethicalAdsPublisher) return;
+    if (window.ethicalads) {
+      setEthicalAdsReady(true);
+      return;
+    }
+    const existing = document.querySelector("script[data-ethicalads]");
+    const script = existing || document.createElement("script");
+    if (!existing) {
+      script.src = "https://media.ethicalads.io/media/client/ethicalads.min.js";
+      script.async = true;
+      script.dataset.ethicalads = "true";
+      document.body.appendChild(script);
+    }
+    const onLoad = () => setEthicalAdsReady(Boolean(window.ethicalads));
+    const onError = () => setEthicalAdsReady(false);
+    script.addEventListener("load", onLoad);
+    script.addEventListener("error", onError);
+    const fallback = window.setTimeout(() => {
+      if (!window.ethicalads) setEthicalAdsReady(false);
+    }, 3500);
+    return () => {
+      script.removeEventListener("load", onLoad);
+      script.removeEventListener("error", onError);
+      window.clearTimeout(fallback);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!ethicalAdsReady || !ethicalSlotRef.current) return;
+    try {
+      window.ethicalads?.load();
+    } catch {}
+  }, [ethicalAdsReady]);
+
+  useEffect(() => {
+    if (!ethicalAdsPublisher) return;
+    const existing = document.querySelector("script[data-ethicalads]");
+    if (existing) return;
+    const script = document.createElement("script");
+    script.src = "https://media.ethicalads.io/media/client/ethicalads.min.js";
+    script.async = true;
+    script.dataset.ethicalads = "true";
+    document.body.appendChild(script);
+  }, []);
+
   return (
     <div className="app-container">
+      {ethicalAdsPublisher && (
+        <div
+          ref={ethicalSlotRef}
+          className="ethical-ad-placeholder"
+          data-ea-publisher={ethicalAdsPublisher}
+          data-ea-type="image"
+          data-ea-style="fixedheader"
+          style={{ height: "50px" }}
+          aria-label="Advertisement"
+        />
+      )}
       <div className="tabs">
         <TabsNav
           tabs={tabs}
