@@ -68,6 +68,8 @@ const PARAM_WIDTH_KEY = "paramsPaneWidth";
 const DEFAULT_PARAM_WIDTH = 320;
 const MIN_PARAM_WIDTH = 220;
 const MIN_EDITOR_WIDTH = 360;
+const ETHICAL_AD_COMPACT_BREAKPOINT = 1024;
+const ETHICAL_AD_TEXT_BREAKPOINT = 720;
 
 function defaultWorkspaceStatus() {
   return {
@@ -217,6 +219,21 @@ export default function App() {
     typeof window !== "undefined" ? window.innerWidth : 0,
   );
   const ethicalSlotRef = useRef(null);
+  const isLocalhost =
+    typeof window !== "undefined" &&
+    /^(localhost|127(?:\\.[0-9]+){3}|mac)$/i.test(window.location.hostname);
+  const ethicalAdsEnabled =
+    Boolean(ethicalAdsPublisher) &&
+    (!isLocalhost || env.VITE_ETHICALADS_DEV === "true");
+  const isCompactEthicalAd =
+    !viewportWidth || viewportWidth < ETHICAL_AD_COMPACT_BREAKPOINT;
+  const ethicalAdType =
+    viewportWidth && viewportWidth < ETHICAL_AD_TEXT_BREAKPOINT
+      ? "text"
+      : "image";
+  const ethicalAdStyle = isCompactEthicalAd ? undefined : "fixedheader";
+  const ethicalAdHeight = isCompactEthicalAd ? "80px" : "50px";
+  const ethicalAdVariant = `${isCompactEthicalAd ? "compact" : "wide"}-${ethicalAdType}`;
 
   const backendBase = (env.VITE_BACKEND_URL || "").replace(/\/$/, "");
   console.log("Using this URL as backendURL:", backendBase);
@@ -1072,7 +1089,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!ethicalAdsPublisher) return;
+    if (!ethicalAdsEnabled) {
+      setEthicalAdsReady(false);
+      return;
+    }
     if (window.ethicalads) {
       setEthicalAdsReady(true);
       return;
@@ -1097,14 +1117,15 @@ export default function App() {
       script.removeEventListener("error", onError);
       window.clearTimeout(fallback);
     };
-  }, []);
+  }, [ethicalAdsEnabled]);
 
   useEffect(() => {
-    if (!ethicalAdsReady || !ethicalSlotRef.current) return;
+    if (!ethicalAdsEnabled || !ethicalAdsReady || !ethicalSlotRef.current) return;
     try {
-      window.ethicalads?.load();
+      ethicalSlotRef.current.innerHTML = "";
+      window.ethicalads?.load(ethicalSlotRef.current);
     } catch {}
-  }, [ethicalAdsReady]);
+  }, [ethicalAdsEnabled, ethicalAdsReady, ethicalAdVariant]);
 
   useEffect(() => {
     if (!ethicalAdsPublisher) return;
@@ -1119,14 +1140,14 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {ethicalAdsPublisher && (
+      {ethicalAdsEnabled && (
         <div
           ref={ethicalSlotRef}
           className="ethical-ad-placeholder"
           data-ea-publisher={ethicalAdsPublisher}
-          data-ea-type="image"
-          data-ea-style="fixedheader"
-          style={{ height: "50px" }}
+          data-ea-type={ethicalAdType}
+          data-ea-style={ethicalAdStyle}
+          style={{ height: ethicalAdHeight }}
           aria-label="Advertisement"
         />
       )}
