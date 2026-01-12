@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About | XSLT Playground</title>
+  <meta name="description" content="What XSLT Playground is and how this site supports it.">
+  <link rel="stylesheet" href="https://blog.xsltplayground.com/css/main.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-grid">
+      <div>
+        <a class="brand" href="https://blog.xsltplayground.com/">XSLT Playground</a>
+        <p class="tagline">Online XSLT editor built for real-world transformations.</p>
+      </div>
+      <nav>
+        <ul class="nav">
+          <li><a href="https://blog.xsltplayground.com/">Home</a></li>
+          <li><a href="https://blog.xsltplayground.com/posts/">Posts</a></li>
+          <li><a href="https://blog.xsltplayground.com/about/">About</a></li>
+          <li><a href="https://blog.xsltplayground.com/index.yaml">Charts</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main class="container">
+    <section class="page-header">
+      <p class="eyebrow">About</p>
+      <h1>About</h1>
+      <p class="lead">What XSLT Playground is and how this site supports it.</p>
+    </section>
+
+    <article class="post">
+      <div class="content">
+        <p><a href="https://xsltplayground.com">XSLT Playground</a> is a browser-based XSLT editor built for realistic workloads: multiple inputs and parameters, live execution, and timing hints so you can tune your transforms without heavy desktop tooling.</p>
+        <p>This site exists to give you:</p>
+        <ul>
+          <li>Release notes and product updates.</li>
+          <li>Short guides that mirror common integration tasks.</li>
+          <li>Deployment options, including a Helm chart you can point at your own cluster.</li>
+        </ul>
+        <p>Everything is Markdown in <code>site/content/</code>, and the generated output lives in <code>docs/</code> so you can publish easily via GitHub Pages alongside the chart index.</p>
+      </div>
+    </article>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <p>Built with Hugo · 2025-11-22</p>
+      <p class="muted">Repo: <a href="https://github.com/alexandrev/xslt-lab">alexandrev/xslt-lab</a></p>
+    </div>
+  </footer>
+</body>
+</html>

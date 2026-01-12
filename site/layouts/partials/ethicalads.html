@@ -1,0 +1,13 @@
+{{- $publisher := or .Site.Params.ethicalads.publisher (getenv "ETHICALADS_PUBLISHER") -}}
+{{- if and $publisher (ne hugo.Environment "development") -}}
+  {{ if not (.Scratch.Get "ethicalads_loaded") -}}
+    <script async src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
+    {{ .Scratch.Set "ethicalads_loaded" true }}
+  {{- end }}
+  <div class="ad-bar">
+    <div class="container ad-bar-inner">
+      <span class="muted">Sponsored</span>
+      <div class="ethical-ad" data-ea-publisher="{{ $publisher }}" data-ea-type="image"></div>
+    </div>
+  </div>
+{{- end -}}
