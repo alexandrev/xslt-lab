@@ -1,0 +1,68 @@
+name: "Idea / Bug report"
+description: Share an idea, bug, or improvement for xslt-lab.
+labels:
+  - triage
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened or what would you like to see?
+      placeholder: Clear, one-paragraph overview.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps or example
+      description: Provide reproduction steps or an example transform that shows the issue/idea.
+      placeholder: |
+        1. Go to...
+        2. Run this XSLT...
+        3. See...
+    validations:
+      required: false
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      placeholder: What did you expect to happen?
+    validations:
+      required: false
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      placeholder: What happened instead?
+    validations:
+      required: false
+  - type: textarea
+    id: xslt
+    attributes:
+      label: XSLT snippet (if relevant)
+      render: xml
+      placeholder: |
+        <xsl:stylesheet version="2.0" ...>
+          ...
+        </xsl:stylesheet>
+    validations:
+      required: false
+  - type: textarea
+    id: input
+    attributes:
+      label: Sample input (if relevant)
+      render: xml
+      placeholder: |
+        <root>
+          ...
+        </root>
+    validations:
+      required: false
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser/OS, frontend build version, backend version, and any feature flags.
+      placeholder: macOS 14 / Chrome 121 / frontend v0.x / backend v0.x / trace on/off
+    validations:
+      required: false

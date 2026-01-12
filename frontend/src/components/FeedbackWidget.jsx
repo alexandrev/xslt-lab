@@ -12,6 +12,8 @@ const STORAGE_KEY = "feedbackPos";
 const MIN_MARGIN = 10;
 const DEFAULT_MARGIN = 24;
 const FALLBACK_WIDTH = 220;
+const ISSUE_URL =
+  "https://github.com/alexandrev/xslt-lab/issues/new?template=idea.yml";
 
 export default function FeedbackWidget() {
   const [collapsed, setCollapsed] = useState(() => {
@@ -241,6 +243,14 @@ export default function FeedbackWidget() {
           <p>Have an idea or found a glitch? I would love to hear from you.</p>
           <a className="feedback-link" href={mailLink}>
             ✉️ Send feedback
+          </a>
+          <a
+            className="feedback-link"
+            href={ISSUE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            🐞 Crear issue en GitHub
           </a>
         </div>
       )}

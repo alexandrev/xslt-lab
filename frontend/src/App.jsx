@@ -80,7 +80,20 @@ function defaultWorkspaceStatus() {
     traceEntries: [],
     traceText: "",
     showRawTrace: false,
+    resultView: "source",
   };
+}
+
+function looksLikeHtml(text) {
+  if (!text || typeof text !== "string") return false;
+  const trimmed = text.trim();
+  if (!trimmed.startsWith("<")) return false;
+  const lowered = trimmed.slice(0, 200).toLowerCase();
+  return (
+    lowered.startsWith("<!doctype html") ||
+    /^<html\b/.test(lowered) ||
+    /^<body\b/.test(lowered)
+  );
 }
 
 function normalizeWorkspaceImport(payload) {
@@ -350,12 +363,15 @@ export default function App() {
     traceEntries,
     traceText,
     showRawTrace,
+    resultView,
   } = activeStatus;
   const MAX_ERROR_LINES = 3;
   const limitedErrorLines = (errorLines || []).slice(0, MAX_ERROR_LINES);
   const hasHiddenErrors = (errorLines || []).length > MAX_ERROR_LINES;
   const canCopyErrors = Boolean((errorLines && errorLines.length) || error);
   const showResultPane = !error;
+  const canRenderHtml = useMemo(() => looksLikeHtml(result), [result]);
+  const effectiveResultView = canRenderHtml ? resultView || "source" : "source";
   const TRACE_NAME_LIMIT = 80;
   const TRACE_VALUE_LIMIT = 200;
   const EMPTY_SYMBOL = "(empty)";
@@ -562,6 +578,16 @@ export default function App() {
       return { ...prev, [tabId]: next };
     });
   }, []);
+
+  useEffect(() => {
+    if (!activeTab) return;
+    if (!canRenderHtml && resultView === "render") {
+      updateWorkspaceStatus(activeTab.id, (prev) => ({
+        ...prev,
+        resultView: "source",
+      }));
+    }
+  }, [activeTab, canRenderHtml, resultView, updateWorkspaceStatus]);
 
   const truncateText = useCallback((text, limit) => {
     if (!text) {
@@ -837,16 +863,19 @@ export default function App() {
           traceEntries: [],
           traceText: "",
           showRawTrace: false,
+          resultView: "source",
         });
         return;
       }
       const data = await res.json();
+      const defaultView = looksLikeHtml(data.result) ? "render" : "source";
       updateWorkspaceStatus(tabId, {
         result: data.result,
         duration: data.duration_ms,
         error: "",
         errorLines: [],
         showRawTrace: false,
+        resultView: defaultView,
       });
       const newEntries = traceEnabled ? (data.trace || []) : [];
       updateWorkspaceStatus(tabId, (prev) => ({
@@ -867,6 +896,7 @@ export default function App() {
         traceEntries: [],
         traceText: "",
         showRawTrace: false,
+        resultView: "source",
       });
     }
   }, 500);
@@ -1616,45 +1646,87 @@ export default function App() {
             {duration !== null && (
               <div className="success-box">Success in {duration} ms</div>
             )}
-            <button
-              className="icon-button result-format-button"
-              onClick={() => {
-                try {
-                  const formatted = formatXML(result);
-                  if (activeTab) {
+            <div className="result-actions">
+              {canRenderHtml && (
+                <button
+                  type="button"
+                  className={`icon-button result-view-toggle${effectiveResultView === "render" ? " active" : ""}`}
+                  onClick={() => {
+                    if (!activeTab) return;
+                    const next = effectiveResultView === "render" ? "source" : "render";
                     updateWorkspaceStatus(activeTab.id, (prev) => ({
                       ...prev,
-                      result: formatted,
+                      resultView: next,
                     }));
+                  }}
+                  title={
+                    effectiveResultView === "render"
+                      ? "Show source instead of rendered HTML"
+                      : "Render HTML output"
                   }
-                } catch {}
-              }}
-            >
-              📝
-            </button>
-            <button
-              type="button"
-              className={`icon-button result-reset-button${isCustomResultHeight ? " active" : ""}`}
-              onClick={handleResetResultHeight}
-              title="Reset result pane height"
-              aria-label="Reset result pane height"
-            >
-              ⟳
-            </button>
-            <div className="result-editor-wrap">
-              <Editor
-                height="100%"
-                language="xml"
-                value={result}
-                onMount={(editor) => (resultEditorRef.current = editor)}
-                options={{
-                  readOnly: true,
-                  minimap: { enabled: false },
-                  automaticLayout: true,
-                  wordWrap: "bounded",
-                  wordWrapBreakAfterCharacters: ' \t})]?|>'
+                  aria-label={
+                    effectiveResultView === "render"
+                      ? "Show source instead of rendered HTML"
+                      : "Render HTML output"
+                  }
+                >
+                  {effectiveResultView === "render" ? "🧾" : "🌐"}
+                </button>
+              )}
+              <button
+                className="icon-button result-format-button"
+                disabled={effectiveResultView !== "source"}
+                onClick={() => {
+                  if (effectiveResultView !== "source") return;
+                  try {
+                    const formatted = formatXML(result);
+                    if (activeTab) {
+                      updateWorkspaceStatus(activeTab.id, (prev) => ({
+                        ...prev,
+                        result: formatted,
+                      }));
+                    }
+                  } catch {}
                 }}
-              />
+                title="Format result as pretty XML"
+                aria-label="Format result as pretty XML"
+              >
+                📝
+              </button>
+              <button
+                type="button"
+                className={`icon-button result-reset-button${isCustomResultHeight ? " active" : ""}`}
+                onClick={handleResetResultHeight}
+                title="Reset result pane height"
+                aria-label="Reset result pane height"
+              >
+                ⟳
+              </button>
+            </div>
+            <div className="result-editor-wrap">
+              {effectiveResultView === "render" && canRenderHtml ? (
+                <div className="result-render">
+                  <iframe
+                    title="Rendered HTML output"
+                    srcDoc={result || "<!-- empty -->"}
+                    sandbox=""
+                  />
+                </div>
+              ) : (
+                <Editor
+                  height="100%"
+                  language="xml"
+                  value={result}
+                  onMount={(editor) => (resultEditorRef.current = editor)}
+                  options={{
+                    readOnly: true,
+                    minimap: { enabled: false },
+                    automaticLayout: true,
+                    wordWrap: "bounded",
+                    wordWrapBreakAfterCharacters: ' \t})]?|>'
+                  }}
+                />
+              )}
             </div>
           </>
         )}

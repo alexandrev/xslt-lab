@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"html"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -57,6 +58,26 @@ type Transformation struct {
 	Parameters datatypes.JSON `json:"parameters"`
 	Note       string         `json:"note"`
 	CreatedAt  time.Time      `json:"created_at"`
+}
+
+func pickSourceXML(params map[string]string) (string, string) {
+	looksLikeXML := func(s string) bool {
+		trimmed := strings.TrimSpace(s)
+		return strings.HasPrefix(trimmed, "<") || strings.HasPrefix(trimmed, "&lt;")
+	}
+
+	preferred := []string{"input", "source", "xml", "document", "input1"}
+	for _, key := range preferred {
+		if val, ok := params[key]; ok && looksLikeXML(val) {
+			return html.UnescapeString(strings.TrimSpace(val)), key
+		}
+	}
+	for key, val := range params {
+		if looksLikeXML(val) {
+			return html.UnescapeString(strings.TrimSpace(val)), key
+		}
+	}
+	return "<root/>", ""
 }
 
 func loadConfig(filename string) (*AppConfig, error) {
@@ -181,10 +202,14 @@ func main() {
 			return
 		}
 
-		if err := os.WriteFile(inputPath, []byte("<root/>"), 0644); err != nil {
+		sourceXML, sourceKey := pickSourceXML(req.Parameters)
+		if err := os.WriteFile(inputPath, []byte(sourceXML), 0644); err != nil {
 			log.Printf("write input failed: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write input"})
 			return
+		}
+		if sourceKey != "" {
+			log.Printf("using parameter %q as source document", sourceKey)
 		}
 
 		argsPath := filepath.Join(tmpDir, "args")

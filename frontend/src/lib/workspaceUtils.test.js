@@ -34,8 +34,27 @@ describe("workspace utils", () => {
     expect(cleaned).not.toMatch(/<xsl:param/);
   });
 
+  it("keeps scoped params inside functions", () => {
+    const withFunctionParam = `<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:f="urn:test">
+<xsl:template match="/"><out/></xsl:template>
+<xsl:function name="f:echo" as="xs:string">
+  <xsl:param name="val"/>
+  <xsl:sequence select="$val"/>
+</xsl:function>
+</xsl:stylesheet>`;
+    const cleaned = stripParamBlock(withFunctionParam);
+    expect(cleaned).toContain(`<xsl:param name="val"/>`);
+  });
+
   it("extracts params from existing definitions", () => {
     expect(extractParamNames(SAMPLE_STYLESHEET).sort()).toEqual(["bar", "foo"]);
+  });
+
+  it("ignores template-scoped params", () => {
+    const withLocalParam = `<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:template name="local"><xsl:param name="expr"/><xsl:value-of select="$expr"/></xsl:template>
+</xsl:stylesheet>`;
+    expect(extractParamNames(withLocalParam)).toEqual([]);
   });
 
   it("adds new params discovered in xslt", () => {

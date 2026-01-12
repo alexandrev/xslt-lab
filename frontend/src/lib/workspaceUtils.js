@@ -36,10 +36,18 @@ export function stripParamBlock(text) {
     if (after.startsWith("\n")) after = after.slice(1);
     result = before + after;
   }
-  return result.replace(
-    /[ \t]*<xsl:param\b[^>]*?(?:\/>|>[\s\S]*?<\/xsl:param>)[ \t]*(?:\r?\n)?/g,
-    "",
+
+  const stylesheetOpen = result.match(/<xsl:stylesheet[^>]*>/);
+  if (!stylesheetOpen) return result;
+
+  const headEnd = stylesheetOpen.index + stylesheetOpen[0].length;
+  const tail = result.slice(headEnd);
+  const leadingParams = tail.match(
+    /^[\r\n\t ]*(?:<xsl:param\b[^>]*?(?:\/>|>[\s\S]*?<\/xsl:param>)[\r\n\t ]*)+/,
   );
+  if (!leadingParams) return result;
+
+  return result.slice(0, headEnd) + tail.slice(leadingParams[0].length);
 }
 
 export function getParamBlock(text) {
@@ -65,11 +73,29 @@ export function injectParamBlock(text, params) {
 }
 
 export function extractParamNames(text) {
-  const clean = getParamBlock(text);
+  const block = getParamBlock(text);
+  if (block !== text) {
+    return collectParamNames(block);
+  }
+
+  const stylesheetOpen = text.match(/<xsl:stylesheet[^>]*>/);
+  if (!stylesheetOpen) return [];
+
+  const headEnd = stylesheetOpen.index + stylesheetOpen[0].length;
+  const tail = text.slice(headEnd);
+  const leadingParams = tail.match(
+    /^[\r\n\t ]*(?:<xsl:param\b[^>]*?(?:\/>|>[\s\S]*?<\/xsl:param>)[\r\n\t ]*)+/,
+  );
+  if (!leadingParams) return [];
+
+  return collectParamNames(leadingParams[0]);
+}
+
+function collectParamNames(fragment) {
   const names = new Set();
   const regex = /<xsl:param[^>]*name="([^"]+)"[^>]*>/g;
   let m;
-  while ((m = regex.exec(clean))) {
+  while ((m = regex.exec(fragment))) {
     names.add(m[1]);
   }
   return Array.from(names);
