@@ -14,6 +14,7 @@ import TabsNav from "./components/TabsNav";
 import DataPipelineHeader from "./components/DataPipelineHeader";
 import FeedbackWidget from "./components/FeedbackWidget";
 import BuyMeACoffee from "./components/BuyMeACoffee";
+import Icon from "./components/Icon";
 import {
   parseErrorLines,
   stripParamBlock,
@@ -49,12 +50,22 @@ const changelogUrl = `${repoUrl}/blob/main/CHANGELOG.md${
   resolvedVersion ? `#${changelogAnchor(resolvedVersion)}` : ""
 }`;
 
-function defaultTab() {
-  return {
+function defaultTab(overrides = {}) {
+  const base = {
     id: Date.now() + Math.random(),
     params: [{ name: "input1", value: "<root/>", open: true }],
     xslt: `<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">\n<xsl:template match="/">\n<root/>\n</xsl:template>\n</xsl:stylesheet>`,
     version: "1.0",
+    name: "",
+  };
+  const merged = { ...base, ...overrides };
+  return {
+    ...merged,
+    id: overrides.id ?? base.id,
+    params: Array.isArray(merged.params) ? merged.params : base.params,
+    xslt: typeof merged.xslt === "string" ? merged.xslt : base.xslt,
+    version: merged.version || base.version,
+    name: typeof merged.name === "string" ? merged.name : base.name,
   };
 }
 
@@ -70,6 +81,9 @@ const MIN_PARAM_WIDTH = 220;
 const MIN_EDITOR_WIDTH = 360;
 const ETHICAL_AD_COMPACT_BREAKPOINT = 1024;
 const ETHICAL_AD_TEXT_BREAKPOINT = 720;
+const THEME_STORAGE_KEY = "themeMode";
+const THEME_DARK = "dark";
+const THEME_LIGHT = "light";
 
 function defaultWorkspaceStatus() {
   return {
@@ -146,6 +160,19 @@ export default function App() {
     const stored = localStorage.getItem("tabs");
     if (stored) initialTabs = JSON.parse(stored);
   } catch {}
+  if (!Array.isArray(initialTabs)) {
+    initialTabs = [defaultTab()];
+  }
+  initialTabs = initialTabs.map((tab) => {
+    if (!tab || typeof tab !== "object") return defaultTab();
+    return defaultTab({
+      id: tab.id,
+      params: tab.params,
+      xslt: tab.xslt,
+      version: tab.version,
+      name: tab.name,
+    });
+  });
   if (initialTabs.length > MAX_WORKSPACES) {
     initialTabs = initialTabs.slice(0, MAX_WORKSPACES);
   }
@@ -180,6 +207,21 @@ export default function App() {
   const [editorFocused, setEditorFocused] = useState(false);
   const [user, setUser] = useState(null);
   const [auth, setAuth] = useState(null);
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === "undefined") return THEME_LIGHT;
+    try {
+      const stored = localStorage.getItem(THEME_STORAGE_KEY);
+      if (stored === THEME_DARK || stored === THEME_LIGHT) return stored;
+    } catch {}
+    try {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? THEME_DARK
+        : THEME_LIGHT;
+    } catch {}
+    return THEME_LIGHT;
+  });
+  const isDarkTheme = theme === THEME_DARK;
+  const editorTheme = isDarkTheme ? "vs-dark" : "light";
   const resultEditorRef = useRef(null);
   const traceHoverTimeoutRef = useRef(null);
   const traceTableWrapRef = useRef(null);
@@ -273,6 +315,14 @@ export default function App() {
   useEffect(() => {
     try { localStorage.setItem("traceEnabled", JSON.stringify(traceEnabled)); } catch {}
   }, [traceEnabled]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {}
+  }, [theme]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -812,7 +862,10 @@ export default function App() {
       setTabs((current) =>
         current.map((t) => {
           if (t.id !== targetId) return t;
-          const cleared = { ...defaultTab(), id: t.id, params: [] };
+          const cleared = {
+            ...defaultTab({ id: t.id, name: t.name }),
+            params: [],
+          };
           return cleared;
         }),
       );
@@ -1016,6 +1069,16 @@ export default function App() {
     setResultHeight(null);
   };
 
+  const handleRenameWorkspace = useCallback((id, name) => {
+    setTabs((current) =>
+      current.map((tab) =>
+        tab.id === id
+          ? { ...tab, name: typeof name === "string" ? name.trim() : "" }
+          : tab,
+      ),
+    );
+  }, []);
+
   const download = useCallback((data, filename, mimeType = "text/xml") => {
     const blob = new Blob([data], { type: mimeType });
     const url = URL.createObjectURL(blob);
@@ -1189,6 +1252,7 @@ export default function App() {
           onClose={handleRemoveWorkspace}
           onExport={handleExportWorkspace}
           onClear={handleClearWorkspace}
+          onRename={handleRenameWorkspace}
         />
         <div className="tabs-right">
           <button
@@ -1203,7 +1267,7 @@ export default function App() {
                 : "Add workspace"
             }
           >
-            ➕
+            <Icon name="plus" />
           </button>
           <button
             type="button"
@@ -1212,7 +1276,7 @@ export default function App() {
             title="Import workspace"
             aria-label="Import workspace"
           >
-            📥
+            <Icon name="import" />
           </button>
           <input
             ref={workspaceImportRef}
@@ -1233,7 +1297,7 @@ export default function App() {
               aria-label="Show data pipeline"
               onClick={() => setParamsCollapsed(false)}
             >
-              ▶
+              <Icon name="chevron-right" />
             </button>
           </div>
         ) : (
@@ -1265,7 +1329,7 @@ export default function App() {
                           aria-label={p.open ? "Collapse parameter details" : "Expand parameter details"}
                           onClick={() => updateParam(i, "open", !p.open)}
                         >
-                          {p.open ? "▾" : "▸"}
+                          <Icon name={p.open ? "chevron-down" : "chevron-right"} />
                         </button>
                         <input
                           className="param-name-input"
@@ -1280,7 +1344,7 @@ export default function App() {
                         aria-label="Remove parameter"
                         onClick={() => removeParam(i)}
                       >
-                        <span aria-hidden="true">✕</span>
+                        <Icon name="close" />
                       </button>
                     </div>
                     {p.open && (
@@ -1296,6 +1360,7 @@ export default function App() {
                           <Editor
                             height="150px"
                             language="xml"
+                            theme={editorTheme}
                             value={p.value}
                             onChange={(v) => updateParam(i, "value", v || "")}
                             options={{
@@ -1307,7 +1372,7 @@ export default function App() {
                         </div>
                         <div className="param-footer">
                           <label className="icon-button file-label param-upload">
-                            📤
+                            <Icon name="upload" />
                             <input
                               type="file"
                               accept=".xml"
@@ -1321,7 +1386,7 @@ export default function App() {
                             aria-label="Download parameter value"
                             onClick={() => download(p.value, `${p.name || "param"}.xml`)}
                           >
-                            📥
+                            <Icon name="download" />
                           </button>
                         </div>
                       </div>
@@ -1364,6 +1429,17 @@ export default function App() {
               <option value="1.0">XSLT 1.0</option>
               <option value="2.0">XSLT 2.0</option>
             </select>
+            <label className="theme-toggle">
+              <input
+                type="checkbox"
+                checked={isDarkTheme}
+                onChange={(e) =>
+                  setTheme(e.target.checked ? THEME_DARK : THEME_LIGHT)
+                }
+              />
+              <span className="theme-toggle-box" aria-hidden="true" />
+              <span className="theme-toggle-label">Dark mode</span>
+            </label>
             <label className="trace-toggle">
               <input
                 type="checkbox"
@@ -1375,7 +1451,7 @@ export default function App() {
             </label>
             <div className="right-actions">
               <label className="icon-button file-label">
-                📤
+                <Icon name="upload" />
                 <input
                   type="file"
                   accept=".xsl,.xslt"
@@ -1402,7 +1478,7 @@ export default function App() {
                   )
                 }
               >
-                📥
+                <Icon name="download" />
               </button>
             </div>
           </div>
@@ -1411,6 +1487,7 @@ export default function App() {
               <Editor
                 height="100%"
                 language="xml"
+                theme={editorTheme}
                 wrapperProps={{
                   onDragOver: (e) => e.preventDefault(),
                   onDrop: (e) =>
@@ -1447,7 +1524,7 @@ export default function App() {
                     onClick={() => setTraceCollapsed(v => !v)}
                     aria-label={traceCollapsed ? 'Show trace panel' : 'Hide trace panel'}
                   >
-                    {traceCollapsed ? '▶' : '▼'}
+                    <Icon name={traceCollapsed ? "chevron-right" : "chevron-down"} />
                   </button>
                   {!traceCollapsed && (
                     <>
@@ -1462,7 +1539,7 @@ export default function App() {
                           type="button"
                           disabled={!traceEntries.length && !traceText}
                         >
-                          📋
+                          <Icon name="copy" />
                         </button>
                         {traceText && (
                           <button
@@ -1478,7 +1555,7 @@ export default function App() {
                             }}
                             type="button"
                           >
-                            {showRawTrace ? "🗕" : "🗖"}
+                            <Icon name={showRawTrace ? "terminal-off" : "terminal"} />
                           </button>
                         )}
                       </div>
@@ -1585,7 +1662,7 @@ export default function App() {
                   title="Copy all errors"
                   aria-label="Copy errors"
                 >
-                  📋
+                  <Icon name="copy" />
                 </button>
                 <button
                   type="button"
@@ -1594,7 +1671,7 @@ export default function App() {
                   title="Hide errors"
                   aria-label="Hide errors"
                 >
-                  🗕
+                  <Icon name="chevron-up" />
                 </button>
               </div>
             </div>
@@ -1604,7 +1681,7 @@ export default function App() {
                   {limitedErrorLines.map((l, i) => (
                     <tr key={i} className="error-row">
                       <td className="error-icon" aria-hidden>
-                        🚨
+                        <Icon name="alert" />
                       </td>
                       <td className="error-text" title={l}>
                         {l}
@@ -1616,7 +1693,7 @@ export default function App() {
             ) : (
               <div className="error-line">
                 <span className="error-icon" aria-hidden>
-                  🚨
+                  <Icon name="alert" />
                 </span>
                 <span className="error-text" title={error || ""}>
                   {error}
@@ -1638,7 +1715,7 @@ export default function App() {
             title="Show errors"
             aria-label="Show errors"
           >
-            ⚠️
+            <Icon name="alert" />
           </button>
         )}
         {showResultPane && (
@@ -1670,7 +1747,7 @@ export default function App() {
                       : "Render HTML output"
                   }
                 >
-                  {effectiveResultView === "render" ? "🧾" : "🌐"}
+                  <Icon name={effectiveResultView === "render" ? "code" : "globe"} />
                 </button>
               )}
               <button
@@ -1691,7 +1768,7 @@ export default function App() {
                 title="Format result as pretty XML"
                 aria-label="Format result as pretty XML"
               >
-                📝
+                <Icon name="sparkles" />
               </button>
               <button
                 type="button"
@@ -1700,7 +1777,7 @@ export default function App() {
                 title="Reset result pane height"
                 aria-label="Reset result pane height"
               >
-                ⟳
+                <Icon name="refresh" />
               </button>
             </div>
             <div className="result-editor-wrap">
@@ -1716,6 +1793,7 @@ export default function App() {
                 <Editor
                   height="100%"
                   language="xml"
+                  theme={editorTheme}
                   value={result}
                   onMount={(editor) => (resultEditorRef.current = editor)}
                   options={{
@@ -1764,6 +1842,15 @@ export default function App() {
           >
             alexandre-vazquez.com
           </a>
+          <button
+            type="button"
+            className={`icon-button footer-theme-toggle${isDarkTheme ? " active" : ""}`}
+            onClick={() => setTheme(isDarkTheme ? THEME_LIGHT : THEME_DARK)}
+            title="Toggle dark mode"
+            aria-label="Toggle dark mode"
+          >
+            <Icon name="moon" />
+          </button>
         </div>
       </div>
       {traceHover && (
@@ -1778,7 +1865,7 @@ export default function App() {
         >
           <div className="trace-hover-actions">
             <button type="button" className="icon-button" onClick={copyTraceHover} title="Copy value">
-              📋
+              <Icon name="copy" />
             </button>
           </div>
           <pre>{traceHover.text}</pre>

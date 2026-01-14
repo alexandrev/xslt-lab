@@ -1,3 +1,5 @@
+import Icon from "./Icon";
+
 export default function DataPipelineHeader({
   collapsed,
   onToggleCollapsed,
@@ -12,7 +14,7 @@ export default function DataPipelineHeader({
         onClick={onToggleCollapsed}
         aria-label={collapsed ? "Show data pipeline" : "Hide data pipeline"}
       >
-        {collapsed ? "▶" : "▼"}
+        <Icon name={collapsed ? "chevron-right" : "chevron-down"} />
       </button>
       <div className="title">Data Pipeline</div>
       <div className="params-header-actions">
@@ -23,7 +25,7 @@ export default function DataPipelineHeader({
           title="Add new parameter"
           aria-label="Add new parameter"
         >
-          ➕
+          <Icon name="plus" />
         </button>
       </div>
     </div>
