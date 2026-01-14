@@ -26,10 +26,11 @@ jobs:
       - name: Generate chart index
         run: |
           cd chart-output
-          helm repo index . --url "https://$GITHUB_REPOSITORY_OWNER.github.io/charts/${GITHUB_REPOSITORY#*/}"
+          helm repo index . --url "https://$GITHUB_REPOSITORY_OWNER.github.io/${GITHUB_REPOSITORY#*/}/docs"
 
       - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GH_TOKEN }}
           publish_dir: chart-output
+          destination_dir: docs
