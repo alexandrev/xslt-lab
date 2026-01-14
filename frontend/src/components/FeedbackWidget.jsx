@@ -250,7 +250,7 @@ export default function FeedbackWidget() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            🐞 Crear issue en GitHub
+            🐞 Report issue on GitHub
           </a>
         </div>
       )}
