@@ -2,10 +2,11 @@ baseURL = "https://blog.xsltplayground.com/"
 languageCode = "en-us"
 title = "XSLT Playground"
 
-[pagination]
-pagerSize = 10
 publishDir = "../docs"
 enableRobotsTXT = true
+
+[pagination]
+pagerSize = 10
 
 [params]
 subtitle = "Online XSLT editor built for real-world transformations."

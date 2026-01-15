@@ -17,6 +17,11 @@ body {
   background: radial-gradient(circle at 20% 20%, #11223f, #0b1021 45%), radial-gradient(circle at 80% 0%, #182743, #0b1021 40%), var(--bg);
   color: var(--text);
   line-height: 1.6;
+  --header-offset: 0px;
+}
+
+body.has-ethicalads {
+  --header-offset: 64px;
 }
 
 a { color: var(--accent); text-decoration: none; }
@@ -27,10 +32,28 @@ a:hover { color: var(--accent-2); }
   margin: 0 auto;
 }
 
+.ad-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(11, 16, 33, 0.95);
+  border-bottom: 1px solid var(--border);
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+}
+
+.ad-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
 .site-header {
   border-bottom: 1px solid var(--border);
   position: sticky;
-  top: 0;
+  top: var(--header-offset);
   backdrop-filter: blur(8px);
   background: rgba(11, 16, 33, 0.9);
   z-index: 10;
