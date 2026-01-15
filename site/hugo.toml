@@ -16,6 +16,9 @@ lead = "Run and debug XSLT online with multi-parameter inputs, timing hints, and
 client = "ca-pub-1549720748100858"
 inArticleSlot = ""
 
+[params.ethicalads]
+publisher = "xsltplaygroundcom"
+
 [menu]
   [[menu.main]]
   name = "Home"

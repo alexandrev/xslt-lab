@@ -8,7 +8,9 @@
   {{ partial "adsense/head.html" . }}
   <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
 </head>
-<body>
+{{- $ethicalAds := and .Site.Params.ethicalads.publisher (ne hugo.Environment "development") -}}
+<body{{ if $ethicalAds }} class="has-ethicalads"{{ end }}>
+  {{ partial "ethicalads.html" . }}
   <header class="site-header">
     <div class="container header-grid">
       <div>
