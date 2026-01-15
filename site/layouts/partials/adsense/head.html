@@ -1,4 +1,4 @@
-{{- $client := or .Site.Params.adsense.client (getenv "ADSENSE_CLIENT") -}}
+{{- $client := .Site.Params.adsense.client -}}
 {{- if and $client (ne hugo.Environment "development") -}}
   <meta name="google-adsense-account" content="{{ $client }}">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ $client }}" crossorigin="anonymous"></script>

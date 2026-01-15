@@ -1,4 +1,4 @@
-{{- $publisher := or .Site.Params.ethicalads.publisher (getenv "ETHICALADS_PUBLISHER") -}}
+{{- $publisher := .Site.Params.ethicalads.publisher -}}
 {{- if and $publisher (ne hugo.Environment "development") -}}
   {{ if not (.Scratch.Get "ethicalads_loaded") -}}
     <script async src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>

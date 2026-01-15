@@ -1,5 +1,5 @@
-{{- $client := or .Site.Params.adsense.client (getenv "ADSENSE_CLIENT") -}}
-{{- $slot := or .Site.Params.adsense.inArticleSlot (getenv "ADSENSE_INARTICLE_SLOT") -}}
+{{- $client := .Site.Params.adsense.client -}}
+{{- $slot := .Site.Params.adsense.inArticleSlot -}}
 {{- if and $client $slot (ne hugo.Environment "development") -}}
   <div class="ad ad-in-article">
     <ins class="adsbygoogle"
