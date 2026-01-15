@@ -1,7 +1,7 @@
 ---
 title: "XSLT performance tuning without losing readability"
 description: "A practical guide to faster transformations with keys, modes, and smarter selection."
-date: 2025-03-03T00:00:00Z
+date: 2024-11-22T00:00:00Z
 ---
 
 Performance problems in XSLT are sneaky. The stylesheet looks clean, the output is correct, but the transform slows down as the input grows. Most of the time this is caused by expensive selections that are repeated in loops, or by deep `//` searches that scan the entire tree more often than you expect. The good news is that you can usually fix these issues without turning the stylesheet into unreadable micro-optimizations.

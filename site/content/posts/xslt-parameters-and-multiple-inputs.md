@@ -1,7 +1,7 @@
 ---
 title: "Designing XSLT transforms with parameters and multiple inputs"
 description: "How to structure stylesheets that consume several XML documents and stay maintainable."
-date: 2025-03-02T00:00:00Z
+date: 2024-11-20T00:00:00Z
 ---
 
 Many real-world transformations do not run on a single XML document. You often merge a primary payload with reference data, catalog lookups, or environment configuration. Done well, this results in a clean, predictable transform. Done poorly, it becomes a maze of `document()` calls and hidden dependencies. The difference is in how you model inputs and parameters from the start. As an integration engineer, I treat input selection and parameter design as first-class API design for the stylesheet.

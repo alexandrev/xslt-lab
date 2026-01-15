@@ -1,7 +1,7 @@
 ---
 title: "Testing XSLT transforms for regression safety"
 description: "How to build a lightweight test harness for reliable XSLT deployments."
-date: 2025-03-05T00:00:00Z
+date: 2024-11-26T00:00:00Z
 ---
 
 XSLT transformations often live at the heart of an integration flow. A small change can impact downstream systems, and because the output is just data, regressions can go unnoticed until a business process breaks. You do not need a massive testing framework to prevent this. A lightweight, repeatable testing approach with a few representative inputs can catch most issues and make changes far safer to deploy.

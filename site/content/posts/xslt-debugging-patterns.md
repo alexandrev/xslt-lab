@@ -1,7 +1,7 @@
 ---
 title: "XSLT debugging patterns that save hours"
 description: "Practical ways to trace, isolate, and fix transformations with minimal friction."
-date: 2025-03-01T00:00:00Z
+date: 2024-11-18T00:00:00Z
 ---
 
 XSLT bugs are rarely loud. More often, a template silently matches the wrong node, a predicate filters out a value you needed, or a namespace mismatch turns an element into a ghost. The fastest fix comes from a repeatable debugging workflow that keeps your assumptions visible. Over time you learn the same patterns appear in almost every real project, whether you are cleansing XML feeds, integrating partner payloads, or generating documents. This post walks through the techniques I use as an integration engineer to debug transforms quickly without losing context.

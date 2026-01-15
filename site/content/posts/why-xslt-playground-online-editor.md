@@ -1,7 +1,7 @@
 ---
 title: "Why I built an XSLT online editor for real-world work"
 description: "The story behind XSLT Playground—an XSLT online editor tuned for multi-parameter transforms, fast feedback, and practical debugging."
-date: 2025-11-22T15:34:45Z
+date: 2024-10-20T00:00:00Z
 ---
 
 If you have spent years inside XPath and XSLT, you know the pain of juggling heavy desktop tools just to ship one transform. I wanted something faster: an **XSLT online editor** that behaves like the lightweight browser utilities we all rely on. That is why I created [XSLT Playground](https://xsltplayground.com), a web-based editor built for realistic, multi-input scenarios instead of the single-input demos most tools target.

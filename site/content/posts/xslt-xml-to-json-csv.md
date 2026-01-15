@@ -1,7 +1,7 @@
 ---
 title: "Transforming XML to JSON and CSV with XSLT"
 description: "Patterns for producing modern integration formats while staying in XSLT."
-date: 2025-03-04T00:00:00Z
+date: 2024-11-24T00:00:00Z
 ---
 
 XSLT is usually associated with XML-to-XML transformations, but in integration work you often need JSON or CSV. The good news is that XSLT is perfectly capable of producing non-XML outputs when you design the stylesheet for it. The key is to choose the right output method, control whitespace carefully, and build an intermediate structure if it helps clarify the mapping. This post covers practical patterns for generating JSON and CSV from XML while keeping the stylesheet maintainable.

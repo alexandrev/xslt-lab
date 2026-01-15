@@ -1,7 +1,7 @@
 ---
 title: "Architecting XSLT in integration pipelines"
 description: "Where XSLT fits in modern systems and how to keep transforms clean."
-date: 2025-03-06T00:00:00Z
+date: 2024-11-28T00:00:00Z
 ---
 
 XSLT is at its best when it is treated as a focused transformation component in a wider integration architecture. You can use it inside an ESB, as part of a serverless function, or embedded in a data processing pipeline. The key is to define its responsibility clearly: XSLT should transform shape and content, not contain hidden transport logic or business workflows. With that boundary in place, the stylesheet becomes easier to test, reuse, and evolve.
