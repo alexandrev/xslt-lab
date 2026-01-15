@@ -1429,17 +1429,6 @@ export default function App() {
               <option value="1.0">XSLT 1.0</option>
               <option value="2.0">XSLT 2.0</option>
             </select>
-            <label className="theme-toggle">
-              <input
-                type="checkbox"
-                checked={isDarkTheme}
-                onChange={(e) =>
-                  setTheme(e.target.checked ? THEME_DARK : THEME_LIGHT)
-                }
-              />
-              <span className="theme-toggle-box" aria-hidden="true" />
-              <span className="theme-toggle-label">Dark mode</span>
-            </label>
             <label className="trace-toggle">
               <input
                 type="checkbox"
