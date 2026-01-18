@@ -1,19 +1,7 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import GA4React from "ga-4-react";
-import Editor from "@monaco-editor/react";
-import formatXML from "xml-formatter";
-import { initializeApp } from "firebase/app";
-import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signOut,
-} from "firebase/auth";
+import { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from "react";
 import logo from "./logo.svg";
 import TabsNav from "./components/TabsNav";
 import DataPipelineHeader from "./components/DataPipelineHeader";
-import FeedbackWidget from "./components/FeedbackWidget";
-import BuyMeACoffee from "./components/BuyMeACoffee";
 import Icon from "./components/Icon";
 import {
   parseErrorLines,
@@ -25,6 +13,42 @@ import {
 } from "./lib/workspaceUtils";
 
 /* global __APP_VERSION__ */
+
+const MonacoEditor = lazy(() => import("@monaco-editor/react"));
+const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
+const BuyMeACoffee = lazy(() => import("./components/BuyMeACoffee"));
+
+function runWhenIdle(callback, timeout = 2000) {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+  if ("requestIdleCallback" in window) {
+    const id = window.requestIdleCallback(callback, { timeout });
+    return () => window.cancelIdleCallback?.(id);
+  }
+  const id = window.setTimeout(callback, timeout);
+  return () => window.clearTimeout(id);
+}
+
+function Editor({ height, ...props }) {
+  const fallbackStyle = height ? { height } : undefined;
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="editor-loading"
+          role="status"
+          aria-live="polite"
+          style={fallbackStyle}
+        >
+          Loading editor...
+        </div>
+      }
+    >
+      <MonacoEditor height={height} {...props} />
+    </Suspense>
+  );
+}
 
 function debounce(fn, delay) {
   let t;
@@ -273,6 +297,7 @@ export default function App() {
   const [viewportWidth, setViewportWidth] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth : 0,
   );
+  const [widgetsReady, setWidgetsReady] = useState(false);
   const ethicalSlotRef = useRef(null);
   const isLocalhost =
     typeof window !== "undefined" &&
@@ -291,12 +316,32 @@ export default function App() {
   const ethicalAdVariant = `${isCompactEthicalAd ? "compact" : "wide"}-${ethicalAdType}`;
 
   const backendBase = (env.VITE_BACKEND_URL || "").replace(/\/$/, "");
-  console.log("Using this URL as backendURL:", backendBase);
 
   useEffect(() => {
-    const ga4react = new GA4React(env.VITE_GA_ID);
-    ga4react.initialize().catch(err => console.error(err));
- }, []);
+    const gaId = env.VITE_GA_ID;
+    if (!gaId) return;
+    let cancelled = false;
+    const cancelIdle = runWhenIdle(async () => {
+      if (cancelled) return;
+      try {
+        const { default: GA4React } = await import("ga-4-react");
+        if (cancelled) return;
+        const ga4react = new GA4React(gaId);
+        ga4react.initialize().catch((err) => console.error(err));
+      } catch (err) {
+        console.error(err);
+      }
+    }, 2500);
+    return () => {
+      cancelled = true;
+      cancelIdle?.();
+    };
+  }, []);
+
+  useEffect(() => {
+    const cancelIdle = runWhenIdle(() => setWidgetsReady(true), 2000);
+    return () => cancelIdle?.();
+  }, []);
 
   // Persist workspace on change
   useEffect(() => {
@@ -597,16 +642,28 @@ export default function App() {
 
   useEffect(() => {
     if (!goPro) return;
-    try {
-      const cfg = env.VITE_FIREBASE_CONFIG;
-      if (cfg) {
+    let cancelled = false;
+    const cancelIdle = runWhenIdle(async () => {
+      if (cancelled) return;
+      try {
+        const cfg = env.VITE_FIREBASE_CONFIG;
+        if (!cfg) return;
+        const [{ initializeApp }, { getAuth }] = await Promise.all([
+          import("firebase/app"),
+          import("firebase/auth"),
+        ]);
+        if (cancelled) return;
         const app = initializeApp(JSON.parse(cfg));
         const a = getAuth(app);
         setAuth(a);
         a.onAuthStateChanged((u) => setUser(u));
-      }
-    } catch {}
-  }, []);
+      } catch {}
+    }, 2500);
+    return () => {
+      cancelled = true;
+      cancelIdle?.();
+    };
+  }, [goPro]);
 
   useEffect(() => {
     tabsRef.current = tabs;
@@ -1174,11 +1231,14 @@ export default function App() {
   );
 
   useEffect(() => {
-    if (adsenseClient && adsenseSlot && window.adsbygoogle) {
+    if (!adsenseClient || !adsenseSlot) return;
+    const cancelIdle = runWhenIdle(() => {
+      if (!window.adsbygoogle) return;
       try {
         window.adsbygoogle.push({});
       } catch {}
-    }
+    }, 2000);
+    return () => cancelIdle?.();
   }, []);
 
   useEffect(() => {
@@ -1190,25 +1250,36 @@ export default function App() {
       setEthicalAdsReady(true);
       return;
     }
-    const existing = document.querySelector("script[data-ethicalads]");
-    const script = existing || document.createElement("script");
-    if (!existing) {
-      script.src = "https://media.ethicalads.io/media/client/ethicalads.min.js";
-      script.async = true;
-      script.dataset.ethicalads = "true";
-      document.body.appendChild(script);
-    }
-    const onLoad = () => setEthicalAdsReady(Boolean(window.ethicalads));
-    const onError = () => setEthicalAdsReady(false);
-    script.addEventListener("load", onLoad);
-    script.addEventListener("error", onError);
-    const fallback = window.setTimeout(() => {
-      if (!window.ethicalads) setEthicalAdsReady(false);
-    }, 3500);
+    let cancelled = false;
+    let script = null;
+    let fallback = null;
+    let onLoad = null;
+    let onError = null;
+    const loadEthicalAds = () => {
+      if (cancelled) return;
+      const existing = document.querySelector("script[data-ethicalads]");
+      script = existing || document.createElement("script");
+      if (!existing) {
+        script.src = "https://media.ethicalads.io/media/client/ethicalads.min.js";
+        script.async = true;
+        script.dataset.ethicalads = "true";
+        document.body.appendChild(script);
+      }
+      onLoad = () => setEthicalAdsReady(Boolean(window.ethicalads));
+      onError = () => setEthicalAdsReady(false);
+      script.addEventListener("load", onLoad);
+      script.addEventListener("error", onError);
+      fallback = window.setTimeout(() => {
+        if (!window.ethicalads) setEthicalAdsReady(false);
+      }, 3500);
+    };
+    const cancelIdle = runWhenIdle(loadEthicalAds, 2000);
     return () => {
-      script.removeEventListener("load", onLoad);
-      script.removeEventListener("error", onError);
-      window.clearTimeout(fallback);
+      cancelled = true;
+      cancelIdle?.();
+      if (script && onLoad) script.removeEventListener("load", onLoad);
+      if (script && onError) script.removeEventListener("error", onError);
+      if (fallback) window.clearTimeout(fallback);
     };
   }, [ethicalAdsEnabled]);
 
@@ -1219,17 +1290,6 @@ export default function App() {
       window.ethicalads?.load(ethicalSlotRef.current);
     } catch {}
   }, [ethicalAdsEnabled, ethicalAdsReady, ethicalAdVariant]);
-
-  useEffect(() => {
-    if (!ethicalAdsPublisher) return;
-    const existing = document.querySelector("script[data-ethicalads]");
-    if (existing) return;
-    const script = document.createElement("script");
-    script.src = "https://media.ethicalads.io/media/client/ethicalads.min.js";
-    script.async = true;
-    script.dataset.ethicalads = "true";
-    document.body.appendChild(script);
-  }, []);
 
   return (
     <div className="app-container">
@@ -1284,6 +1344,7 @@ export default function App() {
             accept="application/json,.json"
             className="file-input"
             onChange={handleWorkspaceImport}
+            aria-label="Import workspace file"
           />
         </div>
       </div>
@@ -1336,6 +1397,7 @@ export default function App() {
                           placeholder="Parameter name"
                           value={p.name}
                           onChange={(e) => updateParam(i, "name", e.target.value)}
+                          aria-label="Parameter name"
                         />
                       </div>
                       <button
@@ -1371,13 +1433,18 @@ export default function App() {
                           />
                         </div>
                         <div className="param-footer">
-                          <label className="icon-button file-label param-upload">
+                          <label
+                            className="icon-button file-label param-upload"
+                            aria-label="Upload parameter value"
+                            title="Upload parameter value"
+                          >
                             <Icon name="upload" />
                             <input
                               type="file"
                               accept=".xml"
                               className="file-input"
                               onChange={(e) => loadFile(e, (t) => updateParam(i, "value", t))}
+                              aria-label="Upload parameter value file"
                             />
                           </label>
                           <button
@@ -1425,6 +1492,7 @@ export default function App() {
                   ),
                 )
               }
+              aria-label="XSLT version"
             >
               <option value="1.0">XSLT 1.0</option>
               <option value="2.0">XSLT 2.0</option>
@@ -1439,12 +1507,17 @@ export default function App() {
               <span className="trace-toggle-label">Enable Internal Variables</span>
             </label>
             <div className="right-actions">
-              <label className="icon-button file-label">
+              <label
+                className="icon-button file-label"
+                aria-label="Upload stylesheet"
+                title="Upload stylesheet"
+              >
                 <Icon name="upload" />
                 <input
                   type="file"
                   accept=".xsl,.xslt"
                   className="file-input"
+                  aria-label="Upload stylesheet file"
                   onChange={(e) =>
                     loadFile(e, (t) =>
                       setTabs((tabs) =>
@@ -1460,6 +1533,8 @@ export default function App() {
               </label>
               <button
                 className="icon-button"
+                aria-label="Download stylesheet"
+                title="Download stylesheet"
                 onClick={() =>
                   download(
                     injectParamBlock(activeTab.xslt, activeTab.params),
@@ -1527,6 +1602,7 @@ export default function App() {
                           onClick={handleCopyAllTrace}
                           type="button"
                           disabled={!traceEntries.length && !traceText}
+                          aria-label="Copy all trace variables"
                         >
                           <Icon name="copy" />
                         </button>
@@ -1543,6 +1619,7 @@ export default function App() {
                               }
                             }}
                             type="button"
+                            aria-label={showRawTrace ? "Hide raw trace output" : "Show raw trace output"}
                           >
                             <Icon name={showRawTrace ? "terminal-off" : "terminal"} />
                           </button>
@@ -1639,7 +1716,7 @@ export default function App() {
         }}
       >
         {error && !errorCollapsed && (
-          <div className="error-box">
+          <div className="error-box" role="alert" aria-live="assertive">
             <div className="error-box-header">
               <span>Errors</span>
               <div className="error-box-actions">
@@ -1710,7 +1787,9 @@ export default function App() {
         {showResultPane && (
           <>
             {duration !== null && (
-              <div className="success-box">Success in {duration} ms</div>
+              <div className="success-box" role="status" aria-live="polite">
+                Success in {duration} ms
+              </div>
             )}
             <div className="result-actions">
               {canRenderHtml && (
@@ -1742,9 +1821,10 @@ export default function App() {
               <button
                 className="icon-button result-format-button"
                 disabled={effectiveResultView !== "source"}
-                onClick={() => {
+                onClick={async () => {
                   if (effectiveResultView !== "source") return;
                   try {
+                    const { default: formatXML } = await import("xml-formatter");
                     const formatted = formatXML(result);
                     if (activeTab) {
                       updateWorkspaceStatus(activeTab.id, (prev) => ({
@@ -1776,6 +1856,7 @@ export default function App() {
                     title="Rendered HTML output"
                     srcDoc={result || "<!-- empty -->"}
                     sandbox=""
+                    loading="lazy"
                   />
                 </div>
               ) : (
@@ -1800,7 +1881,7 @@ export default function App() {
       </div>
       <div className="footer">
         <div className="footer-left">
-          <img src={logo} alt="logo" className="logo" />
+          <img src={logo} alt="XSLT Playground logo" className="logo" />
           <strong>xsltplayground.com</strong>
           <a
             className="news-link"
@@ -1853,15 +1934,25 @@ export default function App() {
           }}
         >
           <div className="trace-hover-actions">
-            <button type="button" className="icon-button" onClick={copyTraceHover} title="Copy value">
+            <button
+              type="button"
+              className="icon-button"
+              onClick={copyTraceHover}
+              title="Copy value"
+              aria-label="Copy value"
+            >
               <Icon name="copy" />
             </button>
           </div>
           <pre>{traceHover.text}</pre>
         </div>
       )}
-      <BuyMeACoffee />
-      <FeedbackWidget />
+      {widgetsReady && (
+        <Suspense fallback={null}>
+          <BuyMeACoffee />
+          <FeedbackWidget />
+        </Suspense>
+      )}
     </div>
   );
 }

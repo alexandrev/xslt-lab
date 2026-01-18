@@ -83,6 +83,7 @@ export default function TabsNav({
                 placeholder={`Workspace ${index + 1}`}
                 onChange={(e) => setDraftName(e.target.value)}
                 onBlur={() => commitEditing(tab)}
+                aria-label="Workspace name"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();

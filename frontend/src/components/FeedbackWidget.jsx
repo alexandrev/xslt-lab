@@ -225,8 +225,6 @@ export default function FeedbackWidget() {
       <div
         className="feedback-header"
         onMouseDown={startDrag}
-        role="button"
-        tabIndex={0}
       >
         <span>Feedback</span>
         <button

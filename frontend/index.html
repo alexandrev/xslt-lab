@@ -23,18 +23,34 @@
     <link rel="canonical" href="https://xsltplayground.com/" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <script type="module" src="/env.js"></script>
-      <script>
-        if (window.env && window.env.VITE_ADSENSE_CLIENT) {
-          const s = document.createElement('script');
-          s.async = true;
-          s.src =
-            'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' +
-            window.env.VITE_ADSENSE_CLIENT;
-          s.crossOrigin = 'anonymous';
-          document.head.appendChild(s);
+    <script>
+      const loadAdsense = () => {
+        const client = window.env && window.env.VITE_ADSENSE_CLIENT;
+        if (!client) return;
+        const s = document.createElement("script");
+        s.async = true;
+        s.src =
+          "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" +
+          client;
+        s.crossOrigin = "anonymous";
+        document.head.appendChild(s);
+      };
+
+      const scheduleAdsense = () => {
+        if ("requestIdleCallback" in window) {
+          window.requestIdleCallback(loadAdsense, { timeout: 2500 });
+        } else {
+          window.setTimeout(loadAdsense, 1500);
         }
-      </script>
-    </head>
+      };
+
+      if (document.readyState === "complete") {
+        scheduleAdsense();
+      } else {
+        window.addEventListener("load", scheduleAdsense, { once: true });
+      }
+    </script>
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
