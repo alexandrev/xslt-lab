@@ -1,4 +1,4 @@
-import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { render, screen, waitFor, cleanup, fireEvent } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 
@@ -47,6 +47,7 @@ afterEach(() => {
 describe("App bootstrap", () => {
   it("renders without crashing", async () => {
     render(<App />);
+    fireEvent.pointerDown(window);
     await waitFor(() => expect(fetch).toHaveBeenCalled());
     expect(screen.getByText(/xsltplayground\.com/i)).toBeInTheDocument();
   });

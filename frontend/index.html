@@ -22,6 +22,58 @@
     <meta property="og:image" content="/logo.svg" />
     <link rel="canonical" href="https://xsltplayground.com/" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        color: #21426c;
+      }
+      .app-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.25rem;
+      }
+      .shell-top {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .shell-logo {
+        width: 32px;
+        height: 32px;
+      }
+      .shell-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+      .shell-subtitle {
+        font-size: 0.9rem;
+        color: #536084;
+      }
+      .shell-grid {
+        display: grid;
+        gap: 0.75rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+      .shell-pane,
+      .shell-bar {
+        border-radius: 12px;
+        background: linear-gradient(90deg, #eef3ff, #f8fbff, #eef3ff);
+        background-size: 200% 100%;
+        animation: shell-shimmer 1.6s ease-in-out infinite;
+        min-height: 160px;
+      }
+      .shell-bar {
+        min-height: 48px;
+      }
+      @keyframes shell-shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+    </style>
     <script type="module" src="/env.js"></script>
     <script>
       const loadAdsense = () => {
@@ -52,7 +104,22 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="app-shell" role="status" aria-live="polite">
+        <div class="shell-top">
+          <img src="/logo.svg" alt="XSLT Playground logo" class="shell-logo" />
+          <div>
+            <div class="shell-title">XSLT Playground</div>
+            <div class="shell-subtitle">Loading the editor...</div>
+          </div>
+        </div>
+        <div class="shell-grid">
+          <div class="shell-pane"></div>
+          <div class="shell-pane"></div>
+        </div>
+        <div class="shell-bar"></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
 
   </body>

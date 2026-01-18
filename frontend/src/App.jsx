@@ -298,6 +298,7 @@ export default function App() {
     typeof window !== "undefined" ? window.innerWidth : 0,
   );
   const [widgetsReady, setWidgetsReady] = useState(false);
+  const [autoRunReady, setAutoRunReady] = useState(false);
   const ethicalSlotRef = useRef(null);
   const isLocalhost =
     typeof window !== "undefined" &&
@@ -341,6 +342,18 @@ export default function App() {
   useEffect(() => {
     const cancelIdle = runWhenIdle(() => setWidgetsReady(true), 2000);
     return () => cancelIdle?.();
+  }, []);
+
+  useEffect(() => {
+    const enable = () => setAutoRunReady(true);
+    const cancelIdle = runWhenIdle(enable, 2000);
+    window.addEventListener("pointerdown", enable, { once: true });
+    window.addEventListener("keydown", enable, { once: true });
+    return () => {
+      cancelIdle?.();
+      window.removeEventListener("pointerdown", enable);
+      window.removeEventListener("keydown", enable);
+    };
   }, []);
 
   // Persist workspace on change
@@ -1012,14 +1025,14 @@ export default function App() {
   }, 500);
 
   useEffect(() => {
-    if (!activeTab) return;
+    if (!activeTab || !autoRunReady) return;
     runTransform(
       injectParamBlock(activeTab.xslt, activeTab.params),
       activeTab.version,
       activeTab.params,
       activeTab.id,
     );
-  }, [activeTab, traceEnabled]);
+  }, [activeTab, traceEnabled, autoRunReady]);
 
   useEffect(() => {
     syncParams();
