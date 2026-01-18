@@ -346,11 +346,9 @@ export default function App() {
 
   useEffect(() => {
     const enable = () => setAutoRunReady(true);
-    const cancelIdle = runWhenIdle(enable, 2000);
     window.addEventListener("pointerdown", enable, { once: true });
     window.addEventListener("keydown", enable, { once: true });
     return () => {
-      cancelIdle?.();
       window.removeEventListener("pointerdown", enable);
       window.removeEventListener("keydown", enable);
     };
