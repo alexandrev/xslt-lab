@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="logo-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#07162f" />
+      <stop offset="50%" stop-color="#0c3264" />
+      <stop offset="100%" stop-color="#1480ff" />
+    </linearGradient>
+    <linearGradient id="logo-flow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe07d" />
+      <stop offset="100%" stop-color="#52f2c5" />
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="10" fill="url(#logo-bg)" />
+  <g stroke="#8edfff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.92">
+    <path d="M15 10 L8.5 18 L15 26" />
+    <path d="M15 22 L8.5 30 L15 38" />
+    <path d="M33 10 L39.5 18 L33 26" />
+    <path d="M33 22 L39.5 30 L33 38" />
+  </g>
+  <path d="M7 14h34" stroke="rgba(255,255,255,0.25)" stroke-width="1" />
+  <path d="M7 34h34" stroke="rgba(255,255,255,0.25)" stroke-width="1" />
+  <path d="M18 15 L27 15 L35 24 L27 33 L18 33 L23 27 L17 27 L13 24 L17 21 L23 21 Z" fill="url(#logo-flow)" />
+  <path d="M18 15 L27 15 L35 24 L27 33 L18 33 L23 27 L17 27 L13 24 L17 21 L23 21 Z" fill="none" stroke="rgba(0, 0, 0, 0.3)" stroke-width="0.8" stroke-linejoin="round" />
+  <path d="M23 18 V30" stroke="#fff3d4" stroke-width="1.5" stroke-linecap="round" />
+  <circle cx="23" cy="18" r="1.5" fill="#fffcf1" />
+  <circle cx="23" cy="30" r="1.5" fill="#fffcf1" />
+  <circle cx="23" cy="24" r="2.3" fill="#051c38" opacity="0.45" />
+</svg>
