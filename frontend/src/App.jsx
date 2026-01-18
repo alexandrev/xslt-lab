@@ -297,6 +297,7 @@ export default function App() {
   const [viewportWidth, setViewportWidth] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth : 0,
   );
+  const [userInteracted, setUserInteracted] = useState(false);
   const [widgetsReady, setWidgetsReady] = useState(false);
   const [autoRunReady, setAutoRunReady] = useState(false);
   const ethicalSlotRef = useRef(null);
@@ -320,7 +321,7 @@ export default function App() {
 
   useEffect(() => {
     const gaId = env.VITE_GA_ID;
-    if (!gaId) return;
+    if (!gaId || !userInteracted) return;
     let cancelled = false;
     const cancelIdle = runWhenIdle(async () => {
       if (cancelled) return;
@@ -337,15 +338,14 @@ export default function App() {
       cancelled = true;
       cancelIdle?.();
     };
-  }, []);
+  }, [userInteracted]);
 
   useEffect(() => {
-    const cancelIdle = runWhenIdle(() => setWidgetsReady(true), 2000);
-    return () => cancelIdle?.();
-  }, []);
-
-  useEffect(() => {
-    const enable = () => setAutoRunReady(true);
+    const enable = () => {
+      setUserInteracted(true);
+      setAutoRunReady(true);
+      setWidgetsReady(true);
+    };
     window.addEventListener("pointerdown", enable, { once: true });
     window.addEventListener("keydown", enable, { once: true });
     return () => {
