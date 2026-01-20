@@ -34,3 +34,4 @@ jobs:
           github_token: ${{ secrets.GH_TOKEN }}
           publish_dir: chart-output
           destination_dir: docs
+          keep_files: true
