@@ -1304,6 +1304,7 @@ export default function App() {
 
   return (
     <div className="app-container">
+      <h1 className="sr-only">XSLT Playground - Online XSLT Editor and Tester</h1>
       {ethicalAdsEnabled && (
         <div
           ref={ethicalSlotRef}
@@ -1894,6 +1895,7 @@ export default function App() {
         <div className="footer-left">
           <img src={logo} alt="XSLT Playground logo" className="logo" />
           <strong>xsltplayground.com</strong>
+          <span className="footer-tagline">Free XSLT Editor &amp; Tester</span>
           <a
             className="news-link"
             href={newsUrl}

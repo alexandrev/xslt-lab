@@ -22,6 +22,30 @@
     <meta property="og:image" content="/logo.svg" />
     <link rel="canonical" href="https://xsltplayground.com/" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "XSLT Playground",
+        "alternateName": "XSLT Lab",
+        "url": "https://xsltplayground.com/",
+        "description": "Free online XSLT editor, tester and optimizer. Transform XML documents with XSLT 1.0 and 2.0 stylesheets using Saxon processor.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "featureList": [
+          "XSLT 1.0 and 2.0 support",
+          "Real-time XML transformation",
+          "Multiple workspaces",
+          "Variable tracing",
+          "Import/Export workspaces"
+        ]
+      }
+    </script>
     <style>
       body {
         margin: 0;
@@ -48,6 +72,7 @@
       .shell-title {
         font-weight: 700;
         font-size: 1.1rem;
+        margin: 0;
       }
       .shell-subtitle {
         font-size: 0.9rem;
@@ -109,7 +134,7 @@
         <div class="shell-top">
           <img src="/logo.svg" alt="XSLT Playground logo" class="shell-logo" />
           <div>
-            <div class="shell-title">XSLT Playground</div>
+            <h1 class="shell-title">XSLT Playground</h1>
             <div class="shell-subtitle">Loading the editor...</div>
           </div>
         </div>
