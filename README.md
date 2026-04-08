@@ -2,6 +2,10 @@
 
 Your Lab for XSLT Transformation.
 
+<a href="https://tinylaunch.com" target="_blank" rel="noopener">
+    <img src="https://tinylaunch.com/tinylaunch_badge_launching_soon.svg" alt="TinyLaunch Badge" style="width:202px; height:auto;" />
+</a>
+
 ## News & Releases
 
 - Follow updates on the GitHub Pages blog: [alexandrev.github.io/xslt-lab](https://alexandrev.github.io/xslt-lab/).
