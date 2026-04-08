@@ -41,4 +41,5 @@ jobs:
           publish_branch: gh-pages
           destination_dir: docs
           keep_files: false
+          force_orphan: true
           cname: blog.xsltplayground.com
