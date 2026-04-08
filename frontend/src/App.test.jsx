@@ -52,3 +52,27 @@ describe("App bootstrap", () => {
     expect(screen.getByText(/xsltplayground\.com/i)).toBeInTheDocument();
   });
 });
+
+describe("version selector", () => {
+  it("renders XSLT 1.0, 2.0 and 3.0 options", async () => {
+    render(<App />);
+    fireEvent.pointerDown(window);
+    await waitFor(() => expect(fetch).toHaveBeenCalled());
+    const select = screen.getByRole("combobox", { name: /xslt version/i });
+    const options = Array.from(select.querySelectorAll("option")).map(
+      (o) => o.value,
+    );
+    expect(options).toContain("1.0");
+    expect(options).toContain("2.0");
+    expect(options).toContain("3.0");
+  });
+
+  it("updates stylesheet version attribute when selection changes", async () => {
+    render(<App />);
+    fireEvent.pointerDown(window);
+    await waitFor(() => expect(fetch).toHaveBeenCalled());
+    const select = screen.getByRole("combobox", { name: /xslt version/i });
+    fireEvent.change(select, { target: { value: "3.0" } });
+    expect(select.value).toBe("3.0");
+  });
+});

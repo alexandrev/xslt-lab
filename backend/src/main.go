@@ -182,6 +182,10 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+		if req.Version != "" && req.Version != "1.0" && req.Version != "2.0" && req.Version != "3.0" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported XSLT version: must be 1.0, 2.0 or 3.0"})
+			return
+		}
 		log.Printf("processing transform: xslt %d bytes, %d parameters", len(req.XSLT), len(req.Parameters))
 
 		tmpDir, err := ioutil.TempDir("", "xslt")

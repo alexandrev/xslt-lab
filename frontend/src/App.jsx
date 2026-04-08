@@ -1508,6 +1508,7 @@ export default function App() {
             >
               <option value="1.0">XSLT 1.0</option>
               <option value="2.0">XSLT 2.0</option>
+              <option value="3.0">XSLT 3.0</option>
             </select>
             <label className="trace-toggle">
               <input
