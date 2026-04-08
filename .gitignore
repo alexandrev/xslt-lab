@@ -144,7 +144,7 @@ venv.bak/
 .ropeproject
 
 # mkdocs documentation
-/site
+# /site  (removed: site/ is the Hugo blog source)
 
 # mypy
 .mypy_cache/
@@ -198,6 +198,7 @@ cython_debug/
 # Frontend
 frontend/node_modules
 frontend/dist
+site/public
 backend/server
 backend/src/.gocache
 /config/credentials.json

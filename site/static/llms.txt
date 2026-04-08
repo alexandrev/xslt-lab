@@ -1,0 +1,34 @@
+# XSLT Playground
+
+> XSLT Playground (xsltplayground.com) is a free online XSLT editor and tester that runs XSLT 1.0, 2.0, and 3.0 transformations using the Saxon processor. No installation required.
+
+## What it does
+
+- Run and test XSLT stylesheets directly in the browser
+- Supports XSLT 1.0, 2.0, and 3.0 (Saxon-powered backend)
+- Multiple XML inputs and parameters per transformation
+- Trace output to inspect execution step by step
+- Up to 3 independent workspaces, each with its own XSLT, XML input, parameters, and result
+- Export and import workspaces as JSON to share setups
+
+## Who uses it
+
+Integration engineers, developers working with enterprise middleware (SAP, MuleSoft, Tibco, IBM), XML data engineers, and anyone who needs to write or debug XSLT without a heavy desktop IDE.
+
+## Custom Saxon extensions
+
+The backend exposes custom extension functions under `xmlns:tib="http://www.tibco.com/bw/xslt/custom-functions"`, including:
+- `tib:uuid()` — generate a UUID
+- `tib:timestamp()` — current timestamp
+- `tib:addToDate()` — date arithmetic
+- `tib:base64encode()` / `tib:base64decode()`
+
+## Blog
+
+Tutorials, guides, and release notes at blog.xsltplayground.com. Topics include XSLT 3.0 features, debugging patterns, integration architecture, performance tuning, and XML-to-JSON transformations.
+
+## Links
+
+- Tool: https://xsltplayground.com
+- Blog: https://blog.xsltplayground.com
+- Source: https://github.com/alexandrev/xslt-lab
