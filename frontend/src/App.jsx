@@ -65,7 +65,7 @@ const adsenseSlot = env.VITE_ADSENSE_SLOT;
 const ethicalAdsPublisher = env.VITE_ETHICALADS_PUBLISHER || "xsltplaygroundcom";
 const defaultRepoUrl = "https://github.com/alexandrev/xslt-lab";
 const repoUrl = env.VITE_REPO_URL || defaultRepoUrl;
-const newsUrl = env.VITE_NEWS_URL || "https://alexandrev.github.io/xslt-lab/";
+const newsUrl = env.VITE_NEWS_URL || "https://blog.xsltplayground.com/";
 const resolvedVersion =
   typeof __APP_VERSION__ !== "undefined" && __APP_VERSION__
     ? __APP_VERSION__
@@ -1902,7 +1902,7 @@ export default function App() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            News
+            Blog &amp; Tutorials
           </a>
           {resolvedVersion && (
             <a
