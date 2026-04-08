@@ -40,6 +40,5 @@ jobs:
           publish_dir: ./hugo-output
           publish_branch: gh-pages
           destination_dir: docs
-          keep_files: false
-          force_orphan: true
+          keep_files: true
           cname: blog.xsltplayground.com

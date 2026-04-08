@@ -6,6 +6,10 @@ on:
       - main
   workflow_dispatch:
 
+concurrency:
+  group: deploy-gh-pages
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
