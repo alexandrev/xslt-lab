@@ -10,6 +10,7 @@
   <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.subtitle }}{{ end }}">
   <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
   <meta property="og:url" content="{{ .Permalink }}">
+  {{ partial "schema-app.html" . }}
   {{ partial "adsense/head.html" . }}
   <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
 </head>

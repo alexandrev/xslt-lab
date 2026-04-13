@@ -1,8 +1,11 @@
 ---
-title: "Testing XSLT transforms for regression safety"
-description: "How to build a lightweight test harness for reliable XSLT deployments."
+title: "XSLT testing: how to build a regression harness for safe deployments"
+description: "How to test XSLT stylesheets and catch regressions before they hit production. Covers test corpus setup, expected outputs, CI integration, and using an online XSLT tester."
 date: 2024-11-26T00:00:00Z
+tags: ["xslt", "testing", "debugging"]
 ---
+
+Testing XSLT stylesheets before deployment prevents silent regressions in integration flows. Whether you run transforms in MuleSoft, Tibco, IBM DataPower, or a custom Saxon backend, a reproducible test process catches breaking changes before they reach production. This guide shows how to set one up, and how an online XSLT tester speeds up the feedback loop.
 
 XSLT transformations often live at the heart of an integration flow. A small change can impact downstream systems, and because the output is just data, regressions can go unnoticed until a business process breaks. You do not need a massive testing framework to prevent this. A lightweight, repeatable testing approach with a few representative inputs can catch most issues and make changes far safer to deploy.
 
