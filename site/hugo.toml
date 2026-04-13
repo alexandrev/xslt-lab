@@ -2,7 +2,6 @@ baseURL = "https://blog.xsltplayground.com/"
 languageCode = "en-us"
 title = "XSLT Playground"
 
-publishDir = "../docs"
 enableRobotsTXT = true
 
 [pagination]
