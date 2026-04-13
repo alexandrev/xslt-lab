@@ -1,0 +1,12 @@
+{{- $related := first 4 (where (where .Site.RegularPages "Section" "posts") "Permalink" "ne" .Permalink) -}}
+{{- if $related -}}
+<aside class="related-posts">
+  <h3>Related articles</h3>
+  <ul>
+    {{- range $related }}
+    <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+    {{- end }}
+  </ul>
+  <p class="related-cta">Try the examples in <a href="https://xsltplayground.com">XSLT Playground</a> — free online XSLT editor and tester.</p>
+</aside>
+{{- end -}}

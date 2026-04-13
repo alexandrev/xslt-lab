@@ -254,6 +254,49 @@ code {
   border-radius: 6px;
 }
 
+.related-posts {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+}
+
+.related-posts h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  color: var(--accent);
+}
+
+.related-posts ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.related-posts ul a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.related-posts ul a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.related-cta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.related-cta a {
+  color: var(--accent);
+}
+
 @media (max-width: 720px) {
   .header-grid { grid-template-columns: 1fr; }
   .nav { flex-wrap: wrap; }

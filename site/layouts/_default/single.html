@@ -9,5 +9,6 @@
     {{ .Content }}
   </div>
   <p class="muted back-link"><a href="{{ .CurrentSection.RelPermalink }}">← Back to {{ .CurrentSection.Title }}</a></p>
+  {{ partial "related-posts.html" . }}
 </article>
 {{ end }}
