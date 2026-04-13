@@ -1905,6 +1905,17 @@ export default function App() {
           >
             Blog &amp; Tutorials
           </a>
+          <span className="footer-blog-links">
+            <a href="https://blog.xsltplayground.com/posts/xslt-for-beginners/" target="_blank" rel="noopener noreferrer">XSLT for Beginners</a>
+            {" · "}
+            <a href="https://blog.xsltplayground.com/posts/xslt-3-new-features/" target="_blank" rel="noopener noreferrer">XSLT 3.0</a>
+            {" · "}
+            <a href="https://blog.xsltplayground.com/posts/xslt-string-functions/" target="_blank" rel="noopener noreferrer">String Functions</a>
+            {" · "}
+            <a href="https://blog.xsltplayground.com/posts/xslt-grouping-for-each-group/" target="_blank" rel="noopener noreferrer">Grouping</a>
+            {" · "}
+            <a href="https://blog.xsltplayground.com/posts/xslt-template-matching-explained/" target="_blank" rel="noopener noreferrer">Template Matching</a>
+          </span>
           {resolvedVersion && (
             <a
               className="version-pill"

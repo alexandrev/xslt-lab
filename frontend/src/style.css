@@ -35,6 +35,23 @@ a:focus-visible {
   text-decoration: underline;
 }
 
+.footer-blog-links {
+  color: #536084;
+  font-size: 0.78rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid #ccc;
+}
+
+.footer-blog-links a {
+  color: #536084;
+  text-decoration: none;
+}
+
+.footer-blog-links a:hover {
+  color: #007acc;
+  text-decoration: underline;
+}
+
 .version-pill {
   border: 1px solid #007acc;
   color: #007acc;
@@ -1380,6 +1397,15 @@ a:focus-visible {
   background: #121a24;
   border-top-color: #2b3645;
   color: #c7d2e3;
+}
+
+:root[data-theme="dark"] .footer-blog-links,
+:root[data-theme="dark"] .footer-blog-links a {
+  color: #7a91b0;
+}
+
+:root[data-theme="dark"] .footer-blog-links a:hover {
+  color: #6bb6ff;
 }
 
 :root[data-theme="dark"] .footer a {
