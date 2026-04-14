@@ -34,6 +34,10 @@ spec:
             - name: VITE_GA_ID
               value: {{ .Values.frontend.googleAnalyticsId | quote }}
 {{- end }}
+{{- if .Values.frontend.clarityId }}
+            - name: VITE_CLARITY_ID
+              value: {{ .Values.frontend.clarityId | quote }}
+{{- end }}
 {{- if .Values.adsTxt }}
           volumeMounts:
             - name: ads

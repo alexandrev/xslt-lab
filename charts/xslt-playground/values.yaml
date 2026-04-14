@@ -64,6 +64,8 @@ frontend:
   backendUrl: ""
   # Optional Google Analytics measurement ID
   googleAnalyticsId: ""
+  # Optional Microsoft Clarity project ID
+  clarityId: ""
 
 # Content for the optional ads.txt file served by the frontend
 adsTxt: ""
