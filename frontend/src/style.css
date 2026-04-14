@@ -1479,3 +1479,119 @@ a:focus-visible {
 :root[data-theme="dark"] .feedback-link:hover {
   background: #4a3916;
 }
+
+/* ── Error report link ── */
+.error-report-link {
+  display: inline-block;
+  margin: 6px 8px 4px;
+  font-size: 0.78rem;
+  color: #c0392b;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.error-report-link:hover {
+  color: #922b21;
+}
+
+:root[data-theme="dark"] .error-report-link {
+  color: #ff7675;
+}
+
+:root[data-theme="dark"] .error-report-link:hover {
+  color: #fab1a0;
+}
+
+/* ── Usage survey banner ── */
+.usage-survey {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #cfdcf4;
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 16px rgba(33, 66, 108, 0.14);
+  z-index: 100;
+  flex-wrap: wrap;
+  max-width: 90vw;
+}
+
+.usage-survey-q {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #21426c;
+  white-space: nowrap;
+}
+
+.usage-survey-options {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.usage-survey-btn {
+  padding: 4px 10px;
+  border: 1px solid #cfdcf4;
+  border-radius: 20px;
+  background: #f0f5ff;
+  color: #21426c;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.usage-survey-btn:hover {
+  background: #007acc;
+  color: #fff;
+  border-color: #007acc;
+}
+
+.usage-survey-dismiss {
+  margin-left: 4px;
+  padding: 2px 6px;
+  border: none;
+  background: transparent;
+  color: #536084;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.usage-survey-dismiss:hover {
+  background: #eef3ff;
+}
+
+:root[data-theme="dark"] .usage-survey {
+  background: #0f141b;
+  border-color: #2b3645;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="dark"] .usage-survey-q {
+  color: #e3e8ef;
+}
+
+:root[data-theme="dark"] .usage-survey-btn {
+  background: #1a2332;
+  color: #b0bfcf;
+  border-color: #2b3645;
+}
+
+:root[data-theme="dark"] .usage-survey-btn:hover {
+  background: #6bb6ff;
+  color: #0f141b;
+  border-color: #6bb6ff;
+}
+
+:root[data-theme="dark"] .usage-survey-dismiss {
+  color: #7a8fa8;
+}
+
+:root[data-theme="dark"] .usage-survey-dismiss:hover {
+  background: #1a2332;
+}

@@ -17,6 +17,7 @@ import {
 const MonacoEditor = lazy(() => import("@monaco-editor/react"));
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
 const BuyMeACoffee = lazy(() => import("./components/BuyMeACoffee"));
+const UsageSurvey = lazy(() => import("./components/UsageSurvey"));
 
 function runWhenIdle(callback, timeout = 2000) {
   if (typeof window === "undefined") {
@@ -115,11 +116,32 @@ function defaultWorkspaceStatus() {
     duration: null,
     error: "",
     errorLines: [],
+    isServerError: false,
     traceEntries: [],
     traceText: "",
     showRawTrace: false,
     resultView: "source",
   };
+}
+
+export function buildBugReportUrl(version, error, xslt) {
+  const trimmedXslt = xslt ? xslt.slice(0, 500) : "";
+  const body = [
+    "## Bug report",
+    "",
+    `**XSLT version:** ${version || "default"}`,
+    `**Error:** ${error || ""}`,
+    "",
+    "**Stylesheet (first 500 chars):**",
+    "```xml",
+    trimmedXslt,
+    "```",
+  ].join("\n");
+  const title = `Server error: ${(error || "").slice(0, 80)}`;
+  return (
+    "https://github.com/alexandrev/xslt-lab/issues/new" +
+    `?labels=bug&title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`
+  );
 }
 
 function looksLikeHtml(text) {
@@ -261,6 +283,10 @@ export default function App() {
   const [paramsCollapsed, setParamsCollapsed] = useState(false);
   const [errorCollapsed, setErrorCollapsed] = useState(false);
   const [ethicalAdsReady, setEthicalAdsReady] = useState(false);
+  const [transformCount, setTransformCount] = useState(0);
+  const [surveyDone, setSurveyDone] = useState(() => {
+    try { return localStorage.getItem("xsp_survey_done") === "1"; } catch { return false; }
+  });
   const workspaceImportRef = useRef(null);
   const resultResizeState = useRef({ startY: 0, startHeight: MIN_RESULT_HEIGHT });
   const paramResizeState = useRef({ startX: 0, startWidth: DEFAULT_PARAM_WIDTH });
@@ -466,6 +492,7 @@ export default function App() {
     duration,
     error,
     errorLines,
+    isServerError,
     traceEntries,
     traceText,
     showRawTrace,
@@ -979,6 +1006,7 @@ export default function App() {
         updateWorkspaceStatus(tabId, {
           error: txt || res.statusText,
           errorLines: lines,
+          isServerError: res.status >= 500,
           duration: null,
           result: "",
           traceEntries: [],
@@ -990,11 +1018,13 @@ export default function App() {
       }
       const data = await res.json();
       const defaultView = looksLikeHtml(data.result) ? "render" : "source";
+      setTransformCount((prev) => prev + 1);
       updateWorkspaceStatus(tabId, {
         result: data.result,
         duration: data.duration_ms,
         error: "",
         errorLines: [],
+        isServerError: false,
         showRawTrace: false,
         resultView: defaultView,
       });
@@ -1012,6 +1042,7 @@ export default function App() {
       updateWorkspaceStatus(tabId, {
         error: txt,
         errorLines: parseErrorLines(txt),
+        isServerError: true,
         result: "",
         duration: null,
         traceEntries: [],
@@ -1784,6 +1815,16 @@ export default function App() {
                 +{(errorLines || []).length - MAX_ERROR_LINES} more…
               </div>
             )}
+            {isServerError && (
+              <a
+                className="error-report-link"
+                href={buildBugReportUrl(activeTab?.version, error, activeTab?.xslt)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Report this bug on GitHub
+              </a>
+            )}
           </div>
         )}
         {error && errorCollapsed && (
@@ -1976,6 +2017,14 @@ export default function App() {
         <Suspense fallback={null}>
           <BuyMeACoffee />
           <FeedbackWidget />
+          {!surveyDone && transformCount >= 3 && (
+            <UsageSurvey
+              onDismiss={() => {
+                setSurveyDone(true);
+                try { localStorage.setItem("xsp_survey_done", "1"); } catch {}
+              }}
+            />
+          )}
         </Suspense>
       )}
     </div>
