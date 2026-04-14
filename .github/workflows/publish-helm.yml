@@ -30,7 +30,7 @@ jobs:
       - name: Generate chart index
         run: |
           cd chart-output
-          helm repo index . --url "https://$GITHUB_REPOSITORY_OWNER.github.io/${GITHUB_REPOSITORY#*/}/docs"
+          helm repo index . --url "https://blog.xsltplayground.com"
 
       - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v4
