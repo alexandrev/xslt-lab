@@ -14,6 +14,17 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
+  build: {
+    rollupOptions: {
+      external: ["monaco-editor"],
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom"],
+          monaco: ["@monaco-editor/react"],
+        },
+      },
+    },
+  },
   test: {
     environment: "jsdom",
     setupFiles: "./src/setupTests.js",

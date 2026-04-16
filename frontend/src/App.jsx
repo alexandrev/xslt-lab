@@ -14,6 +14,11 @@ import {
 
 /* global __APP_VERSION__ */
 
+import { loader } from "@monaco-editor/react";
+loader.config({
+  paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs" },
+});
+
 const MonacoEditor = lazy(() => import("@monaco-editor/react"));
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
 const BuyMeACoffee = lazy(() => import("./components/BuyMeACoffee"));

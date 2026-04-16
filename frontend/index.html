@@ -3,6 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preload" href="/logo.svg" as="image" type="image/svg+xml" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+    <script>
+      window.addEventListener("error", function (e) {
+        if (e.message && e.message.includes("ResizeObserver loop")) {
+          e.stopImmediatePropagation();
+        }
+      }, true);
+    </script>
     <title>XSLT Playground — Online XSLT Editor, Tester &amp; Validator</title>
     <meta
       name="description"
@@ -146,7 +156,7 @@
     <div id="root">
       <div class="app-shell" role="status" aria-live="polite">
         <div class="shell-top">
-          <img src="/logo.svg" alt="XSLT Playground logo" class="shell-logo" />
+          <img src="/logo.svg" alt="XSLT Playground logo" class="shell-logo" fetchpriority="high" />
           <div>
             <h1 class="shell-title">XSLT Playground</h1>
             <div class="shell-subtitle">Loading the editor...</div>
