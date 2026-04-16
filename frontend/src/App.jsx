@@ -1355,18 +1355,6 @@ export default function App() {
   return (
     <div className="app-container">
       <h1 className="sr-only">XSLT Playground - Online XSLT Editor and Tester</h1>
-      {ethicalAdsEnabled && (
-        <div
-          ref={ethicalSlotRef}
-          id="xsltplayground-main"
-          className="ethical-ad-placeholder"
-          data-ea-publisher={ethicalAdsPublisher}
-          data-ea-type={ethicalAdType}
-          data-ea-style={ethicalAdStyle}
-          style={{ height: ethicalAdHeight }}
-          aria-label="Advertisement"
-        />
-      )}
       <div className="tabs">
         <TabsNav
           tabs={tabs}
@@ -2046,6 +2034,18 @@ export default function App() {
             />
           )}
         </Suspense>
+      )}
+      {ethicalAdsEnabled && (
+        <div
+          ref={ethicalSlotRef}
+          id="xsltplayground-main"
+          className="ethical-ad-placeholder"
+          data-ea-publisher={ethicalAdsPublisher}
+          data-ea-type={ethicalAdType}
+          data-ea-style={ethicalAdStyle}
+          style={{ height: ethicalAdHeight }}
+          aria-label="Advertisement"
+        />
       )}
     </div>
   );

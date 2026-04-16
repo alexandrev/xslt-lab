@@ -914,6 +914,7 @@ a:focus-visible {
 
 .ethical-ad-placeholder {
   width: 100%;
+  order: -1;
 }
 
 .icon-button {
