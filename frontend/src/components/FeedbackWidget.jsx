@@ -154,6 +154,7 @@ export default function FeedbackWidget() {
     if (!dragging) return;
     const handleMove = (event) => {
       event.preventDefault();
+      dragMovedRef.current = true;
       const widget = widgetRef.current;
       const widgetRect = widget?.getBoundingClientRect();
       const maxX = Math.max(
@@ -202,14 +203,23 @@ export default function FeedbackWidget() {
     setOpensUp(rect.top + rect.height / 2 > viewportHeight / 2);
   }, [position, collapsed, viewportHeight]);
 
+  const dragMovedRef = useRef(false);
+
   const startDrag = (event) => {
     event.preventDefault();
+    dragMovedRef.current = false;
     const rect = event.currentTarget.getBoundingClientRect();
     setOffset({
       x: event.clientX - rect.left,
       y: event.clientY - rect.top,
     });
     setDragging(true);
+  };
+
+  const handleHeaderClick = () => {
+    if (!dragMovedRef.current) {
+      setCollapsed((prev) => !prev);
+    }
   };
 
   const mailLink = `mailto:${FEEDBACK_MAIL}?subject=${encodeURIComponent(
@@ -225,16 +235,11 @@ export default function FeedbackWidget() {
       <div
         className="feedback-header"
         onMouseDown={startDrag}
+        onClick={handleHeaderClick}
+        style={{ cursor: "grab" }}
       >
         <span>Feedback</span>
-        <button
-          type="button"
-          className="icon-button"
-          onClick={() => setCollapsed((prev) => !prev)}
-          aria-label={collapsed ? "Show feedback panel" : "Hide feedback panel"}
-        >
-          {collapsed ? "▲" : "▼"}
-        </button>
+        <span aria-hidden="true">{collapsed ? "▲" : "▼"}</span>
       </div>
       {!collapsed && (
         <div className="feedback-body">
