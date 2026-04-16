@@ -295,6 +295,14 @@ export default function App() {
   const workspaceImportRef = useRef(null);
   const resultResizeState = useRef({ startY: 0, startHeight: MIN_RESULT_HEIGHT });
   const paramResizeState = useRef({ startX: 0, startWidth: DEFAULT_PARAM_WIDTH });
+  const lastAdRefreshRef = useRef(0);
+  const maybeRefreshAd = () => {
+    const now = Date.now();
+    if (now - lastAdRefreshRef.current >= 30_000 && window.ethicalads) {
+      window.ethicalads.reload();
+      lastAdRefreshRef.current = now;
+    }
+  };
   const [resultHeight, setResultHeight] = useState(() => {
     try {
       const stored = localStorage.getItem(RESULT_HEIGHT_KEY);
@@ -442,6 +450,11 @@ export default function App() {
       setTraceScrollLeft(0);
     }
   }, [traceCollapsed]);
+
+  useEffect(() => {
+    const id = setInterval(maybeRefreshAd, 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     setWorkspaceStatus((prev) => {
@@ -1024,6 +1037,7 @@ export default function App() {
       const data = await res.json();
       const defaultView = looksLikeHtml(data.result) ? "render" : "source";
       setTransformCount((prev) => prev + 1);
+      maybeRefreshAd();
       updateWorkspaceStatus(tabId, {
         result: data.result,
         duration: data.duration_ms,
@@ -1344,6 +1358,7 @@ export default function App() {
       {ethicalAdsEnabled && (
         <div
           ref={ethicalSlotRef}
+          id="xsltplayground-main"
           className="ethical-ad-placeholder"
           data-ea-publisher={ethicalAdsPublisher}
           data-ea-type={ethicalAdType}
