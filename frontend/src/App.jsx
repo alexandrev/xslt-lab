@@ -296,9 +296,10 @@ export default function App() {
   const resultResizeState = useRef({ startY: 0, startHeight: MIN_RESULT_HEIGHT });
   const paramResizeState = useRef({ startX: 0, startWidth: DEFAULT_PARAM_WIDTH });
   const lastAdRefreshRef = useRef(0);
+  const adVisibleRef = useRef(false);
   const maybeRefreshAd = () => {
     const now = Date.now();
-    if (now - lastAdRefreshRef.current >= 30_000 && window.ethicalads) {
+    if (adVisibleRef.current && now - lastAdRefreshRef.current >= 30_000 && window.ethicalads) {
       window.ethicalads.reload();
       lastAdRefreshRef.current = now;
     }
@@ -452,8 +453,18 @@ export default function App() {
   }, [traceCollapsed]);
 
   useEffect(() => {
+    const el = ethicalSlotRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { adVisibleRef.current = entry.isIntersecting; },
+      { threshold: 0.5 },
+    );
+    observer.observe(el);
     const id = setInterval(maybeRefreshAd, 30_000);
-    return () => clearInterval(id);
+    return () => {
+      clearInterval(id);
+      observer.disconnect();
+    };
   }, []);
 
   useEffect(() => {
