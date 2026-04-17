@@ -36,14 +36,15 @@ function runWhenIdle(callback, timeout = 2000) {
   return () => window.clearTimeout(id);
 }
 
-function Editor({ height, ...props }) {
-  const [ready, setReady] = useState(false);
+function Editor({ height, eager = false, ...props }) {
+  const [ready, setReady] = useState(eager);
   useEffect(() => {
+    if (eager) return;
     const id = requestIdleCallback
       ? requestIdleCallback(() => setReady(true), { timeout: 1500 })
       : setTimeout(() => setReady(true), 300);
     return () => (requestIdleCallback ? cancelIdleCallback(id) : clearTimeout(id));
-  }, []);
+  }, [eager]);
   const fallbackStyle = height ? { height } : undefined;
   return (
     <Suspense
@@ -1646,6 +1647,7 @@ export default function App() {
           <div className="editor-split">
             <div className="xslt-editor-wrap">
               <Editor
+                eager
                 height="100%"
                 language="xml"
                 theme={editorTheme}
