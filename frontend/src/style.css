@@ -1108,6 +1108,66 @@ a:focus-visible {
   background: #ffe189;
 }
 
+.feedback-type {
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #c4d4ff;
+  background: #fff;
+  font-size: 0.85rem;
+  color: #21426c;
+}
+
+.feedback-textarea {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #c4d4ff;
+  font-size: 0.85rem;
+  resize: vertical;
+  font-family: inherit;
+  color: #21426c;
+  box-sizing: border-box;
+}
+
+.feedback-textarea:focus,
+.feedback-type:focus {
+  outline: none;
+  border-color: #7a9fff;
+}
+
+.feedback-submit {
+  width: 100%;
+  padding: 0.4rem;
+  border-radius: 6px;
+  border: none;
+  background: #21426c;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.feedback-submit:hover:not(:disabled) {
+  background: #2d5a96;
+}
+
+.feedback-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.feedback-error {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #c0392b;
+}
+
+.feedback-success p {
+  text-align: center;
+  font-size: 0.85rem;
+}
+
 :root[data-theme="dark"] {
   color-scheme: dark;
 }
