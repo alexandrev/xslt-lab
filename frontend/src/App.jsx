@@ -1522,7 +1522,32 @@ export default function App() {
                     )}
                   </div>
                 ))}
-                <div className="drop-hint">Drop your input XML files here..</div>
+                <label className="drop-hint" title="Click to upload XML files">
+                  Drop your input XML files here..
+                  <input
+                    type="file"
+                    accept=".xml"
+                    multiple
+                    className="file-input"
+                    onChange={(e) => {
+                      Array.from(e.target.files || []).forEach((file) => {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                          const name = file.name.replace(/\.[^.]+$/, "");
+                          setTabs((tabs) =>
+                            tabs.map((t) =>
+                              t.id === active
+                                ? { ...t, params: [...t.params, { name, value: reader.result, open: false }] }
+                                : t,
+                            ),
+                          );
+                        };
+                        reader.readAsText(file);
+                      });
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
               </div>
             </div>
             <div

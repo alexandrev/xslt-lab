@@ -584,6 +584,12 @@ a:focus-visible {
   padding: 0.75rem;
   font-size: 0.85rem;
   font-weight: 500;
+  cursor: pointer;
+  display: block;
+}
+.drop-hint:hover {
+  background: rgba(238, 243, 255, 0.9);
+  border-color: #7a9fff;
 }
 
 .pane-divider {
