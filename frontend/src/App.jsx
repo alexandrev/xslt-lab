@@ -12,7 +12,7 @@ import {
   setStylesheetVersion,
 } from "./lib/workspaceUtils";
 
-/* global __APP_VERSION__ */
+/* global __APP_VERSION__, __GIT_COMMIT__ */
 
 import { loader } from "@monaco-editor/react";
 loader.config({
@@ -87,9 +87,11 @@ const resolvedVersion =
   typeof __APP_VERSION__ !== "undefined" && __APP_VERSION__
     ? __APP_VERSION__
     : env.VITE_APP_VERSION || "";
-const changelogUrl = `${repoUrl}/blob/main/CHANGELOG.md${
-  resolvedVersion ? `#${changelogAnchor(resolvedVersion)}` : ""
-}`;
+const gitCommit =
+  typeof __GIT_COMMIT__ !== "undefined" && __GIT_COMMIT__
+    ? __GIT_COMMIT__
+    : "";
+const commitUrl = gitCommit ? `${repoUrl}/commit/${gitCommit}` : repoUrl;
 
 function defaultTab(overrides = {}) {
   const base = {
@@ -210,10 +212,6 @@ function normalizeWorkspaceImport(payload) {
   };
 }
 
-function changelogAnchor(version) {
-  if (!version) return "";
-  return `v${version}`.replace(/[^0-9a-zA-Z]+/g, "").toLowerCase();
-}
 
 export default function App() {
   // Load persisted workspace from localStorage (if present)
@@ -2012,15 +2010,15 @@ export default function App() {
             {" · "}
             <a href="https://blog.xsltplayground.com/posts/xslt-template-matching-explained/" target="_blank" rel="noopener noreferrer">Template Matching</a>
           </span>
-          {resolvedVersion && (
+          {gitCommit && (
             <a
               className="version-pill"
-              href={changelogUrl}
+              href={commitUrl}
               target="_blank"
               rel="noopener noreferrer"
-              title="View CHANGELOG"
+              title={`View commit ${gitCommit} on GitHub`}
             >
-              v{resolvedVersion}
+              {gitCommit}
             </a>
           )}
         </div>
