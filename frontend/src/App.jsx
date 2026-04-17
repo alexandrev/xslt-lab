@@ -1528,7 +1528,7 @@ export default function App() {
                     type="file"
                     accept=".xml"
                     multiple
-                    className="file-input"
+                    style={{ display: "none" }}
                     onChange={(e) => {
                       Array.from(e.target.files || []).forEach((file) => {
                         const reader = new FileReader();
