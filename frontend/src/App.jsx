@@ -37,6 +37,13 @@ function runWhenIdle(callback, timeout = 2000) {
 }
 
 function Editor({ height, ...props }) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const id = requestIdleCallback
+      ? requestIdleCallback(() => setReady(true), { timeout: 1500 })
+      : setTimeout(() => setReady(true), 300);
+    return () => (requestIdleCallback ? cancelIdleCallback(id) : clearTimeout(id));
+  }, []);
   const fallbackStyle = height ? { height } : undefined;
   return (
     <Suspense
@@ -51,7 +58,11 @@ function Editor({ height, ...props }) {
         </div>
       }
     >
-      <MonacoEditor height={height} {...props} />
+      {ready ? (
+        <MonacoEditor height={height} {...props} />
+      ) : (
+        <div className="editor-loading" style={fallbackStyle} aria-hidden="true" />
+      )}
     </Suspense>
   );
 }
