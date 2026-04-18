@@ -17,6 +17,31 @@ import {
 import CodeMirror, { EditorView } from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
+import { linter, lintGutter } from "@codemirror/lint";
+import { autocompletion } from "@codemirror/autocomplete";
+import xmlFormatter from "xml-formatter";
+import { getCompletions } from "./lib/xsltCompletions";
+
+function xmlLinter(view) {
+  const text = view.state.doc.toString().trim();
+  if (!text) return [];
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(text, "application/xml");
+  const err = doc.querySelector("parsererror");
+  if (!err) return [];
+  const msg = err.textContent || "XML parse error";
+  const lineMatch = msg.match(/[Ll]ine[:\s]+(\d+)/);
+  const colMatch = msg.match(/[Cc]ol(?:umn)?[:\s]+(\d+)/);
+  const line = lineMatch ? parseInt(lineMatch[1], 10) - 1 : 0;
+  const col = colMatch ? parseInt(colMatch[1], 10) - 1 : 0;
+  const lineObj = view.state.doc.line(Math.min(line + 1, view.state.doc.lines));
+  const from = Math.min(lineObj.from + col, lineObj.to);
+  const to = lineObj.to;
+  const clean = msg.replace(/Below is a rendering.*$/s, "").trim();
+  return [{ from, to: Math.max(from + 1, to), severity: "error", message: clean }];
+}
+
+const xmlLintExtension = linter(xmlLinter, { delay: 500 });
 
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
 const BuyMeACoffee = lazy(() => import("./components/BuyMeACoffee"));
@@ -49,8 +74,31 @@ function Editor({
   language,
   // eslint-disable-next-line no-unused-vars
   onMount,
+  xsltVersion,
 }) {
-  const extensions = [xml()];
+  const editable = !options.readOnly;
+  const extensions = [xml({ autoCloseTags: editable })];
+  if (editable) {
+    extensions.push(xmlLintExtension, lintGutter());
+    if (xsltVersion) {
+      const completions = getCompletions(xsltVersion);
+      extensions.push(
+        autocompletion({
+          override: [
+            (ctx) => {
+              const word = ctx.matchBefore(/[\w:()-]+/);
+              if (!word && !ctx.explicit) return null;
+              return {
+                from: word ? word.from : ctx.pos,
+                options: completions,
+                validFor: /^[\w:()-]*$/,
+              };
+            },
+          ],
+        }),
+      );
+    }
+  }
   if (options.wordWrap) extensions.push(EditorView.lineWrapping);
 
   const style = height ? { height, overflow: "hidden" } : undefined;
@@ -1617,6 +1665,27 @@ export default function App() {
               <span className="trace-toggle-box" aria-hidden="true" />
               <span className="trace-toggle-label">Enable Internal Variables</span>
             </label>
+            <button
+              className="icon-button"
+              aria-label="Format XSLT"
+              title="Format XSLT (2-space indent)"
+              onClick={() => {
+                try {
+                  const formatted = xmlFormatter(
+                    injectParamBlock(activeTab.xslt, activeTab.params),
+                    { indentation: "  ", collapseContent: true },
+                  );
+                  const stripped = stripParamBlock(formatted);
+                  setTabs((tabs) =>
+                    tabs.map((tab) =>
+                      tab.id === active ? { ...tab, xslt: stripped } : tab,
+                    ),
+                  );
+                } catch {}
+              }}
+            >
+              <Icon name="sparkles" />
+            </button>
             <div className="right-actions">
               <label
                 className="icon-button file-label"
@@ -1689,6 +1758,7 @@ export default function App() {
                   syncParams();
                 }}
                 options={{ minimap: { enabled: false }, automaticLayout: true }}
+                xsltVersion={activeTab.version}
               />
             </div>
             {traceEnabled && (
