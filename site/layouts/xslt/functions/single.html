@@ -1,0 +1,26 @@
+{{ define "main" }}
+<article class="post ref-page">
+  <p class="eyebrow">XSLT Reference</p>
+  <h1>{{ .Title }}</h1>
+  <div class="ref-meta">
+    {{ with .Params.versionLabel }}<span class="ref-badge">{{ . }}</span>{{ end }}
+    {{ with .Params.category }}<span class="ref-badge ref-badge--cat">{{ . }}</span>{{ end }}
+  </div>
+  {{ with .Description }}<p class="lead">{{ . }}</p>{{ end }}
+  {{ with .Params.syntax }}
+  <div class="ref-syntax">
+    <span class="ref-syntax-label">Syntax</span>
+    <pre><code>{{ . }}</code></pre>
+  </div>
+  {{ end }}
+  {{ partial "adsense/in-article.html" . }}
+  <div class="content">
+    {{ .Content }}
+  </div>
+  <div class="ref-try">
+    <a href="https://xsltplayground.com/" class="button" target="_blank" rel="noopener noreferrer">Try it in XSLT Playground →</a>
+  </div>
+  <p class="muted back-link"><a href="{{ .CurrentSection.RelPermalink }}">← Back to XSLT Reference</a></p>
+  {{ partial "related-posts.html" . }}
+</article>
+{{ end }}

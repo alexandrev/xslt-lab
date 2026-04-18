@@ -36,6 +36,11 @@ publisher = "xsltplaygroundcom"
   weight = 3
 
   [[menu.main]]
+  name = "Reference"
+  url = "/xslt/functions/"
+  weight = 4
+
+  [[menu.main]]
   name = "Charts"
   url = "https://alexandrev.github.io/xslt-lab/index.yaml"
   weight = 4

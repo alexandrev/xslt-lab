@@ -1,0 +1,39 @@
+{{ define "main" }}
+<div class="page-header">
+  <h1>XSLT &amp; XPath Function Reference</h1>
+  <p class="lead">Complete reference for XSLT elements and XPath functions, organized by version. Each entry includes syntax, parameters, and runnable examples.</p>
+</div>
+
+{{ $elements := where .Pages "Params.category" "element" }}
+{{ $functions := where .Pages "Params.category" "ne" "element" }}
+
+{{ if $elements }}
+<section class="ref-section">
+  <h2>XSLT Elements</h2>
+  <ul class="ref-index-list">
+    {{ range $elements }}
+    <li>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      {{ with .Params.versionLabel }}<span class="ref-badge ref-badge--sm">{{ . }}</span>{{ end }}
+      <span class="muted">{{ .Description | truncate 80 }}</span>
+    </li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}
+
+{{ if $functions }}
+<section class="ref-section">
+  <h2>XPath Functions</h2>
+  <ul class="ref-index-list">
+    {{ range $functions }}
+    <li>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      {{ with .Params.versionLabel }}<span class="ref-badge ref-badge--sm">{{ . }}</span>{{ end }}
+      <span class="muted">{{ .Description | truncate 80 }}</span>
+    </li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}
+{{ end }}
