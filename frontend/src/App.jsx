@@ -15,12 +15,14 @@ import {
 /* global __APP_VERSION__, __GIT_COMMIT__ */
 
 import CodeMirror, { EditorView } from "@uiw/react-codemirror";
-import { xml } from "@codemirror/lang-xml";
+import { xml, completeFromSchema } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { linter, lintGutter } from "@codemirror/lint";
 import { autocompletion } from "@codemirror/autocomplete";
+import { hoverTooltip } from "@codemirror/view";
+import { syntaxTree } from "@codemirror/language";
 import xmlFormatter from "xml-formatter";
-import { getCompletions } from "./lib/xsltCompletions";
+import { getCompletions, getXmlElements, getHoverTooltip } from "./lib/xsltCompletions";
 
 function xmlLinter(view) {
   const text = view.state.doc.toString().trim();
@@ -77,25 +79,35 @@ function Editor({
   xsltVersion,
 }) {
   const editable = !options.readOnly;
-  const extensions = [xml({ autoCloseTags: editable })];
+  const xmlElements = xsltVersion ? getXmlElements(xsltVersion) : [];
+  const extensions = [xml({ elements: xmlElements, autoCloseTags: editable })];
+
   if (editable) {
     extensions.push(xmlLintExtension, lintGutter());
+
     if (xsltVersion) {
       const completions = getCompletions(xsltVersion);
+      const hoverDesc   = getHoverTooltip(xsltVersion);
+
+      // Custom source: xsl:* elements and XPath functions.
+      // Skip when cursor is on an attribute name (let xmlCompletionSource handle it).
+      const xsltSource = (ctx) => {
+        const node = syntaxTree(ctx.state).resolveInner(ctx.pos, -1);
+        if (node.name === "AttributeName") return null;
+        const word = ctx.matchBefore(/[\w:()-]+/);
+        if (!word && !ctx.explicit) return null;
+        return {
+          from: word ? word.from : ctx.pos,
+          options: completions,
+          validFor: /^[\w:()-]*$/,
+        };
+      };
+
+      const attrSource = completeFromSchema(xmlElements, []);
+
       extensions.push(
-        autocompletion({
-          override: [
-            (ctx) => {
-              const word = ctx.matchBefore(/[\w:()-]+/);
-              if (!word && !ctx.explicit) return null;
-              return {
-                from: word ? word.from : ctx.pos,
-                options: completions,
-                validFor: /^[\w:()-]*$/,
-              };
-            },
-          ],
-        }),
+        autocompletion({ override: [xsltSource, attrSource] }),
+        hoverTooltip((view, pos) => hoverDesc.resolve(view, pos), { hoverTime: 300 }),
       );
     }
   }

@@ -342,3 +342,388 @@ export function getCompletions(xsltVersion = "1.0") {
 
   return [...elementItems, ...fnItems];
 }
+
+// ─── Attribute definitions per xsl:element ───────────────────────────────────
+
+const YES_NO = ["yes", "no"];
+const VALIDATION = ["strict", "lax", "preserve", "strip"];
+
+export const ELEMENT_ATTRS = {
+  "xsl:stylesheet": [
+    { name: "version", values: ["1.0", "2.0", "3.0"] },
+    { name: "xmlns:xsl", values: ["http://www.w3.org/1999/XSL/Transform"] },
+    { name: "exclude-result-prefixes" },
+    { name: "extension-element-prefixes" },
+    { name: "default-validation", values: VALIDATION },
+    { name: "xpath-default-namespace" },
+    { name: "expand-text", values: YES_NO },
+  ],
+  "xsl:transform": [
+    { name: "version", values: ["1.0", "2.0", "3.0"] },
+    { name: "xmlns:xsl", values: ["http://www.w3.org/1999/XSL/Transform"] },
+    { name: "exclude-result-prefixes" },
+  ],
+  "xsl:template": [
+    { name: "match" },
+    { name: "name" },
+    { name: "priority" },
+    { name: "mode" },
+    { name: "as" },
+    { name: "visibility", values: ["public", "private", "final", "abstract"] },
+  ],
+  "xsl:apply-templates": [
+    { name: "select" },
+    { name: "mode" },
+  ],
+  "xsl:call-template": [
+    { name: "name" },
+  ],
+  "xsl:value-of": [
+    { name: "select" },
+    { name: "separator" },
+    { name: "disable-output-escaping", values: YES_NO },
+  ],
+  "xsl:for-each": [
+    { name: "select" },
+  ],
+  "xsl:for-each-group": [
+    { name: "select" },
+    { name: "group-by" },
+    { name: "group-adjacent" },
+    { name: "group-starting-with" },
+    { name: "group-ending-with" },
+    { name: "collation" },
+    { name: "bind-group" },
+    { name: "bind-grouping-key" },
+  ],
+  "xsl:if": [
+    { name: "test" },
+  ],
+  "xsl:when": [
+    { name: "test" },
+  ],
+  "xsl:variable": [
+    { name: "name" },
+    { name: "select" },
+    { name: "as" },
+    { name: "static", values: YES_NO },
+    { name: "visibility", values: ["public", "private", "final", "abstract"] },
+  ],
+  "xsl:param": [
+    { name: "name" },
+    { name: "select" },
+    { name: "as" },
+    { name: "required", values: YES_NO },
+    { name: "tunnel", values: YES_NO },
+    { name: "static", values: YES_NO },
+  ],
+  "xsl:with-param": [
+    { name: "name" },
+    { name: "select" },
+    { name: "as" },
+    { name: "tunnel", values: YES_NO },
+  ],
+  "xsl:sort": [
+    { name: "select" },
+    { name: "order", values: ["ascending", "descending"] },
+    { name: "data-type", values: ["text", "number"] },
+    { name: "case-order", values: ["upper-first", "lower-first"] },
+    { name: "lang" },
+    { name: "collation" },
+    { name: "stable", values: YES_NO },
+  ],
+  "xsl:copy": [
+    { name: "copy-namespaces", values: YES_NO },
+    { name: "use-attribute-sets" },
+    { name: "validation", values: VALIDATION },
+    { name: "inherit-namespaces", values: YES_NO },
+  ],
+  "xsl:copy-of": [
+    { name: "select" },
+    { name: "copy-namespaces", values: YES_NO },
+    { name: "validation", values: VALIDATION },
+  ],
+  "xsl:element": [
+    { name: "name" },
+    { name: "namespace" },
+    { name: "use-attribute-sets" },
+    { name: "validation", values: VALIDATION },
+    { name: "inherit-namespaces", values: YES_NO },
+  ],
+  "xsl:attribute": [
+    { name: "name" },
+    { name: "namespace" },
+    { name: "select" },
+    { name: "separator" },
+    { name: "validation", values: VALIDATION },
+    { name: "disable-output-escaping", values: YES_NO },
+  ],
+  "xsl:attribute-set": [
+    { name: "name" },
+    { name: "use-attribute-sets" },
+    { name: "visibility", values: ["public", "private", "final", "abstract"] },
+  ],
+  "xsl:comment": [
+    { name: "select" },
+  ],
+  "xsl:processing-instruction": [
+    { name: "name" },
+    { name: "select" },
+  ],
+  "xsl:text": [
+    { name: "disable-output-escaping", values: YES_NO },
+  ],
+  "xsl:include": [
+    { name: "href" },
+  ],
+  "xsl:import": [
+    { name: "href" },
+  ],
+  "xsl:output": [
+    { name: "name" },
+    { name: "method", values: ["xml", "html", "xhtml", "text", "json", "adaptive"] },
+    { name: "version" },
+    { name: "encoding" },
+    { name: "omit-xml-declaration", values: YES_NO },
+    { name: "standalone", values: ["yes", "no", "omit"] },
+    { name: "doctype-public" },
+    { name: "doctype-system" },
+    { name: "cdata-section-elements" },
+    { name: "indent", values: YES_NO },
+    { name: "media-type" },
+    { name: "include-content-type", values: YES_NO },
+    { name: "escape-uri-attributes", values: YES_NO },
+    { name: "use-character-maps" },
+    { name: "suppress-indentation" },
+    { name: "expand-text", values: YES_NO },
+    { name: "build-tree", values: YES_NO },
+  ],
+  "xsl:key": [
+    { name: "name" },
+    { name: "match" },
+    { name: "use" },
+    { name: "collation" },
+    { name: "composite", values: YES_NO },
+  ],
+  "xsl:number": [
+    { name: "value" },
+    { name: "select" },
+    { name: "level", values: ["single", "multiple", "any"] },
+    { name: "count" },
+    { name: "from" },
+    { name: "format" },
+    { name: "lang" },
+    { name: "letter-value", values: ["alphabetic", "traditional"] },
+    { name: "grouping-separator" },
+    { name: "grouping-size" },
+    { name: "ordinal" },
+    { name: "start-at" },
+  ],
+  "xsl:message": [
+    { name: "select" },
+    { name: "terminate", values: YES_NO },
+    { name: "error-code" },
+  ],
+  "xsl:preserve-space": [{ name: "elements" }],
+  "xsl:strip-space":    [{ name: "elements" }],
+  "xsl:namespace-alias": [
+    { name: "stylesheet-prefix" },
+    { name: "result-prefix" },
+  ],
+  "xsl:decimal-format": [
+    { name: "name" },
+    { name: "decimal-separator" },
+    { name: "grouping-separator" },
+    { name: "infinity" },
+    { name: "minus-sign" },
+    { name: "NaN" },
+    { name: "percent" },
+    { name: "per-mille" },
+    { name: "zero-digit" },
+    { name: "digit" },
+    { name: "pattern-separator" },
+    { name: "exponent-separator" },
+  ],
+  // XSLT 2.0
+  "xsl:function": [
+    { name: "name" },
+    { name: "as" },
+    { name: "visibility", values: ["public", "private", "final", "abstract"] },
+    { name: "override-extension-function", values: YES_NO },
+    { name: "new-each-time", values: ["yes", "no", "maybe"] },
+    { name: "cache", values: YES_NO },
+  ],
+  "xsl:sequence":       [{ name: "select" }],
+  "xsl:perform-sort":   [{ name: "select" }],
+  "xsl:result-document": [
+    { name: "href" },
+    { name: "format" },
+    { name: "method", values: ["xml", "html", "xhtml", "text", "json"] },
+    { name: "indent", values: YES_NO },
+    { name: "encoding" },
+    { name: "omit-xml-declaration", values: YES_NO },
+    { name: "validation", values: VALIDATION },
+    { name: "output-version" },
+  ],
+  "xsl:analyze-string": [
+    { name: "select" },
+    { name: "regex" },
+    { name: "flags" },
+  ],
+  "xsl:namespace":      [{ name: "name" }, { name: "select" }],
+  "xsl:import-schema":  [{ name: "namespace" }, { name: "schema-location" }],
+  "xsl:character-map":  [{ name: "name" }, { name: "use-character-maps" }],
+  "xsl:output-character": [{ name: "character" }, { name: "string" }],
+  "xsl:next-match":     [],
+  // XSLT 3.0
+  "xsl:mode": [
+    { name: "name" },
+    { name: "on-no-match", values: ["deep-copy", "shallow-copy", "deep-skip", "shallow-skip", "text-only-copy", "fail"] },
+    { name: "on-multiple-match", values: ["use-last", "fail"] },
+    { name: "warning-on-no-match", values: YES_NO },
+    { name: "warning-on-multiple-match", values: YES_NO },
+    { name: "visibility", values: ["public", "private", "final"] },
+    { name: "streamable", values: YES_NO },
+    { name: "typed", values: ["yes", "no", "strict", "lax", "untyped"] },
+  ],
+  "xsl:iterate":        [{ name: "select" }],
+  "xsl:break":          [{ name: "select" }],
+  "xsl:map-entry":      [{ name: "key" }, { name: "select" }],
+  "xsl:array-member":   [{ name: "select" }],
+  "xsl:try":            [{ name: "select" }, { name: "rollback-output", values: YES_NO }],
+  "xsl:accumulator": [
+    { name: "name" },
+    { name: "as" },
+    { name: "initial-value" },
+    { name: "streamable", values: YES_NO },
+  ],
+  "xsl:accumulator-rule": [
+    { name: "match" },
+    { name: "phase", values: ["start", "end"] },
+    { name: "select" },
+  ],
+  "xsl:stream":        [{ name: "href" }],
+};
+
+/**
+ * Returns ElementSpec[] for the xml() schema, filtered by active XSLT version.
+ * This enables built-in attribute completion from @codemirror/lang-xml.
+ */
+export function getXmlElements(xsltVersion = "1.0") {
+  const maxV = VERSION_ORDER[xsltVersion] ?? 1;
+  return Object.entries(ELEMENT_ATTRS)
+    .filter(([name]) => {
+      const el = XSL_ELEMENTS.find((e) => e.label === name);
+      return !el || (VERSION_ORDER[el.minVersion] ?? 1) <= maxV;
+    })
+    .map(([name, attributes]) => ({ name, attributes }));
+}
+
+// ─── Hover tooltip ────────────────────────────────────────────────────────────
+
+function buildTooltipDom(entry) {
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "padding:8px 10px;max-width:340px;line-height:1.5;font-size:13px";
+
+  const title = document.createElement("strong");
+  title.textContent = entry.label;
+  wrap.appendChild(title);
+
+  if (entry.minVersion && entry.minVersion !== "1.0") {
+    const badge = document.createElement("span");
+    badge.textContent = ` XSLT/XPath ${entry.minVersion}+`;
+    badge.style.cssText = "margin-left:6px;font-size:11px;opacity:0.6";
+    wrap.appendChild(badge);
+  }
+
+  const desc = document.createElement("p");
+  desc.style.cssText = "margin:4px 0 0";
+  desc.textContent = entry.info;
+  wrap.appendChild(desc);
+
+  if (entry.args) {
+    const pre = document.createElement("pre");
+    pre.style.cssText = "margin:6px 0 0;font-size:11px;opacity:0.7;white-space:pre-wrap";
+    pre.textContent = entry.label.startsWith("xsl:")
+      ? `<${entry.label} ${entry.args}>`
+      : `${entry.label.replace(/\(.*/, "")}(${entry.args})`;
+    wrap.appendChild(pre);
+  }
+
+  if (entry.blogSlug) {
+    const a = document.createElement("a");
+    a.href = `https://blog.xsltplayground.com/xslt/functions/${entry.blogSlug}`;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.style.cssText = "display:block;margin-top:6px;font-size:11px";
+    a.textContent = "Full docs →";
+    wrap.appendChild(a);
+  }
+
+  return wrap;
+}
+
+/**
+ * Returns a hoverTooltip extension that shows info for xsl:* elements and
+ * XPath functions already present in the editor text.
+ */
+export function getHoverTooltip(xsltVersion = "1.0") {
+  const maxV = VERSION_ORDER[xsltVersion] ?? 1;
+
+  // Build lookup: full label → entry
+  const lookup = new Map();
+  for (const e of XSL_ELEMENTS) {
+    if ((VERSION_ORDER[e.minVersion] ?? 1) <= maxV) lookup.set(e.label, e);
+  }
+  for (const e of XPATH_FUNCTIONS) {
+    if ((VERSION_ORDER[e.minVersion] ?? 1) <= maxV) {
+      lookup.set(e.label, e);
+      // also index by bare name so hovering "string-join" (without args) works
+      const bare = e.label.replace(/\(.*$/, "");
+      if (!lookup.has(bare)) lookup.set(bare, e);
+    }
+  }
+
+  return {
+    // Return a hoverTooltip-compatible descriptor; the caller will wrap this
+    // with hoverTooltip() from @codemirror/view.
+    __isHoverDescriptor: true,
+    resolve(view, pos) {
+      const line = view.state.doc.lineAt(pos);
+      const text = line.text;
+      const col = pos - line.from;
+
+      // Try xsl:element-name pattern
+      for (const m of text.matchAll(/xsl:[\w-]+/g)) {
+        if (m.index <= col && col <= m.index + m[0].length) {
+          const entry = lookup.get(m[0]);
+          if (entry) {
+            return {
+              pos: line.from + m.index,
+              end: line.from + m.index + m[0].length,
+              above: true,
+              create: () => ({ dom: buildTooltipDom(entry) }),
+            };
+          }
+        }
+      }
+
+      // Try XPath function name (word chars + optional colon, followed by open paren)
+      for (const m of text.matchAll(/[\w:-]+(?=\s*\()/g)) {
+        if (m.index <= col && col <= m.index + m[0].length) {
+          const entry = lookup.get(m[0]) || lookup.get(m[0] + "()");
+          if (entry) {
+            return {
+              pos: line.from + m.index,
+              end: line.from + m.index + m[0].length,
+              above: true,
+              create: () => ({ dom: buildTooltipDom(entry) }),
+            };
+          }
+        }
+      }
+
+      return null;
+    },
+  };
+}
