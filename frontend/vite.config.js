@@ -1,4 +1,5 @@
-import { readFileSync, execSync } from "fs";
+import { readFileSync } from "fs";
+import { execSync } from "child_process";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
@@ -22,11 +23,10 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ["monaco-editor"],
       output: {
         manualChunks: {
           react: ["react", "react-dom"],
-          monaco: ["@monaco-editor/react"],
+          codemirror: ["@uiw/react-codemirror", "@codemirror/lang-xml", "@codemirror/theme-one-dark"],
         },
       },
     },

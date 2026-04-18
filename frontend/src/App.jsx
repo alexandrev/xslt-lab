@@ -14,12 +14,10 @@ import {
 
 /* global __APP_VERSION__, __GIT_COMMIT__ */
 
-import { loader } from "@monaco-editor/react";
-loader.config({
-  paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs" },
-});
+import CodeMirror, { EditorView } from "@uiw/react-codemirror";
+import { xml } from "@codemirror/lang-xml";
+import { oneDark } from "@codemirror/theme-one-dark";
 
-const MonacoEditor = lazy(() => import("@monaco-editor/react"));
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
 const BuyMeACoffee = lazy(() => import("./components/BuyMeACoffee"));
 const UsageSurvey = lazy(() => import("./components/UsageSurvey"));
@@ -36,35 +34,50 @@ function runWhenIdle(callback, timeout = 2000) {
   return () => window.clearTimeout(id);
 }
 
-function Editor({ height, eager = false, ...props }) {
-  const [ready, setReady] = useState(eager);
-  useEffect(() => {
-    if (eager) return;
-    const id = requestIdleCallback
-      ? requestIdleCallback(() => setReady(true), { timeout: 1500 })
-      : setTimeout(() => setReady(true), 300);
-    return () => (requestIdleCallback ? cancelIdleCallback(id) : clearTimeout(id));
-  }, [eager]);
-  const fallbackStyle = height ? { height } : undefined;
+function Editor({
+  height,
+  value,
+  onChange,
+  theme,
+  options = {},
+  wrapperProps,
+  onFocus,
+  onBlur,
+  // eslint-disable-next-line no-unused-vars
+  eager,
+  // eslint-disable-next-line no-unused-vars
+  language,
+  // eslint-disable-next-line no-unused-vars
+  onMount,
+}) {
+  const extensions = [xml()];
+  if (options.wordWrap) extensions.push(EditorView.lineWrapping);
+
+  const style = height ? { height, overflow: "hidden" } : undefined;
+
   return (
-    <Suspense
-      fallback={
-        <div
-          className="editor-loading"
-          role="status"
-          aria-live="polite"
-          style={fallbackStyle}
-        >
-          Loading editor...
-        </div>
-      }
-    >
-      {ready ? (
-        <MonacoEditor height={height} {...props} />
-      ) : (
-        <div className="editor-loading" style={fallbackStyle} aria-hidden="true" />
-      )}
-    </Suspense>
+    <div style={style} {...wrapperProps}>
+      <CodeMirror
+        value={value ?? ""}
+        onChange={(val) => onChange?.(val)}
+        extensions={extensions}
+        theme={theme === "vs-dark" ? oneDark : "light"}
+        height={height || "100%"}
+        editable={!options.readOnly}
+        basicSetup={{
+          lineNumbers: options.lineNumbers !== "off",
+          foldGutter: false,
+          dropCursor: false,
+          allowMultipleSelections: false,
+          indentOnInput: true,
+          highlightActiveLine: !options.readOnly,
+          highlightSelectionMatches: false,
+        }}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        style={{ height: "100%", fontSize: "13px" }}
+      />
+    </div>
   );
 }
 
