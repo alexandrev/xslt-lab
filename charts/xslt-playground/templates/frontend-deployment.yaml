@@ -38,6 +38,10 @@ spec:
             - name: VITE_CLARITY_ID
               value: {{ .Values.frontend.clarityId | quote }}
 {{- end }}
+{{- if .Values.frontend.feedbackWebhookUrl }}
+            - name: VITE_FEEDBACK_WEBHOOK_URL
+              value: {{ .Values.frontend.feedbackWebhookUrl | quote }}
+{{- end }}
 {{- if .Values.adsTxt }}
           volumeMounts:
             - name: ads

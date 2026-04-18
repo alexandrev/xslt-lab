@@ -66,6 +66,8 @@ frontend:
   googleAnalyticsId: ""
   # Optional Microsoft Clarity project ID
   clarityId: ""
+  # Optional n8n webhook URL for in-app feedback form
+  feedbackWebhookUrl: ""
 
 # Content for the optional ads.txt file served by the frontend
 adsTxt: ""
