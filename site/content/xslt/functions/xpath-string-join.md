@@ -7,6 +7,7 @@ versionLabel: "XSLT 2.0"
 category: "string function"
 syntax: "string-join(sequence, separator?)"
 tags: ["xslt", "reference", "xslt2", "xpath"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjIuMCIgeG1sbnM6eHNsPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L1hTTC9UcmFuc2Zvcm0iPgogIDx4c2w6b3V0cHV0IG1ldGhvZD0idGV4dCIvPgoKICA8eHNsOnRlbXBsYXRlIG1hdGNoPSIvdGFncyI-CiAgICA8eHNsOnZhbHVlLW9mIHNlbGVjdD0ic3RyaW5nLWpvaW4odGFnLCAnLCAnKSIvPgogIDwveHNsOnRlbXBsYXRlPgo8L3hzbDpzdHlsZXNoZWV0Pg&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHRhZ3M-CiAgPHRhZz54c2x0PC90YWc-CiAgPHRhZz54bWw8L3RhZz4KICA8dGFnPnhwYXRoPC90YWc-CiAgPHRhZz50cmFuc2Zvcm1hdGlvbjwvdGFnPgo8L3RhZ3M-&version=2.0"
 ---
 
 ## Description

@@ -7,6 +7,7 @@ versionLabel: "XSLT 2.0"
 category: "string function"
 syntax: "tokenize(string, pattern, flags?)"
 tags: ["xslt", "reference", "xslt2", "xpath"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjIuMCIgeG1sbnM6eHNsPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L1hTTC9UcmFuc2Zvcm0iPgogIDx4c2w6b3V0cHV0IG1ldGhvZD0ieG1sIiBpbmRlbnQ9InllcyIvPgoKICA8eHNsOnRlbXBsYXRlIG1hdGNoPSIvZGF0YSI-CiAgICA8aXRlbXM-CiAgICAgIDx4c2w6Zm9yLWVhY2ggc2VsZWN0PSJ0b2tlbml6ZShjc3YsICcsJykiPgogICAgICAgIDxpdGVtPjx4c2w6dmFsdWUtb2Ygc2VsZWN0PSIuIi8-PC9pdGVtPgogICAgICA8L3hzbDpmb3ItZWFjaD4KICAgIDwvaXRlbXM-CiAgPC94c2w6dGVtcGxhdGU-CjwveHNsOnN0eWxlc2hlZXQ-&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGRhdGE-CiAgPGNzdj5hcHBsZSxiYW5hbmEsY2hlcnJ5LGRhdGU8L2Nzdj4KPC9kYXRhPg&version=2.0"
 ---
 
 ## Description

@@ -7,6 +7,7 @@ versionLabel: "XSLT 2.0"
 category: "sequence function"
 syntax: "deep-equal(sequence1, sequence2, collation?)"
 tags: ["xslt", "reference", "xpath", "xslt2"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjIuMCIKICB4bWxuczp4c2w9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvWFNML1RyYW5zZm9ybSI-CiAgPHhzbDpvdXRwdXQgbWV0aG9kPSJ4bWwiIGluZGVudD0ieWVzIi8-CgogIDx4c2w6dGVtcGxhdGUgbWF0Y2g9Ii9yb290Ij4KICAgIDxyZXN1bHRzPgogICAgICA8YWI-PHhzbDp2YWx1ZS1vZiBzZWxlY3Q9ImRlZXAtZXF1YWwoYSwgYikiLz48L2FiPgogICAgICA8YWM-PHhzbDp2YWx1ZS1vZiBzZWxlY3Q9ImRlZXAtZXF1YWwoYSwgYykiLz48L2FjPgogICAgPC9yZXN1bHRzPgogIDwveHNsOnRlbXBsYXRlPgo8L3hzbDpzdHlsZXNoZWV0Pg&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHJvb3Q-CiAgPGE-PHg-MTwveD48eT4yPC95PjwvYT4KICA8Yj48eD4xPC94Pjx5PjI8L3k-PC9iPgogIDxjPjx4PjE8L3g-PHk-MzwveT48L2M-Cjwvcm9vdD4&version=2.0"
 ---
 
 ## Description

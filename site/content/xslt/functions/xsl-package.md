@@ -7,6 +7,7 @@ versionLabel: "XSLT 3.0"
 category: "element"
 syntax: "<xsl:package name=\"com.example.pkg\" package-version=\"1.0\" version=\"3.0\">"
 tags: ["xslt", "reference", "xslt3"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjMuMCIKICB4bWxuczp4c2w9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvWFNML1RyYW5zZm9ybSIKICB4bWxuczptYXRoPSJodHRwOi8vZXhhbXBsZS5jb20vbWF0aC11dGlscyI-CiAgPHhzbDpvdXRwdXQgbWV0aG9kPSJ4bWwiIGluZGVudD0ieWVzIi8-CgogIDx4c2w6dXNlLXBhY2thZ2UgbmFtZT0iaHR0cDovL2V4YW1wbGUuY29tL21hdGgtdXRpbHMiIHBhY2thZ2UtdmVyc2lvbj0iMS4qIi8-CgogIDx4c2w6dGVtcGxhdGUgbWF0Y2g9Ii8iPgogICAgPHJlc3VsdHM-CiAgICAgIDxzcXVhcmU-PHhzbDp2YWx1ZS1vZiBzZWxlY3Q9Im1hdGg6c3F1YXJlKDUpIi8-PC9zcXVhcmU-CiAgICAgIDxjdWJlPjx4c2w6dmFsdWUtb2Ygc2VsZWN0PSJtYXRoOmN1YmUoMykiLz48L2N1YmU-CiAgICA8L3Jlc3VsdHM-CiAgPC94c2w6dGVtcGxhdGU-CjwveHNsOnN0eWxlc2hlZXQ-&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHJvb3QvPg&version=3.0"
 ---
 
 ## Description

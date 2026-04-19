@@ -7,6 +7,7 @@ versionLabel: "XSLT 1.0"
 category: "element"
 syntax: "<xsl:message terminate=\"no|yes\">message content</xsl:message>"
 tags: ["xslt", "reference", "xpath", "xslt1"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjEuMCIKICB4bWxuczp4c2w9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvWFNML1RyYW5zZm9ybSI-CiAgPHhzbDpvdXRwdXQgbWV0aG9kPSJ4bWwiIGluZGVudD0ieWVzIi8-CgogIDx4c2w6dGVtcGxhdGUgbWF0Y2g9Ii9vcmRlciI-CiAgICA8eHNsOmlmIHRlc3Q9Iml0ZW0vQHF1YW50aXR5ICZsdDsgMCI-CiAgICAgIDx4c2w6bWVzc2FnZSB0ZXJtaW5hdGU9InllcyI-CiAgICAgICAgRVJST1I6IE5lZ2F0aXZlIHF1YW50aXR5IGZvdW5kIGZvciBpdGVtOiA8eHNsOnZhbHVlLW9mIHNlbGVjdD0iaXRlbSIvPgogICAgICA8L3hzbDptZXNzYWdlPgogICAgPC94c2w6aWY-CiAgICA8cHJvY2Vzc2VkPjx4c2w6Y29weS1vZiBzZWxlY3Q9Ii4iLz48L3Byb2Nlc3NlZD4KICA8L3hzbDp0ZW1wbGF0ZT4KPC94c2w6c3R5bGVzaGVldD4&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPG9yZGVyPgogIDxpdGVtIHF1YW50aXR5PSItMyI-V2lkZ2V0PC9pdGVtPgo8L29yZGVyPg&version=1.0"
 ---
 
 ## Description

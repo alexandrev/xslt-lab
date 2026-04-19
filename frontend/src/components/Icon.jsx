@@ -110,6 +110,14 @@ const ICON_PATHS = {
   moon: (
     <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
   ),
+  share: (
+    <>
+      <path d="M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6" />
+      <path d="M12 3v13" />
+      <path d="M8 7l4-4 4 4" />
+    </>
+  ),
+  check: <path d="M5 13l4 4L19 7" />,
 };
 
 export default function Icon({ name, size = 16, stroke = 1.8, className = "" }) {

@@ -7,6 +7,7 @@ versionLabel: "XSLT 1.0"
 category: "element"
 syntax: "<xsl:decimal-format name=\"name\" decimal-separator=\".\" grouping-separator=\",\" NaN=\"NaN\"/>"
 tags: ["xslt", "reference", "xpath", "xslt1"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjEuMCIKICB4bWxuczp4c2w9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvWFNML1RyYW5zZm9ybSI-CiAgPHhzbDpvdXRwdXQgbWV0aG9kPSJ4bWwiIGluZGVudD0ieWVzIi8-CgogIDx4c2w6ZGVjaW1hbC1mb3JtYXQgbmFtZT0iZXVyb3BlYW4iCiAgICBkZWNpbWFsLXNlcGFyYXRvcj0iLCIKICAgIGdyb3VwaW5nLXNlcGFyYXRvcj0iLiIvPgoKICA8eHNsOnRlbXBsYXRlIG1hdGNoPSIvcHJpY2VzIj4KICAgIDxmb3JtYXR0ZWQ-CiAgICAgIDx4c2w6Zm9yLWVhY2ggc2VsZWN0PSJwcmljZSI-CiAgICAgICAgPHByaWNlPjx4c2w6dmFsdWUtb2Ygc2VsZWN0PSJmb3JtYXQtbnVtYmVyKC4sICcjLiMjMCwwMCcsICdldXJvcGVhbicpIi8-PC9wcmljZT4KICAgICAgPC94c2w6Zm9yLWVhY2g-CiAgICA8L2Zvcm1hdHRlZD4KICA8L3hzbDp0ZW1wbGF0ZT4KPC94c2w6c3R5bGVzaGVldD4&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHByaWNlcz4KICA8cHJpY2U-MTIzNDU2Ny44OTwvcHJpY2U-CiAgPHByaWNlPjAuNTwvcHJpY2U-CjwvcHJpY2VzPg&version=1.0"
 ---
 
 ## Description

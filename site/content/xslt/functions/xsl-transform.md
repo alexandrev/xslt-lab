@@ -7,6 +7,7 @@ versionLabel: "XSLT 1.0"
 category: "element"
 syntax: '<xsl:transform version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">'
 tags: ["xslt", "reference", "xslt1"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDp0cmFuc2Zvcm0gdmVyc2lvbj0iMS4wIiB4bWxuczp4c2w9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvWFNML1RyYW5zZm9ybSI-CiAgPHhzbDpvdXRwdXQgbWV0aG9kPSJ0ZXh0Ii8-CgogIDx4c2w6dGVtcGxhdGUgbWF0Y2g9Ii9ib29rIj4KICAgIDx4c2w6dmFsdWUtb2Ygc2VsZWN0PSJ0aXRsZSIvPgogICAgPHhzbDp0ZXh0PiBieSA8L3hzbDp0ZXh0PgogICAgPHhzbDp2YWx1ZS1vZiBzZWxlY3Q9ImF1dGhvciIvPgogIDwveHNsOnRlbXBsYXRlPgo8L3hzbDp0cmFuc2Zvcm0-&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGJvb2s-CiAgPHRpdGxlPlhTTFQgUGF0dGVybnM8L3RpdGxlPgogIDxhdXRob3I-SmFuZSBEb2U8L2F1dGhvcj4KPC9ib29rPg&version=1.0"
 ---
 
 ## Description

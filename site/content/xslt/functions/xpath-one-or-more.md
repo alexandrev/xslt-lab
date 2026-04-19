@@ -7,6 +7,7 @@ versionLabel: "XSLT 2.0"
 category: "sequence function"
 syntax: "one-or-more(sequence)"
 tags: ["xslt", "reference", "xpath", "xslt2"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjIuMCIKICB4bWxuczp4c2w9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvWFNML1RyYW5zZm9ybSI-CiAgPHhzbDpvdXRwdXQgbWV0aG9kPSJ4bWwiIGluZGVudD0ieWVzIi8-CgogIDx4c2w6dGVtcGxhdGUgbWF0Y2g9Ii9jb25maWciPgogICAgPHVybHM-CiAgICAgIDx4c2w6Zm9yLWVhY2ggc2VsZWN0PSJvbmUtb3ItbW9yZShlbmRwb2ludCkiPgogICAgICAgIDx1cmw-PHhzbDp2YWx1ZS1vZiBzZWxlY3Q9Ii4iLz48L3VybD4KICAgICAgPC94c2w6Zm9yLWVhY2g-CiAgICA8L3VybHM-CiAgPC94c2w6dGVtcGxhdGU-CjwveHNsOnN0eWxlc2hlZXQ-&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGNvbmZpZz4KICA8ZW5kcG9pbnQ-aHR0cHM6Ly9hcGkuZXhhbXBsZS5jb208L2VuZHBvaW50PgogIDxlbmRwb2ludD5odHRwczovL2JhY2t1cC5leGFtcGxlLmNvbTwvZW5kcG9pbnQ-CjwvY29uZmlnPg&version=2.0"
 ---
 
 ## Description

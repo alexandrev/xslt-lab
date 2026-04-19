@@ -7,6 +7,7 @@ versionLabel: "XSLT 2.0"
 category: "node function"
 syntax: "uri-collection(uri?)"
 tags: ["xslt", "reference", "xpath", "xslt2"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjIuMCIKICB4bWxuczp4c2w9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvWFNML1RyYW5zZm9ybSI-CiAgPHhzbDpvdXRwdXQgbWV0aG9kPSJ4bWwiIGluZGVudD0ieWVzIi8-CgogIDx4c2w6dGVtcGxhdGUgbWF0Y2g9Ii8iPgogICAgPGZpbGUtbGlzdD4KICAgICAgPHhzbDpmb3ItZWFjaCBzZWxlY3Q9InVyaS1jb2xsZWN0aW9uKCdmaWxlOi8vL2RhdGEvYm9va3MvP3NlbGVjdD0qLnhtbCcpIj4KICAgICAgICA8ZmlsZT48eHNsOnZhbHVlLW9mIHNlbGVjdD0iLiIvPjwvZmlsZT4KICAgICAgPC94c2w6Zm9yLWVhY2g-CiAgICA8L2ZpbGUtbGlzdD4KICA8L3hzbDp0ZW1wbGF0ZT4KPC94c2w6c3R5bGVzaGVldD4&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHJvb3QvPg&version=2.0"
 ---
 
 ## Description

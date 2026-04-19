@@ -7,6 +7,7 @@ versionLabel: "XSLT 1.0"
 category: "node function"
 syntax: "count(node-set)"
 tags: ["xslt", "reference", "xslt1", "xpath"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjEuMCIgeG1sbnM6eHNsPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L1hTTC9UcmFuc2Zvcm0iPgogIDx4c2w6b3V0cHV0IG1ldGhvZD0idGV4dCIvPgoKICA8eHNsOnRlbXBsYXRlIG1hdGNoPSIvbGlicmFyeSI-CiAgICA8eHNsOnZhbHVlLW9mIHNlbGVjdD0iY291bnQoYm9vaykiLz4KICAgIDx4c2w6dGV4dD4gYm9va3MgaW4gdGhlIGxpYnJhcnkuPC94c2w6dGV4dD4KICA8L3hzbDp0ZW1wbGF0ZT4KPC94c2w6c3R5bGVzaGVldD4&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGxpYnJhcnk-CiAgPGJvb2s-PHRpdGxlPlhTTFQgQ29va2Jvb2s8L3RpdGxlPjwvYm9vaz4KICA8Ym9vaz48dGl0bGU-WE1MIGluIGEgTnV0c2hlbGw8L3RpdGxlPjwvYm9vaz4KICA8Ym9vaz48dGl0bGU-TGVhcm5pbmcgWE1MPC90aXRsZT48L2Jvb2s-CjwvbGlicmFyeT4&version=1.0"
 ---
 
 ## Description

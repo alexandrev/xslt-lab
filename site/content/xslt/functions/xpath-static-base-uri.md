@@ -7,6 +7,7 @@ versionLabel: "XSLT 2.0"
 category: "node function"
 syntax: "static-base-uri()"
 tags: ["xslt", "reference", "xpath", "xslt2"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjIuMCIKICB4bWxuczp4c2w9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvWFNML1RyYW5zZm9ybSI-CiAgPHhzbDpvdXRwdXQgbWV0aG9kPSJ4bWwiIGluZGVudD0ieWVzIi8-CgogIDx4c2w6dGVtcGxhdGUgbWF0Y2g9Ii8iPgogICAgPG91dHB1dD4KICAgICAgPHhzbDphdHRyaWJ1dGUgbmFtZT0iZ2VuZXJhdGVkLWJ5Ij4KICAgICAgICA8eHNsOnZhbHVlLW9mIHNlbGVjdD0ic3RhdGljLWJhc2UtdXJpKCkiLz4KICAgICAgPC94c2w6YXR0cmlidXRlPgogICAgICA8eHNsOmFwcGx5LXRlbXBsYXRlcy8-CiAgICA8L291dHB1dD4KICA8L3hzbDp0ZW1wbGF0ZT4KPC94c2w6c3R5bGVzaGVldD4&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHJvb3QvPg&version=2.0"
 ---
 
 ## Description

@@ -7,6 +7,7 @@ versionLabel: "XSLT 2.0"
 category: "date function"
 syntax: "current-time()"
 tags: ["xslt", "reference", "xpath", "xslt2"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjIuMCIKICB4bWxuczp4c2w9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvWFNML1RyYW5zZm9ybSI-CiAgPHhzbDpvdXRwdXQgbWV0aG9kPSJ4bWwiIGluZGVudD0ieWVzIi8-CgogIDx4c2w6dGVtcGxhdGUgbWF0Y2g9Ii9mZWVkIj4KICAgIDxmZWVkIGdlbmVyYXRlZC10aW1lPSJ7Y3VycmVudC10aW1lKCl9Ij4KICAgICAgPHhzbDpjb3B5LW9mIHNlbGVjdD0iKiIvPgogICAgPC9mZWVkPgogIDwveHNsOnRlbXBsYXRlPgo8L3hzbDpzdHlsZXNoZWV0Pg&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGZlZWQ-CiAgPGl0ZW0-Rmlyc3QgaXRlbTwvaXRlbT4KICA8aXRlbT5TZWNvbmQgaXRlbTwvaXRlbT4KPC9mZWVkPg&version=2.0"
 ---
 
 ## Description

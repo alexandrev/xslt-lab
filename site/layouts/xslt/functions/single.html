@@ -18,7 +18,11 @@
     {{ .Content }}
   </div>
   <div class="ref-try">
+    {{ if .Params.tryUrl }}
+    <a href="{{ .Params.tryUrl }}" class="button" target="_blank" rel="noopener noreferrer">Open live example in XSLT Playground →</a>
+    {{ else }}
     <a href="https://xsltplayground.com/" class="button" target="_blank" rel="noopener noreferrer">Try it in XSLT Playground →</a>
+    {{ end }}
   </div>
   <p class="muted back-link"><a href="{{ .CurrentSection.RelPermalink }}">← Back to XSLT Reference</a></p>
   {{ partial "related-posts.html" . }}

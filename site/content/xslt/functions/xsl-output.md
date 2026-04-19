@@ -7,6 +7,7 @@ versionLabel: "XSLT 1.0"
 category: "element"
 syntax: '<xsl:output method="xml|html|text" indent="yes|no" encoding="UTF-8"/>'
 tags: ["xslt", "reference", "xslt1"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjEuMCIgeG1sbnM6eHNsPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L1hTTC9UcmFuc2Zvcm0iPgogIDx4c2w6b3V0cHV0IG1ldGhvZD0ieG1sIiBpbmRlbnQ9InllcyIgZW5jb2Rpbmc9IlVURi04Ii8-CgogIDx4c2w6dGVtcGxhdGUgbWF0Y2g9IkAqfG5vZGUoKSI-CiAgICA8eHNsOmNvcHk-CiAgICAgIDx4c2w6YXBwbHktdGVtcGxhdGVzIHNlbGVjdD0iQCp8bm9kZSgpIi8-CiAgICA8L3hzbDpjb3B5PgogIDwveHNsOnRlbXBsYXRlPgo8L3hzbDpzdHlsZXNoZWV0Pg&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGRhdGE-PGl0ZW0-QTwvaXRlbT48aXRlbT5CPC9pdGVtPjwvZGF0YT4&version=1.0"
 ---
 
 ## Description

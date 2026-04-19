@@ -7,6 +7,7 @@ versionLabel: "XSLT 1.0"
 category: "string function"
 syntax: "concat(str1, str2, ...)"
 tags: ["xslt", "reference", "xslt1", "xpath"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjEuMCIgeG1sbnM6eHNsPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L1hTTC9UcmFuc2Zvcm0iPgogIDx4c2w6b3V0cHV0IG1ldGhvZD0idGV4dCIvPgoKICA8eHNsOnRlbXBsYXRlIG1hdGNoPSIvcGVyc29uIj4KICAgIDx4c2w6dmFsdWUtb2Ygc2VsZWN0PSJjb25jYXQoZmlyc3QsICcgJywgbGFzdCkiLz4KICA8L3hzbDp0ZW1wbGF0ZT4KPC94c2w6c3R5bGVzaGVldD4&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHBlcnNvbj4KICA8Zmlyc3Q-SmFuZTwvZmlyc3Q-CiAgPGxhc3Q-U21pdGg8L2xhc3Q-CjwvcGVyc29uPg&version=1.0"
 ---
 
 ## Description

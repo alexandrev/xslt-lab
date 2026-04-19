@@ -7,6 +7,7 @@ versionLabel: "XSLT 3.0"
 category: "node function"
 syntax: "available-environment-variables()"
 tags: ["xslt", "reference", "xpath", "xslt3"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjMuMCIKICB4bWxuczp4c2w9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvWFNML1RyYW5zZm9ybSI-CiAgPHhzbDpvdXRwdXQgbWV0aG9kPSJ4bWwiIGluZGVudD0ieWVzIi8-CgogIDx4c2w6dGVtcGxhdGUgbWF0Y2g9Ii8iPgogICAgPGVudi12YXJzPgogICAgICA8eHNsOmZvci1lYWNoIHNlbGVjdD0ic29ydChhdmFpbGFibGUtZW52aXJvbm1lbnQtdmFyaWFibGVzKCkpIj4KICAgICAgICA8dmFyIG5hbWU9InsufSIvPgogICAgICA8L3hzbDpmb3ItZWFjaD4KICAgIDwvZW52LXZhcnM-CiAgPC94c2w6dGVtcGxhdGU-CjwveHNsOnN0eWxlc2hlZXQ-&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHJvb3QvPg&version=3.0"
 ---
 
 ## Description

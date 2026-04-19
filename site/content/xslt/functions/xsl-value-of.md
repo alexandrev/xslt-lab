@@ -7,6 +7,7 @@ versionLabel: "XSLT 1.0"
 category: "element"
 syntax: '<xsl:value-of select="expression" disable-output-escaping="no"/>'
 tags: ["xslt", "reference", "xslt1"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjEuMCIgeG1sbnM6eHNsPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L1hTTC9UcmFuc2Zvcm0iPgogIDx4c2w6b3V0cHV0IG1ldGhvZD0idGV4dCIvPgoKICA8eHNsOnRlbXBsYXRlIG1hdGNoPSIvYm9vayI-CiAgICA8eHNsOnZhbHVlLW9mIHNlbGVjdD0idGl0bGUiLz4KICAgIDx4c2w6dGV4dD4gYnkgPC94c2w6dGV4dD4KICAgIDx4c2w6dmFsdWUtb2Ygc2VsZWN0PSJhdXRob3IiLz4KICA8L3hzbDp0ZW1wbGF0ZT4KPC94c2w6c3R5bGVzaGVldD4&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGJvb2s-CiAgPHRpdGxlPkxlYXJuaW5nIFhTTFQ8L3RpdGxlPgogIDxhdXRob3I-SmFuZSBTbWl0aDwvYXV0aG9yPgo8L2Jvb2s-&version=1.0"
 ---
 
 ## Description

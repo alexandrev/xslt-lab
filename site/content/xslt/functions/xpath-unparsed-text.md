@@ -7,6 +7,7 @@ versionLabel: "XSLT 2.0"
 category: "node function"
 syntax: "unparsed-text(uri, encoding?)"
 tags: ["xslt", "reference", "xpath", "xslt2"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjIuMCIKICB4bWxuczp4c2w9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvWFNML1RyYW5zZm9ybSI-CiAgPHhzbDpvdXRwdXQgbWV0aG9kPSJ4bWwiIGluZGVudD0ieWVzIi8-CgogIDx4c2w6dGVtcGxhdGUgbWF0Y2g9Ii8iPgogICAgPHhzbDp2YXJpYWJsZSBuYW1lPSJjc3YiIHNlbGVjdD0idW5wYXJzZWQtdGV4dCgnZGF0YS5jc3YnKSIvPgogICAgPHJvd3M-CiAgICAgIDx4c2w6Zm9yLWVhY2ggc2VsZWN0PSJ0b2tlbml6ZSgkY3N2LCAnXG4nKVtub3JtYWxpemUtc3BhY2UoKV0iPgogICAgICAgIDxyb3c-PHhzbDp2YWx1ZS1vZiBzZWxlY3Q9Ii4iLz48L3Jvdz4KICAgICAgPC94c2w6Zm9yLWVhY2g-CiAgICA8L3Jvd3M-CiAgPC94c2w6dGVtcGxhdGU-CjwveHNsOnN0eWxlc2hlZXQ-&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHJvb3QvPg&version=2.0"
 ---
 
 ## Description

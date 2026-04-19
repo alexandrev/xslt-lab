@@ -248,6 +248,51 @@ function looksLikeHtml(text) {
   );
 }
 
+// ── URL preload helpers ─────────────────────────────────────────────────────
+
+function b64Encode(str) {
+  return btoa(unescape(encodeURIComponent(str)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+function b64Decode(str) {
+  const padded = str.replace(/-/g, "+").replace(/_/g, "/");
+  const pad = padded.length % 4 ? "=".repeat(4 - (padded.length % 4)) : "";
+  return decodeURIComponent(escape(atob(padded + pad)));
+}
+
+function parseUrlPreload() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("xslt")) return null;
+    const xslt = b64Decode(params.get("xslt"));
+    const xml = params.has("xml") ? b64Decode(params.get("xml")) : null;
+    const version = params.get("version") || "1.0";
+    const title = params.get("title") || "Preloaded example";
+    const xmlParams = xml
+      ? [{ name: "input", value: xml, open: true }]
+      : undefined;
+    return { xslt, version, name: title, ...(xmlParams ? { params: xmlParams } : {}) };
+  } catch {
+    return null;
+  }
+}
+
+function buildShareUrl(tab) {
+  const params = new URLSearchParams();
+  params.set("xslt", b64Encode(tab.xslt));
+  if (tab.params?.length > 0 && tab.params[0]?.value) {
+    params.set("xml", b64Encode(tab.params[0].value));
+  }
+  params.set("version", tab.version || "1.0");
+  if (tab.name) params.set("title", b64Encode(tab.name));
+  return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+
 function normalizeWorkspaceImport(payload) {
   if (!payload || typeof payload !== "object") {
     throw new Error("Workspace file is empty or invalid.");
@@ -288,27 +333,37 @@ function normalizeWorkspaceImport(payload) {
 
 
 export default function App() {
-  // Load persisted workspace from localStorage (if present)
-  let initialTabs = [defaultTab()];
-  try {
-    const stored = localStorage.getItem("tabs");
-    if (stored) initialTabs = JSON.parse(stored);
-  } catch {}
-  if (!Array.isArray(initialTabs)) {
-    initialTabs = [defaultTab()];
+  // URL preload takes priority over localStorage
+  const urlPreload = parseUrlPreload();
+  if (urlPreload) {
+    // Remove query params from the URL without reloading
+    window.history.replaceState({}, "", window.location.pathname);
   }
-  initialTabs = initialTabs.map((tab) => {
-    if (!tab || typeof tab !== "object") return defaultTab();
-    return defaultTab({
-      id: tab.id,
-      params: tab.params,
-      xslt: tab.xslt,
-      version: tab.version,
-      name: tab.name,
+
+  let initialTabs = [defaultTab()];
+  if (urlPreload) {
+    initialTabs = [defaultTab(urlPreload)];
+  } else {
+    try {
+      const stored = localStorage.getItem("tabs");
+      if (stored) initialTabs = JSON.parse(stored);
+    } catch {}
+    if (!Array.isArray(initialTabs)) {
+      initialTabs = [defaultTab()];
+    }
+    initialTabs = initialTabs.map((tab) => {
+      if (!tab || typeof tab !== "object") return defaultTab();
+      return defaultTab({
+        id: tab.id,
+        params: tab.params,
+        xslt: tab.xslt,
+        version: tab.version,
+        name: tab.name,
+      });
     });
-  });
-  if (initialTabs.length > MAX_WORKSPACES) {
-    initialTabs = initialTabs.slice(0, MAX_WORKSPACES);
+    if (initialTabs.length > MAX_WORKSPACES) {
+      initialTabs = initialTabs.slice(0, MAX_WORKSPACES);
+    }
   }
   let initialActive = initialTabs[0]?.id;
   try {
@@ -339,6 +394,7 @@ export default function App() {
     return initialStatus;
   });
   const [editorFocused, setEditorFocused] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   const [user, setUser] = useState(null);
   const [auth, setAuth] = useState(null);
   const [theme, setTheme] = useState(() => {
@@ -1697,6 +1753,20 @@ export default function App() {
               }}
             >
               <Icon name="sparkles" />
+            </button>
+            <button
+              className="icon-button"
+              aria-label="Copy share link"
+              title="Copy shareable link"
+              onClick={() => {
+                const url = buildShareUrl(activeTab);
+                navigator.clipboard.writeText(url).then(() => {
+                  setShareCopied(true);
+                  setTimeout(() => setShareCopied(false), 2000);
+                });
+              }}
+            >
+              <Icon name={shareCopied ? "check" : "share"} />
             </button>
             <div className="right-actions">
               <label

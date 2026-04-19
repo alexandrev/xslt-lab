@@ -7,6 +7,7 @@ versionLabel: "XSLT 3.0"
 category: "array function"
 syntax: "array:sort(array, collation?, key-function?)"
 tags: ["xslt", "reference", "xpath", "xslt3"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjMuMCIKICB4bWxuczp4c2w9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvWFNML1RyYW5zZm9ybSIKICB4bWxuczphcnJheT0iaHR0cDovL3d3dy53My5vcmcvMjAwNS94cGF0aC1mdW5jdGlvbnMvYXJyYXkiPgogIDx4c2w6b3V0cHV0IG1ldGhvZD0idGV4dCIvPgoKICA8eHNsOnRlbXBsYXRlIG1hdGNoPSIvIj4KICAgIDx4c2w6dmFyaWFibGUgbmFtZT0ibnVtcyIgc2VsZWN0PSJbNSwgMiwgOCwgMSwgOSwgM10iLz4KICAgIDx4c2w6dmFyaWFibGUgbmFtZT0ic29ydGVkIiBzZWxlY3Q9ImFycmF5OnNvcnQoJG51bXMpIi8-CiAgICA8eHNsOnZhbHVlLW9mIHNlbGVjdD0iYXJyYXk6ZmxhdHRlbigkc29ydGVkKSIgc2VwYXJhdG9yPSIgIi8-CiAgPC94c2w6dGVtcGxhdGU-CjwveHNsOnN0eWxlc2hlZXQ-&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGRhdGEvPg&version=3.0"
 ---
 
 ## Description

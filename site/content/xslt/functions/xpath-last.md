@@ -7,6 +7,7 @@ versionLabel: "XSLT 1.0"
 category: "node function"
 syntax: "last()"
 tags: ["xslt", "reference", "xslt1", "xpath"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjEuMCIgeG1sbnM6eHNsPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L1hTTC9UcmFuc2Zvcm0iPgogIDx4c2w6b3V0cHV0IG1ldGhvZD0idGV4dCIvPgoKICA8eHNsOnRlbXBsYXRlIG1hdGNoPSIvY29sb3JzIj4KICAgIDx4c2w6Zm9yLWVhY2ggc2VsZWN0PSJjb2xvciI-CiAgICAgIDx4c2w6dmFsdWUtb2Ygc2VsZWN0PSIuIi8-CiAgICAgIDx4c2w6aWYgdGVzdD0icG9zaXRpb24oKSAhPSBsYXN0KCkiPiwgPC94c2w6aWY-CiAgICA8L3hzbDpmb3ItZWFjaD4KICA8L3hzbDp0ZW1wbGF0ZT4KPC94c2w6c3R5bGVzaGVldD4&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGNvbG9ycz4KICA8Y29sb3I-UmVkPC9jb2xvcj4KICA8Y29sb3I-R3JlZW48L2NvbG9yPgogIDxjb2xvcj5CbHVlPC9jb2xvcj4KPC9jb2xvcnM-&version=1.0"
 ---
 
 ## Description

@@ -7,6 +7,7 @@ versionLabel: "XSLT 2.0"
 category: "string function"
 syntax: "lower-case(string)"
 tags: ["xslt", "reference", "xslt2", "xpath"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjIuMCIgeG1sbnM6eHNsPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L1hTTC9UcmFuc2Zvcm0iPgogIDx4c2w6b3V0cHV0IG1ldGhvZD0ieG1sIiBpbmRlbnQ9InllcyIvPgoKICA8eHNsOnRlbXBsYXRlIG1hdGNoPSIvdGFncyI-CiAgICA8bm9ybWFsaXplZD4KICAgICAgPHhzbDpmb3ItZWFjaCBzZWxlY3Q9InRhZyI-CiAgICAgICAgPHRhZz48eHNsOnZhbHVlLW9mIHNlbGVjdD0ibG93ZXItY2FzZSguKSIvPjwvdGFnPgogICAgICA8L3hzbDpmb3ItZWFjaD4KICAgIDwvbm9ybWFsaXplZD4KICA8L3hzbDp0ZW1wbGF0ZT4KPC94c2w6c3R5bGVzaGVldD4&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHRhZ3M-CiAgPHRhZz5YU0xUPC90YWc-CiAgPHRhZz5YUGF0aDwvdGFnPgogIDx0YWc-eG1sPC90YWc-CiAgPHRhZz5KU09OPC90YWc-CjwvdGFncz4&version=2.0"
 ---
 
 ## Description

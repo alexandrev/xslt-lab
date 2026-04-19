@@ -7,6 +7,7 @@ versionLabel: "XSLT 2.0"
 category: "date function"
 syntax: "implicit-timezone()"
 tags: ["xslt", "reference", "xpath", "xslt2"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjIuMCIKICB4bWxuczp4c2w9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvWFNML1RyYW5zZm9ybSI-CiAgPHhzbDpvdXRwdXQgbWV0aG9kPSJ4bWwiIGluZGVudD0ieWVzIi8-CgogIDx4c2w6dGVtcGxhdGUgbWF0Y2g9Ii8iPgogICAgPGNvbnRleHQ-CiAgICAgIDxpbXBsaWNpdC10aW1lem9uZT48eHNsOnZhbHVlLW9mIHNlbGVjdD0iaW1wbGljaXQtdGltZXpvbmUoKSIvPjwvaW1wbGljaXQtdGltZXpvbmU-CiAgICA8L2NvbnRleHQ-CiAgPC94c2w6dGVtcGxhdGU-CjwveHNsOnN0eWxlc2hlZXQ-&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHJvb3QvPg&version=2.0"
 ---
 
 ## Description

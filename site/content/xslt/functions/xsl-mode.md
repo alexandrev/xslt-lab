@@ -7,6 +7,7 @@ versionLabel: "XSLT 3.0"
 category: "element"
 syntax: '<xsl:mode name="name" on-no-match="shallow-copy|deep-copy|fail|text-only-copy|shallow-skip|deep-skip"/>'
 tags: ["xslt", "reference", "xslt3"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjMuMCIKICB4bWxuczp4c2w9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvWFNML1RyYW5zZm9ybSI-CiAgPHhzbDpvdXRwdXQgbWV0aG9kPSJ4bWwiIGluZGVudD0ieWVzIi8-CgogIDwhLS0gRGVjbGFyZSB0aGUgZGVmYXVsdCBtb2RlIHRvIGNvcHkgYW55dGhpbmcgbm90IG1hdGNoZWQgLS0-CiAgPHhzbDptb2RlIG9uLW5vLW1hdGNoPSJzaGFsbG93LWNvcHkiLz4KCiAgPCEtLSBPdmVycmlkZSBvbmx5IHRoZSB0aXRsZSBlbGVtZW50IC0tPgogIDx4c2w6dGVtcGxhdGUgbWF0Y2g9InRpdGxlIj4KICAgIDxoZWFkaW5nPjx4c2w6YXBwbHktdGVtcGxhdGVzLz48L2hlYWRpbmc-CiAgPC94c2w6dGVtcGxhdGU-CjwveHNsOnN0eWxlc2hlZXQ-&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHJlcG9ydD4KICA8dGl0bGU-UTEgUmVzdWx0czwvdGl0bGU-CiAgPHNlY3Rpb24gaWQ9InMxIj4KICAgIDxwYXJhPlJldmVudWUgd2FzIDxiPnVwPC9iPiAxMiUuPC9wYXJhPgogIDwvc2VjdGlvbj4KPC9yZXBvcnQ-&version=3.0"
 ---
 
 ## Description

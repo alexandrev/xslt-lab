@@ -7,6 +7,7 @@ versionLabel: "XSLT 1.0"
 category: "element"
 syntax: '<xsl:strip-space elements="names"/>'
 tags: ["xslt", "reference", "xslt1"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjEuMCIgeG1sbnM6eHNsPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L1hTTC9UcmFuc2Zvcm0iPgogIDx4c2w6b3V0cHV0IG1ldGhvZD0ieG1sIiBpbmRlbnQ9InllcyIvPgoKICA8eHNsOnN0cmlwLXNwYWNlIGVsZW1lbnRzPSJyZXBvcnQgaXRlbXMiLz4KCiAgPHhzbDp0ZW1wbGF0ZSBtYXRjaD0iQCp8bm9kZSgpIj4KICAgIDx4c2w6Y29weT4KICAgICAgPHhzbDphcHBseS10ZW1wbGF0ZXMgc2VsZWN0PSJAKnxub2RlKCkiLz4KICAgIDwveHNsOmNvcHk-CiAgPC94c2w6dGVtcGxhdGU-CjwveHNsOnN0eWxlc2hlZXQ-&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPG1lbnU-CiAgPHNlY3Rpb24-CiAgICA8aXRlbT5Tb3VwPC9pdGVtPgogICAgPGl0ZW0-U2FsYWQ8L2l0ZW0-CiAgPC9zZWN0aW9uPgo8L21lbnU-&version=1.0"
 ---
 
 ## Description

@@ -7,6 +7,7 @@ versionLabel: "XSLT 1.0"
 category: "string function"
 syntax: "string(object?)"
 tags: ["xslt", "reference", "xpath", "xslt1"]
+tryUrl: "https://xsltplayground.com/?xslt=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHhzbDpzdHlsZXNoZWV0IHZlcnNpb249IjEuMCIgeG1sbnM6eHNsPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L1hTTC9UcmFuc2Zvcm0iPgogIDx4c2w6b3V0cHV0IG1ldGhvZD0ieG1sIiBpbmRlbnQ9InllcyIvPgoKICA8eHNsOnRlbXBsYXRlIG1hdGNoPSIvYXJ0aWNsZSI-CiAgICA8dGV4dD4KICAgICAgPHhzbDp2YWx1ZS1vZiBzZWxlY3Q9InN0cmluZyhib2R5KSIvPgogICAgPC90ZXh0PgogIDwveHNsOnRlbXBsYXRlPgo8L3hzbDpzdHlsZXNoZWV0Pg&xml=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGFydGljbGU-CiAgPGJvZHk-CiAgICA8cD5GaXJzdCBwYXJhZ3JhcGguPC9wPgogICAgPHA-U2Vjb25kIDxlbT5wYXJhZ3JhcGg8L2VtPi48L3A-CiAgPC9ib2R5Pgo8L2FydGljbGU-&version=1.0"
 ---
 
 ## Description
