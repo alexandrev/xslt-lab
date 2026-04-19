@@ -213,6 +213,7 @@ function defaultWorkspaceStatus() {
     traceText: "",
     showRawTrace: false,
     resultView: "source",
+    isRunning: false,
   };
 }
 
@@ -665,6 +666,7 @@ export default function App() {
     traceText,
     showRawTrace,
     resultView,
+    isRunning,
   } = activeStatus;
   const MAX_ERROR_LINES = 3;
   const limitedErrorLines = (errorLines || []).slice(0, MAX_ERROR_LINES);
@@ -1141,6 +1143,7 @@ export default function App() {
   );
 
   const runTransform = debounce(async (xsltText, ver, p, tabId) => {
+    updateWorkspaceStatus(tabId, (prev) => ({ ...prev, isRunning: true }));
     const paramObj = {};
     p.forEach((pr) => {
       if (pr.name) paramObj[pr.name] = pr.value;
@@ -1181,6 +1184,7 @@ export default function App() {
           traceText: "",
           showRawTrace: false,
           resultView: "source",
+          isRunning: false,
         });
         return;
       }
@@ -1192,6 +1196,7 @@ export default function App() {
         result: data.result,
         duration: data.duration_ms,
         error: "",
+        isRunning: false,
         errorLines: [],
         isServerError: false,
         showRawTrace: false,
@@ -1218,6 +1223,7 @@ export default function App() {
         traceText: "",
         showRawTrace: false,
         resultView: "source",
+        isRunning: false,
       });
     }
   }, 500);
@@ -2060,11 +2066,16 @@ export default function App() {
         )}
         {showResultPane && (
           <>
-            {duration !== null && (
+            {isRunning ? (
+              <div className="running-box" role="status" aria-live="polite">
+                <span className="running-dot" />
+                Running…
+              </div>
+            ) : duration !== null ? (
               <div className="success-box" role="status" aria-live="polite">
                 Success in {duration} ms
               </div>
-            )}
+            ) : null}
             <div className="result-actions">
               {canRenderHtml && (
                 <button
@@ -2123,7 +2134,7 @@ export default function App() {
                 <Icon name="refresh" />
               </button>
             </div>
-            <div className="result-editor-wrap">
+            <div className={`result-editor-wrap${isRunning ? " result--loading" : ""}`}>
               {effectiveResultView === "render" && canRenderHtml ? (
                 <div className="result-render">
                   <iframe

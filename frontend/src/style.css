@@ -356,6 +356,39 @@ a:focus-visible {
   padding: 0.5rem;
 }
 
+.running-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(255, 200, 50, 0.1);
+  color: #f5c542;
+  border: 1px solid rgba(255, 200, 50, 0.25);
+}
+
+.running-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f5c542;
+  animation: pulse-dot 1s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.75); }
+}
+
+.result--loading {
+  opacity: 0.45;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
 .app-container {
   display: flex;
   flex-direction: column;

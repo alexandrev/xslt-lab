@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -188,7 +187,7 @@ func main() {
 		}
 		log.Printf("processing transform: xslt %d bytes, %d parameters", len(req.XSLT), len(req.Parameters))
 
-		tmpDir, err := ioutil.TempDir("", "xslt")
+		tmpDir, err := os.MkdirTemp("", "xslt")
 		if err != nil {
 			log.Printf("temp dir creation failed: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot create temp dir"})
@@ -266,7 +265,13 @@ func main() {
 
 		log.Printf("+++++++++++++ msg %s", strings.Join(cmdArgs, "\n"))
 
-		cmd := exec.Command("java", "@"+argsPath)
+		cmd := exec.Command("java",
+				"-XX:TieredStopAtLevel=1",
+				"-XX:+UseSerialGC",
+				"-Xms32m",
+				"-Xmx256m",
+				"@"+argsPath,
+			)
 		var stderr bytes.Buffer
 		cmd.Stderr = &stderr
 		start := time.Now()
