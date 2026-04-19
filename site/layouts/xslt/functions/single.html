@@ -17,6 +17,11 @@
   <div class="content">
     {{ .Content }}
   </div>
+  {{- if and .Site.Params.ethicalads.publisher (ne hugo.Environment "development") -}}
+  <div class="ad">
+    <div class="ethical-ad" data-ea-publisher="{{ .Site.Params.ethicalads.publisher }}" data-ea-type="text"></div>
+  </div>
+  {{- end }}
   <div class="ref-try">
     {{ if .Params.tryUrl }}
     <a href="{{ .Params.tryUrl }}" class="button" target="_blank" rel="noopener noreferrer">Open live example in XSLT Playground →</a>
