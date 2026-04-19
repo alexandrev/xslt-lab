@@ -1,12 +1,459 @@
-<!doctype html><html lang=en><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>XSLT & XPath Function Reference | XSLT Playground</title>
-<meta name=description content="Complete reference for XSLT elements and XPath functions with syntax, parameters, and runnable examples. Covers XSLT 1.0, 2.0, and 3.0."><link rel=canonical href=https://blog.xsltplayground.com/xslt/functions/><meta property="og:title" content="XSLT & XPath Function Reference | XSLT Playground"><meta property="og:description" content="Complete reference for XSLT elements and XPath functions with syntax, parameters, and runnable examples. Covers XSLT 1.0, 2.0, and 3.0."><meta property="og:type" content="website"><meta property="og:url" content="https://blog.xsltplayground.com/xslt/functions/"><script type=application/ld+json>{"@context":"https://schema.org","@type":"SoftwareApplication","name":"XSLT Playground","url":"https://xsltplayground.com","description":"Free online XSLT editor, tester and validator. Run XSLT 1.0, 2.0 and 3.0 transformations in your browser using Saxon. No install required.","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["XSLT 1.0, 2.0 and 3.0 support","Saxon-powered backend","Real-time XML transformation","XSLT validator with detailed error messages","Multiple workspaces","Execution trace and debugging","Multiple XML inputs and parameters","Import/Export workspaces as JSON"]}</script><meta name=google-adsense-account content="ca-pub-1549720748100858"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1549720748100858" crossorigin=anonymous></script><link rel=stylesheet href=/css/main.css></head><body class=has-ethicalads><script async src=https://media.ethicalads.io/media/client/ethicalads.min.js></script><div class=ad-bar><div class="container ad-bar-inner"><span class=muted>Sponsored</span><div class=ethical-ad data-ea-publisher=xsltplaygroundcom data-ea-type=image></div></div></div><header class=site-header><div class="container header-grid"><div><a class=brand href=/>XSLT Playground</a><p class=tagline>Online XSLT editor built for real-world transformations.</p></div><nav><ul class=nav><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/about/>About</a></li><li><a href=https://alexandrev.github.io/xslt-lab/index.yaml>Charts</a></li><li><a href=/xslt/functions/>Reference</a></li></ul></nav></div></header><main class=container><section class=page-header><p class=eyebrow>Xslt</p><h1>XSLT & XPath Function Reference</h1><p class=lead>Complete reference for XSLT elements and XPath functions with syntax, parameters, and runnable examples. Covers XSLT 1.0, 2.0, and 3.0.</p></section><ul class="post-list spaced"><li><a href=/xslt/functions/xpath-accumulator-after/>accumulator-after()</a>
-<span class=muted>19 Apr 2026</span><p class=muted>Returns the value of a named accumulator computed after processing the current node in streaming mode.</p></li><li><a href=/xslt/functions/xpath-accumulator-before/>accumulator-before()</a>
-<span class=muted>19 Apr 2026</span><p class=muted>Returns the value of a named accumulator computed before processing the current node in streaming mode.</p></li><li><a href=/xslt/functions/xpath-array-filter/>array:filter()</a>
-<span class=muted>19 Apr 2026</span><p class=muted>Returns a new array containing only the members for which a predicate function returns true.</p></li><li><a href=/xslt/functions/xpath-array-flatten/>array:flatten()</a>
-<span class=muted>19 Apr 2026</span><p class=muted>Recursively flattens nested arrays into a single flat sequence of atomic items and nodes.</p></li><li><a href=/xslt/functions/xpath-array-fold-left/>array:fold-left()</a>
-<span class=muted>19 Apr 2026</span><p class=muted>Accumulates a result by applying a function to each array member from left to right, starting with a seed value.</p></li><li><a href=/xslt/functions/xpath-array-fold-right/>array:fold-right()</a>
-<span class=muted>19 Apr 2026</span><p class=muted>Accumulates a result by applying a function to each array member from right to left, starting with a seed value.</p></li><li><a href=/xslt/functions/xpath-array-for-each-pair/>array:for-each-pair()</a>
-<span class=muted>19 Apr 2026</span><p class=muted>Returns a new array by applying the function to corresponding members of two arrays of the same size.</p></li><li><a href=/xslt/functions/xpath-array-for-each/>array:for-each()</a>
-<span class=muted>19 Apr 2026</span><p class=muted>Returns a new array where each member is the result of applying the function to the corresponding member of the input array.</p></li><li><a href=/xslt/functions/xpath-array-insert-before/>array:insert-before()</a>
-<span class=muted>19 Apr 2026</span><p class=muted>Returns a new array with the given members inserted before the specified 1-based position.</p></li><li><a href=/xslt/functions/xpath-array-remove/>array:remove()</a>
-<span class=muted>19 Apr 2026</span><p class=muted>Returns a new array with the members at the specified 1-based positions removed.</p></li></ul><ul class="pagination pagination-default"><li class="page-item disabled"><a aria-disabled=true aria-label=First class=page-link role=button tabindex=-1><span aria-hidden=true>&#171;&#171;</span></a></li><li class="page-item disabled"><a aria-disabled=true aria-label=Previous class=page-link role=button tabindex=-1><span aria-hidden=true>&#171;</span></a></li><li class="page-item active"><a aria-current=page aria-label="Page 1" class=page-link role=button>1</a></li><li class=page-item><a href=/xslt/functions/page/2/ aria-label="Page 2" class=page-link role=button>2</a></li><li class=page-item><a href=/xslt/functions/page/3/ aria-label="Page 3" class=page-link role=button>3</a></li><li class=page-item><a href=/xslt/functions/page/4/ aria-label="Page 4" class=page-link role=button>4</a></li><li class=page-item><a href=/xslt/functions/page/5/ aria-label="Page 5" class=page-link role=button>5</a></li><li class=page-item><a href=/xslt/functions/page/2/ aria-label=Next class=page-link role=button><span aria-hidden=true>&#187;</span></a></li><li class=page-item><a href=/xslt/functions/page/23/ aria-label=Last class=page-link role=button><span aria-hidden=true>&#187;&#187;</span></a></li></ul></main><footer class=site-footer><div class="container footer-grid"><p>Built with Hugo · 2026-04-19</p><p class=muted>Repo: <a href=https://github.com/alexandrev/xslt-lab>alexandrev/xslt-lab</a></p></div></footer></body></html>
+<!doctype html><html lang=en><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>XSLT & XPath Function Reference | XSLT Playground</title><meta name=description content="Complete reference for XSLT elements and XPath functions with syntax, parameters, and runnable examples. Covers XSLT 1.0, 2.0, and 3.0."><link rel=canonical href=https://blog.xsltplayground.com/xslt/functions/><meta property="og:title" content="XSLT & XPath Function Reference | XSLT Playground"><meta property="og:description" content="Complete reference for XSLT elements and XPath functions with syntax, parameters, and runnable examples. Covers XSLT 1.0, 2.0, and 3.0."><meta property="og:type" content="website"><meta property="og:url" content="https://blog.xsltplayground.com/xslt/functions/"><script type=application/ld+json>{"@context":"https://schema.org","@type":"SoftwareApplication","name":"XSLT Playground","url":"https://xsltplayground.com","description":"Free online XSLT editor, tester and validator. Run XSLT 1.0, 2.0 and 3.0 transformations in your browser using Saxon. No install required.","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["XSLT 1.0, 2.0 and 3.0 support","Saxon-powered backend","Real-time XML transformation","XSLT validator with detailed error messages","Multiple workspaces","Execution trace and debugging","Multiple XML inputs and parameters","Import/Export workspaces as JSON"]}</script><meta name=google-adsense-account content="ca-pub-1549720748100858"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1549720748100858" crossorigin=anonymous></script><link rel=stylesheet href=/css/main.css></head><body class=has-ethicalads><script async src=https://media.ethicalads.io/media/client/ethicalads.min.js></script><div class=ad-bar><div class="container ad-bar-inner"><span class=muted>Sponsored</span><div class=ethical-ad data-ea-publisher=xsltplaygroundcom data-ea-type=image></div></div></div><header class=site-header><div class="container header-grid"><div><a class=brand href=/>XSLT Playground</a><p class=tagline>Online XSLT editor built for real-world transformations.</p></div><nav><ul class=nav><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/about/>About</a></li><li><a href=https://alexandrev.github.io/xslt-lab/index.yaml>Charts</a></li><li><a href=/xslt/functions/>Reference</a></li></ul></nav></div></header><main class=container><div class=page-header><h1>XSLT & XPath Function Reference</h1><p class=lead>Complete reference for XSLT elements and XPath functions, organized by version. Each entry includes syntax, parameters, and runnable examples.</p></div><section class=ref-section><h2>XSLT Elements</h2><ul class=ref-index-list><li><a href=/xslt/functions/xsl-accept/>xsl:accept</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Inside xsl:use-package, accepts specific components from the used package and …</span></li><li><a href=/xslt/functions/xsl-decimal-format/>xsl:decimal-format</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Defines a named decimal format controlling how format-number() formats numbers …</span></li><li><a href=/xslt/functions/xsl-expose/>xsl:expose</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Controls the visibility of components in an xsl:package, determining which are …</span></li><li><a href=/xslt/functions/xsl-key/>xsl:key</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Defines a named index for efficiently selecting nodes using the key() function …</span></li><li><a href=/xslt/functions/xsl-message/>xsl:message</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Emits a diagnostic message to the processor's error output; optionally …</span></li><li><a href=/xslt/functions/xsl-namespace-alias/>xsl:namespace-alias</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Maps a namespace prefix used in the stylesheet to a different prefix in the …</span></li><li><a href=/xslt/functions/xsl-number/>xsl:number</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Formats a number or automatically generates a sequence number based on the …</span></li><li><a href=/xslt/functions/xsl-override/>xsl:override</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Inside xsl:use-package, provides local implementations that replace specific …</span></li><li><a href=/xslt/functions/xsl-package/>xsl:package</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>The root element of an XSLT 3.0 package, a named and versioned reusable unit of …</span></li><li><a href=/xslt/functions/xsl-use-accumulators/>xsl:use-accumulators</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Declares which accumulators are active for a streaming template or mode, …</span></li><li><a href=/xslt/functions/xsl-use-package/>xsl:use-package</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Declares that the current stylesheet or package uses components from a named …</span></li><li><a href=/xslt/functions/xsl-accumulator/>xsl:accumulator</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Declares a streaming accumulator that maintains a typed value updated by rules …</span></li><li><a href=/xslt/functions/xsl-accumulator-rule/>xsl:accumulator-rule</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Defines when and how an xsl:accumulator's value is updated, matching nodes by …</span></li><li><a href=/xslt/functions/xsl-analyze-string/>xsl:analyze-string</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Processes a string against a regular expression, separating matching and …</span></li><li><a href=/xslt/functions/xsl-apply-templates/>xsl:apply-templates</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Selects a set of nodes and applies the best-matching template rule to each one, …</span></li><li><a href=/xslt/functions/xsl-array/>xsl:array</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Creates an XDM array from xsl:array-member children, providing ordered …</span></li><li><a href=/xslt/functions/xsl-array-member/>xsl:array-member</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Defines a single member inside an xsl:array; the member value is any XDM …</span></li><li><a href=/xslt/functions/xsl-attribute/>xsl:attribute</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Creates an attribute on the nearest ancestor result element, with a name and …</span></li><li><a href=/xslt/functions/xsl-attribute-set/>xsl:attribute-set</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Defines a named, reusable collection of attributes that can be applied to …</span></li><li><a href=/xslt/functions/xsl-break/>xsl:break</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Exits an xsl:iterate loop early and returns an optional final value, enabling …</span></li><li><a href=/xslt/functions/xsl-call-template/>xsl:call-template</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Invokes a named template by name, optionally passing parameters, without …</span></li><li><a href=/xslt/functions/xsl-catch/>xsl:catch</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Handles dynamic errors thrown inside an xsl:try block, with access to error …</span></li><li><a href=/xslt/functions/xsl-character-map/>xsl:character-map</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Declares a named mapping of individual characters to output strings, applied …</span></li><li><a href=/xslt/functions/xsl-choose/>xsl:choose</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Multi-branch conditional that evaluates xsl:when conditions in order and …</span></li><li><a href=/xslt/functions/xsl-comment/>xsl:comment</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Generates an XML comment node in the result tree with content computed from the …</span></li><li><a href=/xslt/functions/xsl-copy/>xsl:copy</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Creates a shallow copy of the current node — the node itself but not its …</span></li><li><a href=/xslt/functions/xsl-copy-of/>xsl:copy-of</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Performs a deep copy of a node-set or value into the result tree, preserving all …</span></li><li><a href=/xslt/functions/xsl-element/>xsl:element</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Creates an element node in the result tree with a name computed at runtime from …</span></li><li><a href=/xslt/functions/xsl-fallback/>xsl:fallback</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Provides fallback content to execute when an enclosing extension element or …</span></li><li><a href=/xslt/functions/xsl-for-each/>xsl:for-each</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Iterates over a node-set or sequence, applying the contained template body to …</span></li><li><a href=/xslt/functions/xsl-for-each-group/>xsl:for-each-group</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Groups a sequence of items by a key expression or adjacent values, then iterates …</span></li><li><a href=/xslt/functions/xsl-fork/>xsl:fork</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Processes a streamed sequence in multiple independent branches simultaneously, …</span></li><li><a href=/xslt/functions/xsl-function/>xsl:function</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Defines a named, callable stylesheet function available in XPath expressions …</span></li><li><a href=/xslt/functions/xsl-if/>xsl:if</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Conditionally outputs content when a boolean XPath expression evaluates to true; …</span></li><li><a href=/xslt/functions/xsl-import/>xsl:import</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Imports another stylesheet at a lower import precedence, allowing the importing …</span></li><li><a href=/xslt/functions/xsl-import-schema/>xsl:import-schema</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Imports an XML Schema to enable schema-aware processing, typed variable …</span></li><li><a href=/xslt/functions/xsl-include/>xsl:include</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Merges another stylesheet's top-level declarations into the current stylesheet …</span></li><li><a href=/xslt/functions/xsl-iterate/>xsl:iterate</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Processes a sequence item-by-item with carry-forward parameters, enabling …</span></li><li><a href=/xslt/functions/xsl-map/>xsl:map</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Creates an XDM map from one or more xsl:map-entry children, enabling key-value …</span></li><li><a href=/xslt/functions/xsl-map-entry/>xsl:map-entry</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Adds a single key-value pair to an xsl:map, where the key is any atomic value …</span></li><li><a href=/xslt/functions/xsl-matching-substring/>xsl:matching-substring</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Defines the template body applied to each substring that matches the regex …</span></li><li><a href=/xslt/functions/xsl-merge/>xsl:merge</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Merges multiple pre-sorted sequences into a single sorted sequence, processing …</span></li><li><a href=/xslt/functions/xsl-merge-action/>xsl:merge-action</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Defines the body executed for each group of items sharing the same merge key …</span></li><li><a href=/xslt/functions/xsl-merge-key/>xsl:merge-key</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Defines the sort key for items in an xsl:merge-source, determining how items …</span></li><li><a href=/xslt/functions/xsl-merge-source/>xsl:merge-source</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Defines one sorted input sequence for xsl:merge, specifying the source data and …</span></li><li><a href=/xslt/functions/xsl-mode/>xsl:mode</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Declares a named mode and its default behaviour when no template matches, …</span></li><li><a href=/xslt/functions/xsl-namespace/>xsl:namespace</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Creates a namespace node on the current element, binding a prefix to a namespace …</span></li><li><a href=/xslt/functions/xsl-next-iteration/>xsl:next-iteration</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Advances an xsl:iterate loop to the next item in the sequence, optionally …</span></li><li><a href=/xslt/functions/xsl-next-match/>xsl:next-match</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Applies the next-priority matching template rule for the current node, passing …</span></li><li><a href=/xslt/functions/xsl-non-matching-substring/>xsl:non-matching-substring</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Defines the template body applied to each substring that does not match the …</span></li><li><a href=/xslt/functions/xsl-on-empty/>xsl:on-empty</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Generates fallback content when the sibling sequence constructor produces no …</span></li><li><a href=/xslt/functions/xsl-on-non-empty/>xsl:on-non-empty</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Generates content only when the sibling sequence constructor produces at least …</span></li><li><a href=/xslt/functions/xsl-otherwise/>xsl:otherwise</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Default fallback branch inside xsl:choose, instantiated when no xsl:when …</span></li><li><a href=/xslt/functions/xsl-output/>xsl:output</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Controls how the result tree is serialised — output method, encoding, …</span></li><li><a href=/xslt/functions/xsl-output-character/>xsl:output-character</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Specifies a single character-to-string substitution within an xsl:character-map, …</span></li><li><a href=/xslt/functions/xsl-param/>xsl:param</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Declares a parameter with an optional default value, accepting values passed via …</span></li><li><a href=/xslt/functions/xsl-perform-sort/>xsl:perform-sort</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Sorts a sequence of items and returns the sorted sequence without iterating over …</span></li><li><a href=/xslt/functions/xsl-preserve-space/>xsl:preserve-space</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Explicitly preserves whitespace-only text nodes in the named source elements, …</span></li><li><a href=/xslt/functions/xsl-processing-instruction/>xsl:processing-instruction</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Generates an XML processing instruction in the result tree with a computed name …</span></li><li><a href=/xslt/functions/xsl-result-document/>xsl:result-document</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Writes transformation output to a secondary result document at a specified URI, …</span></li><li><a href=/xslt/functions/xsl-sequence/>xsl:sequence</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns a sequence of items; the XSLT 2.0 equivalent of xsl:value-of for typed …</span></li><li><a href=/xslt/functions/xsl-sort/>xsl:sort</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Specifies a sort key for xsl:apply-templates or xsl:for-each, controlling the …</span></li><li><a href=/xslt/functions/xsl-stream/>xsl:stream</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Processes a source document in streaming mode without loading it fully into …</span></li><li><a href=/xslt/functions/xsl-strip-space/>xsl:strip-space</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Removes whitespace-only text nodes from the specified source elements before the …</span></li><li><a href=/xslt/functions/xsl-stylesheet/>xsl:stylesheet</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Root element of every XSLT stylesheet, declaring the version, namespace, and …</span></li><li><a href=/xslt/functions/xsl-template/>xsl:template</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Defines a template rule that fires when a node matches a pattern, or a named …</span></li><li><a href=/xslt/functions/xsl-text/>xsl:text</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Outputs literal text exactly as written, preserving all whitespace and …</span></li><li><a href=/xslt/functions/xsl-transform/>xsl:transform</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Synonym for xsl:stylesheet — the root element of an XSLT stylesheet, …</span></li><li><a href=/xslt/functions/xsl-try/>xsl:try</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Evaluates an XPath expression or sequence constructor and catches any dynamic …</span></li><li><a href=/xslt/functions/xsl-value-of/>xsl:value-of</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Outputs the string value of an XPath expression as a text node in the result …</span></li><li><a href=/xslt/functions/xsl-variable/>xsl:variable</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Binds a name to a value or node-set for the duration of the enclosing scope; …</span></li><li><a href=/xslt/functions/xsl-when/>xsl:when</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Condition branch inside xsl:choose; its content is output when test evaluates to …</span></li><li><a href=/xslt/functions/xsl-where-populated/>xsl:where-populated</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Suppresses the entire wrapper element, including its start and end tags, when …</span></li><li><a href=/xslt/functions/xsl-with-param/>xsl:with-param</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Supplies a parameter value to a called or applied template, overriding that …</span></li></ul></section><section class=ref-section><h2>XPath Functions</h2><ul class=ref-index-list><li><a href=/xslt/functions/xpath-accumulator-after/>accumulator-after()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns the value of a named accumulator computed after processing the current …</span></li><li><a href=/xslt/functions/xpath-accumulator-before/>accumulator-before()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns the value of a named accumulator computed before processing the current …</span></li><li><a href=/xslt/functions/xpath-array-filter/>array:filter()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a new array containing only the members for which a predicate function …</span></li><li><a href=/xslt/functions/xpath-array-flatten/>array:flatten()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Recursively flattens nested arrays into a single flat sequence of atomic items …</span></li><li><a href=/xslt/functions/xpath-array-fold-left/>array:fold-left()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Accumulates a result by applying a function to each array member from left to …</span></li><li><a href=/xslt/functions/xpath-array-fold-right/>array:fold-right()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Accumulates a result by applying a function to each array member from right to …</span></li><li><a href=/xslt/functions/xpath-array-for-each-pair/>array:for-each-pair()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a new array by applying the function to corresponding members of two …</span></li><li><a href=/xslt/functions/xpath-array-for-each/>array:for-each()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a new array where each member is the result of applying the function to …</span></li><li><a href=/xslt/functions/xpath-array-insert-before/>array:insert-before()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a new array with the given members inserted before the specified 1-based …</span></li><li><a href=/xslt/functions/xpath-array-remove/>array:remove()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a new array with the members at the specified 1-based positions removed.</span></li><li><a href=/xslt/functions/xpath-array-sort/>array:sort()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a new array with members sorted using an optional collation and key …</span></li><li><a href=/xslt/functions/xpath-available-environment-variables/>available-environment-variables()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a sequence of strings naming the environment variables that are …</span></li><li><a href=/xslt/functions/xpath-copy-of/>copy-of()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns a deep copy of all nodes in the sequence, detached from the original …</span></li><li><a href=/xslt/functions/xpath-current-merge-group/>current-merge-group()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns the sequence of items in the current merge group inside an …</span></li><li><a href=/xslt/functions/xpath-current-merge-key/>current-merge-key()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns the current merge key value inside an xsl:merge-action block.</span></li><li><a href=/xslt/functions/xpath-deep-equal/>deep-equal()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns true if two sequences are deeply equal: same items in the same order …</span></li><li><a href=/xslt/functions/xpath-environment-variable/>environment-variable()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns the value of the named environment variable as a string, or the empty …</span></li><li><a href=/xslt/functions/xpath-error/>error()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Raises a dynamic error with an optional error code, description message, and …</span></li><li><a href=/xslt/functions/xpath-exactly-one/>exactly-one()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Asserts that the sequence contains exactly one item; raises a dynamic error if …</span></li><li><a href=/xslt/functions/xpath-has-children/>has-children()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns true if the node has one or more child nodes; defaults to the context …</span></li><li><a href=/xslt/functions/xpath-innermost/>innermost()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns the nodes from the input that are not ancestors of any other node in the …</span></li><li><a href=/xslt/functions/xpath-json-doc/>json-doc()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Retrieves a JSON document from a URI and parses it into XDM value using the same …</span></li><li><a href=/xslt/functions/xpath-json-to-xml/>json-to-xml()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Converts a JSON string to its W3C standard XML representation, producing an …</span></li><li><a href=/xslt/functions/xpath-local-name-from-qname/>local-name-from-QName()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the local part of an xs:QName value as an xs:NCName.</span></li><li><a href=/xslt/functions/xpath-namespace-uri-from-qname/>namespace-uri-from-QName()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the namespace URI part of an xs:QName value.</span></li><li><a href=/xslt/functions/xpath-one-or-more/>one-or-more()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Asserts that the sequence contains one or more items; raises a dynamic error if …</span></li><li><a href=/xslt/functions/xpath-outermost/>outermost()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns the nodes from the input that are not descendants of any other node in …</span></li><li><a href=/xslt/functions/xpath-parse-json/>parse-json()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Parses a JSON string and returns the result as an XDM map, array, string, …</span></li><li><a href=/xslt/functions/xpath-path/>path()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a string that is a valid XPath expression identifying the path from the …</span></li><li><a href=/xslt/functions/xpath-prefix-from-qname/>prefix-from-QName()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the namespace prefix of an xs:QName value, or the empty sequence if the …</span></li><li><a href=/xslt/functions/xpath-resolve-qname/>resolve-QName()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Resolves a lexical QName string against the in-scope namespace bindings of a …</span></li><li><a href=/xslt/functions/xpath-reverse/>reverse()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the items of a sequence in reverse order.</span></li><li><a href=/xslt/functions/xpath-serialize/>serialize()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Serializes a node or sequence to a string using the W3C serialization …</span></li><li><a href=/xslt/functions/xpath-snapshot/>snapshot()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a snapshot copy of the sequence, making streamed nodes available for …</span></li><li><a href=/xslt/functions/xpath-subsequence/>subsequence()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns a contiguous subsequence of items starting at a 1-based position.</span></li><li><a href=/xslt/functions/xpath-trace/>trace()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Emits a trace message to the processor's trace output and returns the value …</span></li><li><a href=/xslt/functions/xpath-type-available/>type-available()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns true if the schema type named by the argument is available in the static …</span></li><li><a href=/xslt/functions/xpath-unordered/>unordered()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the items in the sequence in an implementation-defined order; a hint to …</span></li><li><a href=/xslt/functions/xpath-xml-to-json/>xml-to-json()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Converts the W3C XML representation of JSON back to a JSON string, reversing …</span></li><li><a href=/xslt/functions/xpath-zero-or-one/>zero-or-one()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Asserts that the sequence contains zero or one items; raises a dynamic error if …</span></li><li><a href=/xslt/functions/xpath-abs/>abs()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the absolute value of a numeric argument, removing any negative sign …</span></li><li><a href=/xslt/functions/xpath-apply/>apply()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Calls a function item with arguments supplied as an array, enabling dynamic …</span></li><li><a href=/xslt/functions/xpath-array-append/>array:append()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a new array with an additional member appended at the end.</span></li><li><a href=/xslt/functions/xpath-array-get/>array:get()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns the member of an array at a specified 1-based position.</span></li><li><a href=/xslt/functions/xpath-array-head/>array:head()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns the first member of an array; raises an error if the array is empty.</span></li><li><a href=/xslt/functions/xpath-array-join/>array:join()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Concatenates a sequence of arrays into a single array by combining all their …</span></li><li><a href=/xslt/functions/xpath-array-put/>array:put()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a new array with the member at a given position replaced by a new value.</span></li><li><a href=/xslt/functions/xpath-array-reverse/>array:reverse()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a new array with the members in reverse order.</span></li><li><a href=/xslt/functions/xpath-array-size/>array:size()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns the number of members in an array.</span></li><li><a href=/xslt/functions/xpath-array-subarray/>array:subarray()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a contiguous sub-array starting at a given position, with optional …</span></li><li><a href=/xslt/functions/xpath-array-tail/>array:tail()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a new array containing all members except the first; raises an error if …</span></li><li><a href=/xslt/functions/xpath-avg/>avg()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the arithmetic mean of a sequence of numeric values, or the empty …</span></li><li><a href=/xslt/functions/xpath-base-uri/>base-uri()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the base URI of a node as an xs:anyURI, combining the document's URI …</span></li><li><a href=/xslt/functions/xpath-boolean/>boolean()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Converts any XPath value — node-set, string, number, or boolean — to a boolean …</span></li><li><a href=/xslt/functions/xpath-ceiling/>ceiling()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the smallest integer not less than the argument — equivalent to rounding …</span></li><li><a href=/xslt/functions/xpath-codepoints-to-string/>codepoints-to-string()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Constructs a string from a sequence of Unicode codepoint integers, enabling …</span></li><li><a href=/xslt/functions/xpath-collection/>collection()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns a sequence of nodes from a named collection, enabling batch processing …</span></li><li><a href=/xslt/functions/xpath-compare/>compare()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Compares two strings using a collation and returns -1, 0, or 1 indicating their …</span></li><li><a href=/xslt/functions/xpath-concat/>concat()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Concatenates two or more strings into a single string, accepting any number of …</span></li><li><a href=/xslt/functions/xpath-contains/>contains()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns true if the first string contains the second string as a substring, …</span></li><li><a href=/xslt/functions/xpath-count/>count()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the number of nodes in a node-set or items in a sequence as an integer.</span></li><li><a href=/xslt/functions/xpath-current-date/>current-date()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the current date as an xs:date value, stable for the duration of the …</span></li><li><a href=/xslt/functions/xpath-current-date-time/>current-dateTime()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the current date and time as an xs:dateTime value, fixed for the …</span></li><li><a href=/xslt/functions/xpath-current-group/>current-group()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the sequence of items in the current group inside an xsl:for-each-group …</span></li><li><a href=/xslt/functions/xpath-current-grouping-key/>current-grouping-key()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the grouping key of the current group inside an xsl:for-each-group …</span></li><li><a href=/xslt/functions/xpath-current-output-uri/>current-output-uri()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the URI of the current result document being written inside an …</span></li><li><a href=/xslt/functions/xpath-current-time/>current-time()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the current time as an xs:time value, stable and fixed for the duration …</span></li><li><a href=/xslt/functions/xpath-current/>current()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the context node of the innermost xsl:template or xsl:for-each, …</span></li><li><a href=/xslt/functions/xpath-day-from-date/>day-from-date()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Extracts the day-of-month component from an xs:date value as an xs:integer in …</span></li><li><a href=/xslt/functions/xpath-distinct-values/>distinct-values()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns a sequence containing only the distinct values from the input sequence, …</span></li><li><a href=/xslt/functions/xpath-document-uri/>document-uri()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the URI of the document node that contains the given node, as an …</span></li><li><a href=/xslt/functions/xpath-document/>document()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Loads an external XML document by URI and returns its root node as a node-set, …</span></li><li><a href=/xslt/functions/xpath-element-available/>element-available()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns true if the named XSLT instruction or extension element is supported by …</span></li><li><a href=/xslt/functions/xpath-empty/>empty()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns true if the sequence has zero items, and false if it contains one or …</span></li><li><a href=/xslt/functions/xpath-ends-with/>ends-with()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns true if the first string ends with the second string, using optional …</span></li><li><a href=/xslt/functions/xpath-exists/>exists()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns true if the sequence contains at least one item, and false if it is …</span></li><li><a href=/xslt/functions/xpath-false/>false()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the boolean value false. Used in XPath expressions where an explicit …</span></li><li><a href=/xslt/functions/xpath-filter/>filter()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns items from a sequence for which a predicate function returns true, …</span></li><li><a href=/xslt/functions/xpath-floor/>floor()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the largest integer not greater than the argument — equivalent to …</span></li><li><a href=/xslt/functions/xpath-fold-left/>fold-left()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Accumulates a result by applying a function left-to-right over a sequence, …</span></li><li><a href=/xslt/functions/xpath-fold-right/>fold-right()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Accumulates a result by applying a function right-to-left over a sequence, …</span></li><li><a href=/xslt/functions/xpath-for-each-pair/>for-each-pair()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Applies a binary function to corresponding items from two sequences, returning …</span></li><li><a href=/xslt/functions/xpath-for-each/>for-each()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Applies a function to each item of a sequence and returns the concatenation of …</span></li><li><a href=/xslt/functions/xpath-format-date/>format-date()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Formats an xs:date value into a human-readable string using a picture pattern, …</span></li><li><a href=/xslt/functions/xpath-format-date-time/>format-dateTime()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Formats an xs:dateTime value into a human-readable string using a picture …</span></li><li><a href=/xslt/functions/xpath-format-number/>format-number()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Formats a number as a string using a picture pattern and an optional named …</span></li><li><a href=/xslt/functions/xpath-format-time/>format-time()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Formats an xs:time value into a human-readable string using a picture pattern, …</span></li><li><a href=/xslt/functions/xpath-function-arity/>function-arity()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns the number of arguments (arity) that a function item accepts.</span></li><li><a href=/xslt/functions/xpath-function-available/>function-available()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns true if the named function is available in the current XSLT processor, …</span></li><li><a href=/xslt/functions/xpath-function-lookup/>function-lookup()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a function item identified by its QName and arity, or the empty sequence …</span></li><li><a href=/xslt/functions/xpath-function-name/>function-name()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns the QName of a named function item, or the empty sequence if the …</span></li><li><a href=/xslt/functions/xpath-generate-id/>generate-id()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns a unique string identifier for a node, guaranteed to be a valid XML name …</span></li><li><a href=/xslt/functions/xpath-hours-from-time/>hours-from-time()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Extracts the hours component from an xs:time value as an xs:integer in the range …</span></li><li><a href=/xslt/functions/xpath-id/>id()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Selects elements in the document whose ID attribute value matches the given …</span></li><li><a href=/xslt/functions/xpath-implicit-timezone/>implicit-timezone()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the processor's implicit timezone as an xs:dayTimeDuration, used when …</span></li><li><a href=/xslt/functions/xpath-index-of/>index-of()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns a sequence of 1-based integer positions where a value occurs in a …</span></li><li><a href=/xslt/functions/xpath-insert-before/>insert-before()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns a new sequence with one or more items inserted at a specified 1-based …</span></li><li><a href=/xslt/functions/xpath-key/>key()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Looks up nodes using a named xsl:key index, returning all nodes whose key value …</span></li><li><a href=/xslt/functions/xpath-lang/>lang()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns true if the context node's xml:lang attribute matches the given language …</span></li><li><a href=/xslt/functions/xpath-last/>last()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the size of the context node-set, i.e. the index of the last item in the …</span></li><li><a href=/xslt/functions/xpath-local-name/>local-name()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the local part of the expanded name of a node, stripping any namespace …</span></li><li><a href=/xslt/functions/xpath-lower-case/>lower-case()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Converts every character of a string to its Unicode lowercase equivalent using …</span></li><li><a href=/xslt/functions/xpath-map-contains/>map:contains()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns true if a map contains an entry with the specified key, false otherwise.</span></li><li><a href=/xslt/functions/xpath-map-entry/>map:entry()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Creates a singleton map containing exactly one key-value pair.</span></li><li><a href=/xslt/functions/xpath-map-get/>map:get()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns the value associated with a key in a map, or the empty sequence if the …</span></li><li><a href=/xslt/functions/xpath-map-keys/>map:keys()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns all keys of a map as a sequence of atomic values in …</span></li><li><a href=/xslt/functions/xpath-map-merge/>map:merge()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Merges multiple maps into one, with duplicate key handling controlled by an …</span></li><li><a href=/xslt/functions/xpath-map-put/>map:put()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a new map with a key-value entry added or updated, leaving the original …</span></li><li><a href=/xslt/functions/xpath-map-remove/>map:remove()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a new map with one or more specified keys removed, leaving the original …</span></li><li><a href=/xslt/functions/xpath-map-size/>map:size()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns the number of key-value entries in a map.</span></li><li><a href=/xslt/functions/xpath-matches/>matches()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Tests whether a string matches a regular expression, returning true or false.</span></li><li><a href=/xslt/functions/xpath-max/>max()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the largest value in a sequence of comparable items, optionally using a …</span></li><li><a href=/xslt/functions/xpath-min/>min()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the smallest value in a sequence of comparable items, optionally using a …</span></li><li><a href=/xslt/functions/xpath-minutes-from-time/>minutes-from-time()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Extracts the minutes component from an xs:time value as an xs:integer in the …</span></li><li><a href=/xslt/functions/xpath-month-from-date/>month-from-date()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Extracts the month component from an xs:date value as an xs:integer in the range …</span></li><li><a href=/xslt/functions/xpath-name/>name()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the qualified name (including namespace prefix, if any) of a node as it …</span></li><li><a href=/xslt/functions/xpath-namespace-uri/>namespace-uri()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the namespace URI of a node's expanded name, or an empty string if the …</span></li><li><a href=/xslt/functions/xpath-nilled/>nilled()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns true if an element node is schema-validated and marked as nilled with …</span></li><li><a href=/xslt/functions/xpath-node-name/>node-name()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the name of a node as an xs:QName value, capturing both the namespace …</span></li><li><a href=/xslt/functions/xpath-normalize-space/>normalize-space()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Strips leading and trailing whitespace from a string and collapses all internal …</span></li><li><a href=/xslt/functions/xpath-normalize-unicode/>normalize-unicode()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Applies Unicode normalization (NFC, NFD, NFKC, NFKD, or FULLY-NORMALIZED) to a …</span></li><li><a href=/xslt/functions/xpath-not/>not()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns true if its boolean argument is false, and false if it is true — the …</span></li><li><a href=/xslt/functions/xpath-number/>number()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Converts a string, boolean, or node-set to a number following XPath 1.0 …</span></li><li><a href=/xslt/functions/xpath-parse-xml-fragment/>parse-xml-fragment()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Parses a well-balanced XML fragment string and returns it as a document node, …</span></li><li><a href=/xslt/functions/xpath-parse-xml/>parse-xml()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Parses a well-formed XML string and returns it as a new document node, usable …</span></li><li><a href=/xslt/functions/xpath-position/>position()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the position of the context node within the current node-set, starting …</span></li><li><a href=/xslt/functions/xpath-qname/>QName()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Constructs an xs:QName value from a namespace URI and a lexical qualified name …</span></li><li><a href=/xslt/functions/xpath-random-number-generator/>random-number-generator()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Returns a deterministic pseudo-random number generator as a map, optionally …</span></li><li><a href=/xslt/functions/xpath-regex-group/>regex-group()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the string matched by a numbered capture group of the current regex …</span></li><li><a href=/xslt/functions/xpath-remove/>remove()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns a new sequence with the item at a specified 1-based position removed, …</span></li><li><a href=/xslt/functions/xpath-replace/>replace()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Replaces all substrings of a string that match a regular expression with a …</span></li><li><a href=/xslt/functions/xpath-round/>round()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the integer closest to the argument, rounding half-values toward …</span></li><li><a href=/xslt/functions/xpath-seconds-from-time/>seconds-from-time()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Extracts the seconds component from an xs:time value as an xs:decimal, including …</span></li><li><a href=/xslt/functions/xpath-sort/>sort()</a>
+<span class="ref-badge ref-badge--sm">XSLT 3.0</span>
+<span class=muted>Sorts a sequence of items using an optional collation and key function, …</span></li><li><a href=/xslt/functions/xpath-starts-with/>starts-with()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns true if the first string begins with the second string as an exact …</span></li><li><a href=/xslt/functions/xpath-static-base-uri/>static-base-uri()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns the static base URI of the stylesheet module as an xs:anyURI, i.e., the …</span></li><li><a href=/xslt/functions/xpath-string-join/>string-join()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Joins a sequence of strings into a single string with a specified separator …</span></li><li><a href=/xslt/functions/xpath-string-length/>string-length()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the number of characters in a string, or the length of the context …</span></li><li><a href=/xslt/functions/xpath-string-to-codepoints/>string-to-codepoints()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns a sequence of integers representing the Unicode codepoints of each …</span></li><li><a href=/xslt/functions/xpath-string/>string()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Converts a node-set, number, or boolean to its XPath string value, or returns …</span></li><li><a href=/xslt/functions/xpath-substring-after/>substring-after()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the part of a string that appears after the first occurrence of a given …</span></li><li><a href=/xslt/functions/xpath-substring-before/>substring-before()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the part of a string that appears before the first occurrence of a given …</span></li><li><a href=/xslt/functions/xpath-substring/>substring()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Extracts a portion of a string by start position and optional length, returning …</span></li><li><a href=/xslt/functions/xpath-sum/>sum()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the sum of the numeric values in a node-set or sequence, or a specified …</span></li><li><a href=/xslt/functions/xpath-system-property/>system-property()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the value of a named XSLT system property such as the XSLT version, …</span></li><li><a href=/xslt/functions/xpath-tokenize/>tokenize()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Splits a string into a sequence of substrings using a regular expression as the …</span></li><li><a href=/xslt/functions/xpath-translate/>translate()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Replaces characters in a string one-for-one using a from/to mapping, or removes …</span></li><li><a href=/xslt/functions/xpath-true/>true()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the boolean value true. Used in XPath expressions and xsl:if tests where …</span></li><li><a href=/xslt/functions/xpath-unparsed-entity-uri/>unparsed-entity-uri()</a>
+<span class="ref-badge ref-badge--sm">XSLT 1.0</span>
+<span class=muted>Returns the URI of an unparsed entity declared in the DTD of the source …</span></li><li><a href=/xslt/functions/xpath-unparsed-text-available/>unparsed-text-available()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns true if unparsed-text() would succeed for the given URI and encoding, …</span></li><li><a href=/xslt/functions/xpath-unparsed-text-lines/>unparsed-text-lines()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Reads a text file from a URI and returns its lines as a sequence of strings, one …</span></li><li><a href=/xslt/functions/xpath-unparsed-text/>unparsed-text()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Reads a plain text file from a URI and returns its contents as an xs:string, …</span></li><li><a href=/xslt/functions/xpath-upper-case/>upper-case()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Converts every character of a string to its Unicode uppercase equivalent using …</span></li><li><a href=/xslt/functions/xpath-uri-collection/>uri-collection()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Returns a sequence of xs:anyURI values from a named collection, giving the URIs …</span></li><li><a href=/xslt/functions/xpath-year-from-date/>year-from-date()</a>
+<span class="ref-badge ref-badge--sm">XSLT 2.0</span>
+<span class=muted>Extracts the year component from an xs:date value as an xs:integer.</span></li></ul></section></main><footer class=site-footer><div class="container footer-grid"><p>Built with Hugo · 2026-04-19</p><p class=muted>Repo: <a href=https://github.com/alexandrev/xslt-lab>alexandrev/xslt-lab</a></p></div></footer></body></html>
