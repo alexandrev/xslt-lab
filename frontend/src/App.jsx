@@ -1708,6 +1708,7 @@ export default function App() {
             {ethicalAdsEnabled && ethicalAdsReady && (
               <div className="params-ad">
                 <div
+                  id="xsltplayground-params"
                   className="ethical-ad"
                   data-ea-publisher={ethicalAdsPublisher}
                   data-ea-type="image"
