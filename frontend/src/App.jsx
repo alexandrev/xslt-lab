@@ -437,21 +437,15 @@ export default function App() {
   const paramResizeState = useRef({ startX: 0, startWidth: DEFAULT_PARAM_WIDTH });
   const lastAdRefreshRef = useRef(0);
   const adVisibleRef = useRef(false);
-  const adRefreshCountRef = useRef(0);
   const maybeRefreshAd = () => {
-    adRefreshCountRef.current += 1;
-    // Only reload after 3+ transforms and at least 2 minutes since last reload.
-    // Avoids inflating decisions/offers on every transform for active users.
     const now = Date.now();
     if (
       adVisibleRef.current &&
-      adRefreshCountRef.current >= 3 &&
-      now - lastAdRefreshRef.current >= 120_000 &&
+      now - lastAdRefreshRef.current >= 30_000 &&
       window.ethicalads
     ) {
       window.ethicalads.reload();
       lastAdRefreshRef.current = now;
-      adRefreshCountRef.current = 0;
     }
   };
   const [resultHeight, setResultHeight] = useState(() => {
@@ -610,7 +604,7 @@ export default function App() {
       { threshold: 0.5 },
     );
     observer.observe(el);
-    const id = setInterval(maybeRefreshAd, 120_000);
+    const id = setInterval(maybeRefreshAd, 30_000);
     return () => {
       clearInterval(id);
       observer.disconnect();
