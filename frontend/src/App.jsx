@@ -489,7 +489,7 @@ export default function App() {
   );
   const [userInteracted, setUserInteracted] = useState(false);
   const [widgetsReady, setWidgetsReady] = useState(false);
-  const [autoRunReady, setAutoRunReady] = useState(false);
+  const [autoRunReady, setAutoRunReady] = useState(() => !!urlPreload);
   const ethicalSlotRef = useRef(null);
   const isLocalhost =
     typeof window !== "undefined" &&
@@ -2061,6 +2061,12 @@ export default function App() {
               <div className="error-more">
                 +{(errorLines || []).length - MAX_ERROR_LINES} more…
               </div>
+            )}
+            {/FODC0002|I\/O error|unable to open|Failed to read|UnmarshalException.*URI/i.test(error) && (
+              <p className="error-doc-hint">
+                💡 <code>doc()</code> only supports HTTP/HTTPS URLs in this playground — local file paths are not available.
+                Host your XML file online and use <code>doc("https://…")</code>.
+              </p>
             )}
             {isServerError && (
               <a

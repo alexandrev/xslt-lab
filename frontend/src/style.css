@@ -1611,6 +1611,28 @@ a:focus-visible {
   background: #4a3916;
 }
 
+/* ── doc() sandbox hint ── */
+.error-doc-hint {
+  margin: 4px 8px 2px;
+  font-size: 0.78rem;
+  color: #7a5800;
+  background: #fffbea;
+  border-left: 3px solid #f0c040;
+  padding: 4px 8px;
+  border-radius: 0 4px 4px 0;
+}
+
+.error-doc-hint code {
+  font-family: monospace;
+  font-size: 0.85em;
+}
+
+:root[data-theme="dark"] .error-doc-hint {
+  color: #f0d070;
+  background: #2a2200;
+  border-left-color: #a07800;
+}
+
 /* ── Error report link ── */
 .error-report-link {
   display: inline-block;

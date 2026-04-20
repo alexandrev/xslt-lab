@@ -127,6 +127,7 @@ export const XPATH_FUNCTIONS = [
   { label: "format-number(num, pattern, decimalFormat?)", minVersion: "1.0", info: "Formats a number using a decimal format pattern", blogSlug: "xpath-format-number" },
   { label: "current()",          minVersion: "1.0", info: "Returns the current node (differs from . inside predicates)",  blogSlug: "xpath-current" },
   { label: "document(uri, node?)", minVersion: "1.0", info: "Loads an external XML document", blogSlug: "xpath-document" },
+  { label: "doc(uri)",             minVersion: "2.0", info: "Loads an external XML document by URI. HTTP/HTTPS URLs are supported — local file paths are not available in this playground.", blogSlug: "xpath-doc" },
   { label: "unparsed-entity-uri(name)", minVersion: "1.0", info: "Returns the URI of an unparsed entity", blogSlug: "xpath-unparsed-entity-uri" },
   { label: "generate-id(node?)", minVersion: "1.0", info: "Generates a unique string ID for a node", blogSlug: "xpath-generate-id" },
   { label: "system-property(name)", minVersion: "1.0", info: "Returns XSLT system properties (xsl:version, xsl:vendor, ...)", blogSlug: "xpath-system-property" },
