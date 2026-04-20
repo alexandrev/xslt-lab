@@ -624,6 +624,9 @@ export function getXmlElements(xsltVersion = "1.0") {
 function buildTooltipDom(entry) {
   const wrap = document.createElement("div");
   wrap.style.cssText = "padding:8px 10px;max-width:340px;line-height:1.5;font-size:13px";
+  // Prevent CodeMirror from intercepting mousedown inside the tooltip,
+  // which would close it and block link navigation.
+  wrap.addEventListener("mousedown", (e) => e.stopPropagation());
 
   const title = document.createElement("strong");
   title.textContent = entry.label;
