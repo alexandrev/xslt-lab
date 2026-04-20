@@ -7,10 +7,11 @@ import {
   useState,
 } from "react";
 
-const STORAGE_KEY = "feedbackPos";
+const STORAGE_KEY = "feedbackPos2"; // v2: new default position top-right
 const MIN_MARGIN = 10;
 const DEFAULT_MARGIN = 24;
-const FALLBACK_WIDTH = 220;
+const WIDGET_WIDTH = 220;
+const TOOLBAR_HEIGHT = 68; // approx height of the toolbar above the editor
 
 function getWebhookUrl() {
   return (window.env && window.env.VITE_FEEDBACK_WEBHOOK_URL) || "";
@@ -40,12 +41,6 @@ export default function FeedbackWidget() {
         if (typeof parsed?.x === "number" && typeof parsed?.y === "number") {
           return parsed;
         }
-        if (typeof parsed?.right === "number" && typeof parsed?.top === "number") {
-          return {
-            x: Math.max(MIN_MARGIN, window.innerWidth - parsed.right - FALLBACK_WIDTH),
-            y: Math.max(MIN_MARGIN, parsed.top),
-          };
-        }
       }
     } catch {}
     return null;
@@ -56,18 +51,18 @@ export default function FeedbackWidget() {
 
   // Form state
   const [message, setMessage] = useState("");
+  const [email, setEmail] = useState("");
   const [type, setType] = useState("idea");
   const [status, setStatus] = useState("idle"); // idle | sending | success | error
 
   const resolvedPosition = useMemo(() => {
     if (position) return position;
-    const fallbackHeight =
-      viewportHeight || (typeof window !== "undefined" ? window.innerHeight : 0);
+    const vw = viewportWidth || (typeof window !== "undefined" ? window.innerWidth : 800);
     return {
-      x: DEFAULT_MARGIN,
-      y: Math.max(DEFAULT_MARGIN, fallbackHeight - 260),
+      x: Math.max(MIN_MARGIN, vw - WIDGET_WIDTH - DEFAULT_MARGIN),
+      y: TOOLBAR_HEIGHT,
     };
-  }, [position, viewportHeight]);
+  }, [position, viewportWidth]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -102,24 +97,6 @@ export default function FeedbackWidget() {
     if (!next) return;
     if (next.x !== position.x || next.y !== position.y) setPosition(next);
   }, [position, clampWithinViewport, viewportHeight, viewportWidth, collapsed]);
-
-  useLayoutEffect(() => {
-    if (position || typeof window === "undefined" || typeof document === "undefined") return;
-    const widget = widgetRef.current;
-    if (!widget) return;
-    const footer = document.querySelector(".footer");
-    const margin = DEFAULT_MARGIN;
-    const viewport = window.innerHeight;
-    const widgetRect = widget.getBoundingClientRect();
-    let y = Math.max(margin, viewport - widgetRect.height - margin);
-    if (footer) {
-      const footerRect = footer.getBoundingClientRect();
-      if (footerRect.top < viewport) {
-        y = Math.max(margin, footerRect.top - widgetRect.height - margin);
-      }
-    }
-    setPosition({ x: margin, y });
-  }, [position]);
 
   useEffect(() => {
     if (!dragging) return;
@@ -178,19 +155,22 @@ export default function FeedbackWidget() {
     if (!webhookUrl) return;
     setStatus("sending");
     try {
+      const payload = {
+        type,
+        message: message.trim(),
+        url: window.location.href,
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString(),
+      };
+      if (email.trim()) payload.mail = email.trim();
       await fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type,
-          message: message.trim(),
-          url: window.location.href,
-          userAgent: navigator.userAgent,
-          timestamp: new Date().toISOString(),
-        }),
+        body: JSON.stringify(payload),
       });
       setStatus("success");
       setMessage("");
+      setEmail("");
     } catch {
       setStatus("error");
     }
@@ -242,6 +222,13 @@ export default function FeedbackWidget() {
                 onChange={(e) => setMessage(e.target.value)}
                 rows={3}
                 maxLength={1000}
+              />
+              <input
+                type="email"
+                className="feedback-email"
+                placeholder="Email (optional)"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
               {status === "error" && (
                 <p className="feedback-error">Failed to send, try again.</p>

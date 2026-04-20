@@ -1176,8 +1176,20 @@ a:focus-visible {
   box-sizing: border-box;
 }
 
+.feedback-email {
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #c4d4ff;
+  font-size: 0.85rem;
+  color: #21426c;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
 .feedback-textarea:focus,
-.feedback-type:focus {
+.feedback-type:focus,
+.feedback-email:focus {
   outline: none;
   border-color: #7a9fff;
 }
@@ -1581,6 +1593,12 @@ a:focus-visible {
 
 :root[data-theme="dark"] .feedback-body p {
   color: #c7d2e3;
+}
+
+:root[data-theme="dark"] .feedback-email {
+  background: #1a2233;
+  color: #e3e8ef;
+  border-color: #2b3645;
 }
 
 :root[data-theme="dark"] .feedback-link {

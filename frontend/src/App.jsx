@@ -126,7 +126,7 @@ function Editor({
         editable={!options.readOnly}
         basicSetup={{
           lineNumbers: options.lineNumbers !== "off",
-          foldGutter: true,
+          foldGutter: false,
           dropCursor: false,
           allowMultipleSelections: false,
           indentOnInput: true,
