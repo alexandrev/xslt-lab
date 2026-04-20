@@ -556,6 +556,13 @@ a:focus-visible {
   padding: 10px 12px;
   border-top: 1px solid var(--border, #2a3347);
   flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
+
+.params-ad .ethical-ad {
+  max-width: 100%;
 }
 
 .param-footer .icon-button {

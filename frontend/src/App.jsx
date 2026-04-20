@@ -1710,7 +1710,8 @@ export default function App() {
                 <div
                   className="ethical-ad"
                   data-ea-publisher={ethicalAdsPublisher}
-                  data-ea-type="text"
+                  data-ea-type="image"
+                  data-ea-style="stickybox"
                 />
               </div>
             )}
@@ -2220,7 +2221,7 @@ export default function App() {
           )}
         </div>
         <div className="footer-right">
-          <span>© 2025 Alexandre Vazquez. All rights reserved.</span>
+          <span>© 2026 <a href="https://alexandre-vazquez.com" target="_blank" rel="noopener noreferrer">Alexandre Vazquez</a>. All rights reserved.</span>
           <a
             href="https://alexandre-vazquez.com"
             target="_blank"
