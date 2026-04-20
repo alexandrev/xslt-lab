@@ -624,9 +624,6 @@ export function getXmlElements(xsltVersion = "1.0") {
 function buildTooltipDom(entry) {
   const wrap = document.createElement("div");
   wrap.style.cssText = "padding:8px 10px;max-width:340px;line-height:1.5;font-size:13px";
-  // Prevent CodeMirror from intercepting mousedown inside the tooltip,
-  // which would close it and block link navigation.
-  wrap.addEventListener("mousedown", (e) => e.stopPropagation());
 
   const title = document.createElement("strong");
   title.textContent = entry.label;
@@ -654,12 +651,20 @@ function buildTooltipDom(entry) {
   }
 
   if (entry.blogSlug) {
+    const url = `https://blog.xsltplayground.com/xslt/functions/${entry.blogSlug}`;
     const a = document.createElement("a");
-    a.href = `https://blog.xsltplayground.com/xslt/functions/${entry.blogSlug}`;
+    a.href = url;
     a.target = "_blank";
     a.rel = "noopener noreferrer";
     a.style.cssText = "display:block;margin-top:6px;font-size:11px";
     a.textContent = "Full docs →";
+    // Use pointerdown so the URL opens before the tooltip can close.
+    // stopPropagation prevents CodeMirror from handling this as an editor event.
+    a.addEventListener("pointerdown", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      window.open(url, "_blank", "noopener,noreferrer");
+    });
     wrap.appendChild(a);
   }
 
