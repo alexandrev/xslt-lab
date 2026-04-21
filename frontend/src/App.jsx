@@ -429,6 +429,7 @@ export default function App() {
   const [errorCollapsed, setErrorCollapsed] = useState(false);
   const [ethicalAdsReady, setEthicalAdsReady] = useState(false);
   const [transformCount, setTransformCount] = useState(0);
+  const [userHasTransformed, setUserHasTransformed] = useState(false);
   const [surveyDone, setSurveyDone] = useState(() => {
     try { return localStorage.getItem("xsp_survey_done") === "1"; } catch { return false; }
   });
@@ -1195,6 +1196,7 @@ export default function App() {
       const data = await res.json();
       const defaultView = looksLikeHtml(data.result) ? "render" : "source";
       setTransformCount((prev) => prev + 1);
+      if (userInteracted) setUserHasTransformed(true);
       maybeRefreshAd();
       updateWorkspaceStatus(tabId, {
         result: data.result,
@@ -1506,10 +1508,19 @@ export default function App() {
 
   useEffect(() => {
     if (!ethicalAdsEnabled || !ethicalAdsReady || !ethicalSlotRef.current) return;
-    try {
-      ethicalSlotRef.current.innerHTML = "";
-      window.ethicalads?.load(ethicalSlotRef.current);
-    } catch {}
+    const tryLoad = () => {
+      try {
+        if (ethicalSlotRef.current) {
+          ethicalSlotRef.current.innerHTML = "";
+          window.ethicalads?.load(ethicalSlotRef.current);
+        }
+      } catch {}
+    };
+    tryLoad();
+    // Retry once after 1s to cover race conditions where ethicalads
+    // initializes slightly after the load event fires
+    const t = window.setTimeout(tryLoad, 1000);
+    return () => window.clearTimeout(t);
   }, [ethicalAdsEnabled, ethicalAdsReady, ethicalAdVariant]);
 
   return (
@@ -2097,24 +2108,27 @@ export default function App() {
                 <div className="success-box" role="status" aria-live="polite">
                   Success in {duration} ms
                 </div>
-                <button
-                  type="button"
-                  className={`share-transform-btn${shareCopied ? " copied" : ""}`}
-                  title="Copy a shareable link to this transformation"
-                  onClick={() => {
-                    const url = buildShareUrl(activeTab);
-                    navigator.clipboard.writeText(url).then(() => {
-                      setShareCopied(true);
-                      setTimeout(() => setShareCopied(false), 2500);
-                      window.gtag?.("event", "share_transform", {
-                        event_category: "engagement",
-                        xslt_version: activeTab?.version,
+                {userHasTransformed && (
+                  <button
+                    type="button"
+                    className={`share-transform-btn${shareCopied ? " copied" : ""}`}
+                    title="Copy a shareable link to this transformation"
+                    onClick={() => {
+                      const url = buildShareUrl(activeTab);
+                      const text = `Check out my XSLT transformation! ✨\n${url}`;
+                      navigator.clipboard.writeText(text).then(() => {
+                        setShareCopied(true);
+                        setTimeout(() => setShareCopied(false), 2500);
+                        window.gtag?.("event", "share_transform", {
+                          event_category: "engagement",
+                          xslt_version: activeTab?.version,
+                        });
                       });
-                    });
-                  }}
-                >
-                  {shareCopied ? "✓ Link copied!" : "⬡ Share transform"}
-                </button>
+                    }}
+                  >
+                    {shareCopied ? "✓ Copied!" : "⬡ Share transform"}
+                  </button>
+                )}
               </div>
             ) : null}
             <div className="result-actions">
