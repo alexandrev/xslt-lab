@@ -1710,17 +1710,6 @@ export default function App() {
                 </label>
               </div>
             </div>
-            {ethicalAdsEnabled && ethicalAdsReady && (
-              <div className="params-ad">
-                <div
-                  id="xsltplayground-params"
-                  className="ethical-ad"
-                  data-ea-publisher={ethicalAdsPublisher}
-                  data-ea-type="image"
-                  data-ea-style="stickybox"
-                />
-              </div>
-            )}
             <div
               className={`pane-divider${isResizingParams ? " dragging" : ""}`}
               onMouseDown={handleParamResizeStart}
