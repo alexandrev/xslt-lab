@@ -1508,7 +1508,7 @@ export default function App() {
 
   useEffect(() => {
     if (!ethicalAdsEnabled || !ethicalAdsReady || !ethicalSlotRef.current) return;
-    const tryLoad = () => {
+    const doLoad = () => {
       try {
         if (ethicalSlotRef.current) {
           ethicalSlotRef.current.innerHTML = "";
@@ -1516,10 +1516,13 @@ export default function App() {
         }
       } catch {}
     };
-    tryLoad();
-    // Retry once after 1s to cover race conditions where ethicalads
-    // initializes slightly after the load event fires
-    const t = window.setTimeout(tryLoad, 1000);
+    doLoad();
+    // Retry if slot still empty after 1.5s (race: ethicalads init vs load event)
+    const t = window.setTimeout(() => {
+      if (ethicalSlotRef.current && !ethicalSlotRef.current.children.length) {
+        doLoad();
+      }
+    }, 1500);
     return () => window.clearTimeout(t);
   }, [ethicalAdsEnabled, ethicalAdsReady, ethicalAdVariant]);
 
@@ -2016,6 +2019,27 @@ export default function App() {
             <div className="error-box-header">
               <span>Errors</span>
               <div className="error-box-actions">
+                {userHasTransformed && (
+                  <button
+                    type="button"
+                    className={`share-transform-btn error-share${shareCopied ? " copied" : ""}`}
+                    title="Copy a shareable link to this transformation"
+                    onClick={() => {
+                      const url = buildShareUrl(activeTab);
+                      const text = `Check out my XSLT transformation! ✨\n${url}`;
+                      navigator.clipboard.writeText(text).then(() => {
+                        setShareCopied(true);
+                        setTimeout(() => setShareCopied(false), 2500);
+                        window.gtag?.("event", "share_transform", {
+                          event_category: "engagement",
+                          xslt_version: activeTab?.version,
+                        });
+                      });
+                    }}
+                  >
+                    {shareCopied ? "✓ Copied!" : "🔗 Copy link"}
+                  </button>
+                )}
                 <button
                   type="button"
                   className="icon-button"
@@ -2126,7 +2150,7 @@ export default function App() {
                       });
                     }}
                   >
-                    {shareCopied ? "✓ Copied!" : "⬡ Share transform"}
+                    {shareCopied ? "✓ Copied!" : "🔗 Copy link"}
                   </button>
                 )}
               </div>

@@ -354,61 +354,76 @@ a:focus-visible {
   display: flex;
   align-items: stretch;
   width: 100%;
+  background: #efe;
   gap: 0;
 }
 
 .success-box {
   flex: 1;
-  background: #efe;
+  background: transparent;
   color: #070;
   padding: 0.5rem;
 }
 
+/* Share button — integrates into parent bar color (green success, red error) */
 .share-transform-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.85rem;
-  margin: 0.2rem 0.4rem;
-  border-radius: 20px;
-  border: 1.5px solid #1480ff;
-  background: linear-gradient(135deg, rgba(20,128,255,0.1), rgba(82,242,197,0.08));
-  color: #1057c0;
+  gap: 0.3rem;
+  padding: 0.25rem 0.75rem;
+  border: none;
+  border-left: 1px solid rgba(0, 100, 0, 0.2);
+  background: transparent;
+  color: #070;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.1s;
   white-space: nowrap;
-  letter-spacing: 0.01em;
-  align-self: center;
+  transition: background 0.15s;
+  font-family: inherit;
 }
 
 .share-transform-btn:hover {
-  background: linear-gradient(135deg, rgba(20,128,255,0.18), rgba(82,242,197,0.14));
-  border-color: #0e45b0;
-  transform: translateY(-1px);
+  background: rgba(0, 100, 0, 0.1);
 }
 
 .share-transform-btn.copied {
-  border-color: #27a746;
-  background: linear-gradient(135deg, rgba(39,167,70,0.12), rgba(39,167,70,0.06));
-  color: #1a7a34;
+  opacity: 0.8;
+}
+
+/* In error header — inherits red context */
+.share-transform-btn.error-share {
+  border: 1px solid rgba(160, 0, 0, 0.25);
+  border-radius: 4px;
+  color: #900;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.75rem;
+}
+
+.share-transform-btn.error-share:hover {
+  background: rgba(160, 0, 0, 0.07);
+}
+
+:root[data-theme="dark"] .success-area {
+  background: #1f3324;
+}
+
+:root[data-theme="dark"] .success-box {
+  color: #9be4b1;
 }
 
 :root[data-theme="dark"] .share-transform-btn {
-  border-color: #4a85ff;
-  color: #8edfff;
-  background: linear-gradient(135deg, rgba(20,128,255,0.15), rgba(82,242,197,0.1));
+  color: #9be4b1;
+  border-left-color: rgba(100, 200, 100, 0.2);
 }
 
 :root[data-theme="dark"] .share-transform-btn:hover {
-  background: linear-gradient(135deg, rgba(20,128,255,0.25), rgba(82,242,197,0.18));
+  background: rgba(100, 200, 100, 0.1);
 }
 
-:root[data-theme="dark"] .share-transform-btn.copied {
-  border-color: #52f2c5;
-  color: #52f2c5;
-  background: rgba(82,242,197,0.1);
+:root[data-theme="dark"] .share-transform-btn.error-share {
+  color: #ff9090;
+  border-color: rgba(255, 100, 100, 0.3);
 }
 
 .running-box {
@@ -1383,14 +1398,6 @@ a:focus-visible {
   color: #f2a3a3;
 }
 
-:root[data-theme="dark"] .success-box {
-  background: #1f3324;
-  color: #9be4b1;
-}
-
-:root[data-theme="dark"] .success-area {
-  flex-wrap: wrap;
-}
 
 :root[data-theme="dark"] .params {
   border-right-color: #2b3645;
