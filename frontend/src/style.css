@@ -359,7 +359,6 @@ a:focus-visible {
 }
 
 .success-box {
-  flex: 1;
   background: transparent;
   color: #070;
   padding: 0.5rem;
