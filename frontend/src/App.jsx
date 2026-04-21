@@ -2093,8 +2093,28 @@ export default function App() {
                 Running…
               </div>
             ) : duration !== null ? (
-              <div className="success-box" role="status" aria-live="polite">
-                Success in {duration} ms
+              <div className="success-area">
+                <div className="success-box" role="status" aria-live="polite">
+                  Success in {duration} ms
+                </div>
+                <button
+                  type="button"
+                  className={`share-transform-btn${shareCopied ? " copied" : ""}`}
+                  title="Copy a shareable link to this transformation"
+                  onClick={() => {
+                    const url = buildShareUrl(activeTab);
+                    navigator.clipboard.writeText(url).then(() => {
+                      setShareCopied(true);
+                      setTimeout(() => setShareCopied(false), 2500);
+                      window.gtag?.("event", "share_transform", {
+                        event_category: "engagement",
+                        xslt_version: activeTab?.version,
+                      });
+                    });
+                  }}
+                >
+                  {shareCopied ? "✓ Link copied!" : "⬡ Share transform"}
+                </button>
               </div>
             ) : null}
             <div className="result-actions">

@@ -350,10 +350,62 @@ a:focus-visible {
   left: 0.25rem;
 }
 
+.success-area {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .success-box {
   background: #efe;
   color: #070;
   padding: 0.5rem;
+}
+
+.share-transform-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 20px;
+  border: 1.5px solid #1480ff;
+  background: linear-gradient(135deg, rgba(20,128,255,0.1), rgba(82,242,197,0.08));
+  color: #1057c0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.1s;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.share-transform-btn:hover {
+  background: linear-gradient(135deg, rgba(20,128,255,0.18), rgba(82,242,197,0.14));
+  border-color: #0e45b0;
+  transform: translateY(-1px);
+}
+
+.share-transform-btn.copied {
+  border-color: #27a746;
+  background: linear-gradient(135deg, rgba(39,167,70,0.12), rgba(39,167,70,0.06));
+  color: #1a7a34;
+}
+
+:root[data-theme="dark"] .share-transform-btn {
+  border-color: #4a85ff;
+  color: #8edfff;
+  background: linear-gradient(135deg, rgba(20,128,255,0.15), rgba(82,242,197,0.1));
+}
+
+:root[data-theme="dark"] .share-transform-btn:hover {
+  background: linear-gradient(135deg, rgba(20,128,255,0.25), rgba(82,242,197,0.18));
+}
+
+:root[data-theme="dark"] .share-transform-btn.copied {
+  border-color: #52f2c5;
+  color: #52f2c5;
+  background: rgba(82,242,197,0.1);
 }
 
 .running-box {
@@ -1331,6 +1383,10 @@ a:focus-visible {
 :root[data-theme="dark"] .success-box {
   background: #1f3324;
   color: #9be4b1;
+}
+
+:root[data-theme="dark"] .success-area {
+  flex-wrap: wrap;
 }
 
 :root[data-theme="dark"] .params {
