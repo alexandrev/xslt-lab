@@ -394,7 +394,7 @@ export default function App() {
     });
     return initialStatus;
   });
-  const [editorFocused, setEditorFocused] = useState(false);
+
   const [shareCopied, setShareCopied] = useState(false);
   const [user, setUser] = useState(null);
   const [auth, setAuth] = useState(null);
@@ -1248,9 +1248,6 @@ export default function App() {
     syncParams();
   }, [active, syncParams]);
 
-  useEffect(() => {
-    if (!editorFocused) syncParams();
-  }, [editorFocused, syncParams]);
 
 
   const updateParam = (index, field, value) => {
@@ -1861,7 +1858,7 @@ export default function App() {
                       ),
                     ),
                 }}
-                value={editorFocused ? activeTab.xslt : injectParamBlock(activeTab.xslt, activeTab.params)}
+                value={injectParamBlock(activeTab.xslt, activeTab.params)}
                 onChange={(v) =>
                   setTabs((tabs) =>
                     tabs.map((tab) =>
@@ -1869,11 +1866,7 @@ export default function App() {
                     ),
                   )
                 }
-                onFocus={() => setEditorFocused(true)}
-                onBlur={() => {
-                  setEditorFocused(false);
-                  syncParams();
-                }}
+                onBlur={syncParams}
                 options={{ minimap: { enabled: false }, automaticLayout: true }}
                 xsltVersion={activeTab.version}
               />
