@@ -486,6 +486,7 @@ export default function App() {
   const [widgetsReady, setWidgetsReady] = useState(false);
   const [autoRunReady, setAutoRunReady] = useState(() => !!urlPreload);
   const ethicalSlotRef = useRef(null);
+  const [adPlacement] = useState(() => Math.random() < 0.5 ? "header" : "sidebar");
   const isLocalhost =
     typeof window !== "undefined" &&
     /^(localhost|127(?:\\.[0-9]+){3}|mac)$/i.test(window.location.hostname);
@@ -1523,6 +1524,14 @@ export default function App() {
     return () => window.clearTimeout(t);
   }, [ethicalAdsEnabled, ethicalAdsReady, ethicalAdVariant]);
 
+  useEffect(() => {
+    if (!ethicalAdsEnabled) return;
+    window.gtag?.("event", "ad_placement_variant", {
+      event_category: "experiment",
+      ad_placement: adPlacement,
+    });
+  }, [ethicalAdsEnabled, adPlacement]);
+
   return (
     <div className="app-container">
       <h1 className="sr-only">XSLT Playground - Online XSLT Editor and Tester</h1>
@@ -1710,6 +1719,18 @@ export default function App() {
                 </label>
               </div>
             </div>
+            {ethicalAdsEnabled && ethicalAdsReady && adPlacement === "sidebar" && (
+              <div className="params-ad">
+                <div
+                  ref={ethicalSlotRef}
+                  id="xsltplayground-params"
+                  className="ethical-ad"
+                  data-ea-publisher={ethicalAdsPublisher}
+                  data-ea-type="image"
+                  data-ea-style="stickybox"
+                />
+              </div>
+            )}
             <div
               className={`pane-divider${isResizingParams ? " dragging" : ""}`}
               onMouseDown={handleParamResizeStart}
@@ -2319,7 +2340,7 @@ export default function App() {
           )}
         </Suspense>
       )}
-      {ethicalAdsEnabled && (
+      {ethicalAdsEnabled && adPlacement === "header" && (
         <div
           ref={ethicalSlotRef}
           id="xsltplayground-main"
