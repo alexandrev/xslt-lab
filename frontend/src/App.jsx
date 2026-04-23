@@ -1719,18 +1719,6 @@ export default function App() {
                 </label>
               </div>
             </div>
-            {ethicalAdsEnabled && ethicalAdsReady && adPlacement === "sidebar" && (
-              <div className="params-ad">
-                <div
-                  ref={ethicalSlotRef}
-                  id="xsltplayground-params"
-                  className="ethical-ad"
-                  data-ea-publisher={ethicalAdsPublisher}
-                  data-ea-type="image"
-                  data-ea-style="stickybox"
-                />
-              </div>
-            )}
             <div
               className={`pane-divider${isResizingParams ? " dragging" : ""}`}
               onMouseDown={handleParamResizeStart}
@@ -2349,6 +2337,16 @@ export default function App() {
           data-ea-type={ethicalAdType}
           data-ea-style={ethicalAdStyle}
           style={{ height: ethicalAdHeight }}
+          aria-label="Advertisement"
+        />
+      )}
+      {ethicalAdsEnabled && adPlacement === "sidebar" && (
+        <div
+          ref={ethicalSlotRef}
+          id="xsltplayground-params"
+          data-ea-publisher={ethicalAdsPublisher}
+          data-ea-type="image"
+          data-ea-style="stickybox"
           aria-label="Advertisement"
         />
       )}
