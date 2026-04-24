@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense, createPortal } from "react";
 import logo from "./logo.svg";
 import TabsNav from "./components/TabsNav";
 import DataPipelineHeader from "./components/DataPipelineHeader";
@@ -2340,7 +2340,7 @@ export default function App() {
           aria-label="Advertisement"
         />
       )}
-      {ethicalAdsEnabled && adPlacement === "sidebar" && (
+      {ethicalAdsEnabled && adPlacement === "sidebar" && createPortal(
         <div
           ref={ethicalSlotRef}
           id="xsltplayground-params"
@@ -2348,7 +2348,8 @@ export default function App() {
           data-ea-type="image"
           data-ea-style="stickybox"
           aria-label="Advertisement"
-        />
+        />,
+        document.body
       )}
     </div>
   );
