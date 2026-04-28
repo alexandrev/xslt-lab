@@ -196,8 +196,6 @@ const PARAM_WIDTH_KEY = "paramsPaneWidth";
 const DEFAULT_PARAM_WIDTH = 320;
 const MIN_PARAM_WIDTH = 220;
 const MIN_EDITOR_WIDTH = 360;
-const ETHICAL_AD_COMPACT_BREAKPOINT = 1024;
-const ETHICAL_AD_TEXT_BREAKPOINT = 720;
 const THEME_STORAGE_KEY = "themeMode";
 const THEME_DARK = "dark";
 const THEME_LIGHT = "light";
@@ -486,22 +484,13 @@ export default function App() {
   const [widgetsReady, setWidgetsReady] = useState(false);
   const [autoRunReady, setAutoRunReady] = useState(() => !!urlPreload);
   const ethicalSlotRef = useRef(null);
-  const [adPlacement] = useState(() => Math.random() < 0.5 ? "header" : "sidebar");
   const isLocalhost =
     typeof window !== "undefined" &&
     /^(localhost|127(?:\\.[0-9]+){3}|mac)$/i.test(window.location.hostname);
   const ethicalAdsEnabled =
     Boolean(ethicalAdsPublisher) &&
     (!isLocalhost || env.VITE_ETHICALADS_DEV === "true");
-  const isCompactEthicalAd =
-    !viewportWidth || viewportWidth < ETHICAL_AD_COMPACT_BREAKPOINT;
-  const ethicalAdType =
-    viewportWidth && viewportWidth < ETHICAL_AD_TEXT_BREAKPOINT
-      ? "text"
-      : "image";
-  const ethicalAdStyle = isCompactEthicalAd ? undefined : "fixedheader";
-  const ethicalAdHeight = isCompactEthicalAd ? "80px" : "50px";
-  const ethicalAdVariant = `${isCompactEthicalAd ? "compact" : "wide"}-${ethicalAdType}`;
+  const ethicalAdVariant = "stickybox";
 
   const backendBase = (env.VITE_BACKEND_URL || "").replace(/\/$/, "");
 
@@ -1524,13 +1513,6 @@ export default function App() {
     return () => window.clearTimeout(t);
   }, [ethicalAdsEnabled, ethicalAdsReady, ethicalAdVariant]);
 
-  useEffect(() => {
-    if (!ethicalAdsEnabled) return;
-    window.gtag?.("event", "ad_placement_variant", {
-      event_category: "experiment",
-      ad_placement: adPlacement,
-    });
-  }, [ethicalAdsEnabled, adPlacement]);
 
   return (
     <div className="app-container">
@@ -2328,19 +2310,7 @@ export default function App() {
           )}
         </Suspense>
       )}
-      {ethicalAdsEnabled && adPlacement === "header" && (
-        <div
-          ref={ethicalSlotRef}
-          id="xsltplayground-main"
-          className="ethical-ad-placeholder"
-          data-ea-publisher={ethicalAdsPublisher}
-          data-ea-type={ethicalAdType}
-          data-ea-style={ethicalAdStyle}
-          style={{ height: ethicalAdHeight }}
-          aria-label="Advertisement"
-        />
-      )}
-      {ethicalAdsEnabled && adPlacement === "sidebar" && createPortal(
+      {ethicalAdsEnabled && createPortal(
         <div
           ref={ethicalSlotRef}
           id="xsltplayground-params"
