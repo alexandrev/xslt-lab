@@ -26,7 +26,7 @@ export default function BuyMeACoffee() {
         "Thanks for using XSLT Playground. If it helped you, feel free to buy me a coffee ☕",
       );
       script.setAttribute("data-color", "#FFDD00");
-      script.setAttribute("data-position", "Right");
+      script.setAttribute("data-position", "Left");
       script.setAttribute("data-x_margin", "24");
       script.setAttribute("data-y_margin", "24");
       script.async = true;
