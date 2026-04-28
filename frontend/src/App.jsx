@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense, createPortal } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from "react";
+import { createPortal } from "react-dom";
 import logo from "./logo.svg";
 import TabsNav from "./components/TabsNav";
 import DataPipelineHeader from "./components/DataPipelineHeader";
