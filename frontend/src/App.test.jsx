@@ -48,7 +48,7 @@ describe("App bootstrap", () => {
   it("renders without crashing", async () => {
     render(<App />);
     fireEvent.pointerDown(window);
-    await waitFor(() => expect(fetch).toHaveBeenCalled());
+    await waitFor(() => expect(fetch).toHaveBeenCalled(), { timeout: 3000 });
     expect(screen.getByText(/xsltplayground\.com/i)).toBeInTheDocument();
   });
 });
@@ -92,7 +92,7 @@ describe("server error reporting", () => {
     fireEvent.pointerDown(window);
     await waitFor(() =>
       expect(screen.getByText(/report this bug/i)).toBeInTheDocument(),
-    );
+    { timeout: 3000 });
   });
 
   it("does not show report link on 400 XSLT syntax error", async () => {
@@ -111,7 +111,7 @@ describe("server error reporting", () => {
     fireEvent.pointerDown(window);
     await waitFor(() =>
       expect(screen.getByText(/xslt syntax error/i)).toBeInTheDocument(),
-    );
+    { timeout: 3000 });
     expect(screen.queryByText(/report this bug/i)).not.toBeInTheDocument();
   });
 });
@@ -120,7 +120,7 @@ describe("usage survey", () => {
   it("does not show survey before 3 successful transforms", async () => {
     render(<App />);
     fireEvent.pointerDown(window);
-    await waitFor(() => expect(fetch).toHaveBeenCalled());
+    await waitFor(() => expect(fetch).toHaveBeenCalled(), { timeout: 3000 });
     expect(screen.queryByText(/what are you using this for/i)).not.toBeInTheDocument();
   });
 
@@ -128,40 +128,40 @@ describe("usage survey", () => {
     render(<App />);
     fireEvent.pointerDown(window);
     // 1st transform on mount
-    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1), { timeout: 2000 });
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1), { timeout: 3000 });
     // Toggle trace twice to trigger 2 more transforms
     const traceCheckbox = screen.getByRole("checkbox", { name: /enable internal variables/i });
     await act(async () => { fireEvent.click(traceCheckbox); });
-    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2), { timeout: 2000 });
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2), { timeout: 3000 });
     await act(async () => { fireEvent.click(traceCheckbox); });
-    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(3), { timeout: 2000 });
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(3), { timeout: 3000 });
     await waitFor(() =>
       expect(screen.getByText(/what are you using this for/i)).toBeInTheDocument(),
-    );
-  });
+    { timeout: 3000 });
+  }, 15000);
 
   it("dismisses survey when ✕ is clicked", async () => {
     render(<App />);
     fireEvent.pointerDown(window);
-    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1), { timeout: 2000 });
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1), { timeout: 3000 });
     const traceCheckbox = screen.getByRole("checkbox", { name: /enable internal variables/i });
     await act(async () => { fireEvent.click(traceCheckbox); });
-    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2), { timeout: 2000 });
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2), { timeout: 3000 });
     await act(async () => { fireEvent.click(traceCheckbox); });
-    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(3), { timeout: 2000 });
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(3), { timeout: 3000 });
     await waitFor(() =>
       expect(screen.getByText(/what are you using this for/i)).toBeInTheDocument(),
-    );
+    { timeout: 3000 });
     fireEvent.click(screen.getByRole("button", { name: /dismiss survey/i }));
     expect(screen.queryByText(/what are you using this for/i)).not.toBeInTheDocument();
-  });
+  }, 15000);
 });
 
 describe("version selector", () => {
   it("renders XSLT 1.0, 2.0 and 3.0 options", async () => {
     render(<App />);
     fireEvent.pointerDown(window);
-    await waitFor(() => expect(fetch).toHaveBeenCalled());
+    await waitFor(() => expect(fetch).toHaveBeenCalled(), { timeout: 3000 });
     const select = screen.getByRole("combobox", { name: /xslt version/i });
     const options = Array.from(select.querySelectorAll("option")).map(
       (o) => o.value,
@@ -174,7 +174,7 @@ describe("version selector", () => {
   it("updates stylesheet version attribute when selection changes", async () => {
     render(<App />);
     fireEvent.pointerDown(window);
-    await waitFor(() => expect(fetch).toHaveBeenCalled());
+    await waitFor(() => expect(fetch).toHaveBeenCalled(), { timeout: 3000 });
     const select = screen.getByRole("combobox", { name: /xslt version/i });
     fireEvent.change(select, { target: { value: "3.0" } });
     expect(select.value).toBe("3.0");

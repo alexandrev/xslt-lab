@@ -1234,7 +1234,7 @@ export default function App() {
         isRunning: false,
       });
     }
-  }, 500);
+  }, 2000);
 
   useEffect(() => {
     if (!activeTab || !autoRunReady) return;
