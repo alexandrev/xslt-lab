@@ -118,6 +118,12 @@ const ICON_PATHS = {
     </>
   ),
   check: <path d="M5 13l4 4L19 7" />,
+  undo: (
+    <>
+      <path d="M3 7h12a6 6 0 0 1 0 12H9" />
+      <path d="M3 7l4-4M3 7l4 4" />
+    </>
+  ),
 };
 
 export default function Icon({ name, size = 16, stroke = 1.8, className = "" }) {

@@ -434,6 +434,8 @@ export default function App() {
   const [surveyDone, setSurveyDone] = useState(() => {
     try { return localStorage.getItem("xsp_survey_done") === "1"; } catch { return false; }
   });
+  const [xsltBeforeFormat, setXsltBeforeFormat] = useState(null);
+  const [resultBeforeFormat, setResultBeforeFormat] = useState(null);
   const workspaceImportRef = useRef(null);
   const resultResizeState = useRef({ startY: 0, startHeight: MIN_RESULT_HEIGHT });
   const paramResizeState = useRef({ startX: 0, startWidth: DEFAULT_PARAM_WIDTH });
@@ -1200,6 +1202,8 @@ export default function App() {
       setTransformCount((prev) => prev + 1);
       if (userInteracted) setUserHasTransformed(true);
       maybeRefreshAd();
+      setResultBeforeFormat(null);
+      setXsltBeforeFormat(null);
       updateWorkspaceStatus(tabId, {
         result: data.result,
         duration: data.duration_ms,
@@ -1768,6 +1772,7 @@ export default function App() {
                     { indentation: "  ", collapseContent: true },
                   );
                   const stripped = stripParamBlock(formatted);
+                  setXsltBeforeFormat(activeTab.xslt);
                   setTabs((tabs) =>
                     tabs.map((tab) =>
                       tab.id === active ? { ...tab, xslt: stripped } : tab,
@@ -1778,6 +1783,23 @@ export default function App() {
             >
               <Icon name="sparkles" />
             </button>
+            {xsltBeforeFormat !== null && (
+              <button
+                className="icon-button"
+                aria-label="Undo format XSLT"
+                title="Undo format"
+                onClick={() => {
+                  setTabs((tabs) =>
+                    tabs.map((tab) =>
+                      tab.id === active ? { ...tab, xslt: xsltBeforeFormat } : tab,
+                    ),
+                  );
+                  setXsltBeforeFormat(null);
+                }}
+              >
+                <Icon name="undo" />
+              </button>
+            )}
             <button
               className="icon-button"
               aria-label="Copy share link"
@@ -2176,6 +2198,7 @@ export default function App() {
                     const { default: formatXML } = await import("xml-formatter");
                     const formatted = formatXML(result);
                     if (activeTab) {
+                      setResultBeforeFormat(result);
                       updateWorkspaceStatus(activeTab.id, (prev) => ({
                         ...prev,
                         result: formatted,
@@ -2188,6 +2211,24 @@ export default function App() {
               >
                 <Icon name="sparkles" />
               </button>
+              {resultBeforeFormat !== null && (
+                <button
+                  className="icon-button"
+                  aria-label="Undo format result"
+                  title="Undo format"
+                  onClick={() => {
+                    if (activeTab) {
+                      updateWorkspaceStatus(activeTab.id, (prev) => ({
+                        ...prev,
+                        result: resultBeforeFormat,
+                      }));
+                    }
+                    setResultBeforeFormat(null);
+                  }}
+                >
+                  <Icon name="undo" />
+                </button>
+              )}
               <button
                 type="button"
                 className={`icon-button result-reset-button${isCustomResultHeight ? " active" : ""}`}
