@@ -1033,9 +1033,11 @@ a:focus-visible {
   color: #007acc;
 }
 
-.ethical-ad-placeholder {
-  width: 100%;
-  order: -1;
+.result-ad {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0.25rem 0 0.5rem;
 }
 
 .icon-button {

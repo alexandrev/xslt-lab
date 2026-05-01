@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from "react";
-import { createPortal } from "react-dom";
 import logo from "./logo.svg";
 import TabsNav from "./components/TabsNav";
 import DataPipelineHeader from "./components/DataPipelineHeader";
@@ -489,22 +488,14 @@ export default function App() {
   const [widgetsReady, setWidgetsReady] = useState(false);
   const [autoRunReady, setAutoRunReady] = useState(() => !!urlPreload);
   const ethicalSlotRef = useRef(null);
-  const [adPlacement] = useState(() => Math.random() < 0.5 ? "header" : "sidebar");
   const isLocalhost =
     typeof window !== "undefined" &&
     /^(localhost|127(?:\\.[0-9]+){3}|mac)$/i.test(window.location.hostname);
   const ethicalAdsEnabled =
     Boolean(ethicalAdsPublisher) &&
     (!isLocalhost || env.VITE_ETHICALADS_DEV === "true");
-  const isCompactEthicalAd =
-    !viewportWidth || viewportWidth < ETHICAL_AD_COMPACT_BREAKPOINT;
   const ethicalAdType =
     viewportWidth && viewportWidth < ETHICAL_AD_TEXT_BREAKPOINT ? "text" : "image";
-  const ethicalAdStyle = isCompactEthicalAd ? undefined : "fixedheader";
-  const ethicalAdHeight = isCompactEthicalAd ? "80px" : "50px";
-  const ethicalAdVariant = adPlacement === "header"
-    ? `${isCompactEthicalAd ? "compact" : "wide"}-${ethicalAdType}`
-    : "stickybox";
 
   const backendBase = (env.VITE_BACKEND_URL || "").replace(/\/$/, "");
 
@@ -1527,7 +1518,7 @@ export default function App() {
       }
     }, 1500);
     return () => window.clearTimeout(t);
-  }, [ethicalAdsEnabled, ethicalAdsReady, ethicalAdVariant]);
+  }, [ethicalAdsEnabled, ethicalAdsReady]);
 
 
   return (
@@ -2239,6 +2230,16 @@ export default function App() {
                 <Icon name="refresh" />
               </button>
             </div>
+            {ethicalAdsEnabled && (
+              <div
+                ref={ethicalSlotRef}
+                id="xsltplayground-main"
+                className="result-ad"
+                data-ea-publisher={ethicalAdsPublisher}
+                data-ea-type={ethicalAdType}
+                aria-label="Advertisement"
+              />
+            )}
             <div className={`result-editor-wrap${isRunning ? " result--loading" : ""}`}>
               {effectiveResultView === "render" && canRenderHtml ? (
                 <div className="result-render">
@@ -2362,29 +2363,6 @@ export default function App() {
             />
           )}
         </Suspense>
-      )}
-      {ethicalAdsEnabled && adPlacement === "header" && (
-        <div
-          ref={ethicalSlotRef}
-          id="xsltplayground-main"
-          className="ethical-ad-placeholder"
-          data-ea-publisher={ethicalAdsPublisher}
-          data-ea-type={ethicalAdType}
-          data-ea-style={ethicalAdStyle}
-          style={{ height: ethicalAdHeight }}
-          aria-label="Advertisement"
-        />
-      )}
-      {ethicalAdsEnabled && adPlacement === "sidebar" && createPortal(
-        <div
-          ref={ethicalSlotRef}
-          id="xsltplayground-params"
-          data-ea-publisher={ethicalAdsPublisher}
-          data-ea-type="image"
-          data-ea-style="stickybox"
-          aria-label="Advertisement"
-        />,
-        document.body
       )}
     </div>
   );
