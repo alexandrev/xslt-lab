@@ -427,7 +427,35 @@ code {
   letter-spacing: 0.05em;
 }
 
+/* ── Article + ad sidebar layout ───────────────────────────────── */
+
+.article-layout {
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  gap: 48px;
+  align-items: start;
+}
+
+.article-layout--no-ad {
+  grid-template-columns: 1fr;
+}
+
+.article-sidebar {
+  position: sticky;
+  top: 90px;
+  padding-top: 40px;
+}
+
 /* ── Media queries ─────────────────────────────────────────────── */
+
+@media (max-width: 860px) {
+  .article-layout {
+    grid-template-columns: 1fr;
+  }
+  .article-sidebar {
+    display: none;
+  }
+}
 
 @media (max-width: 720px) {
   .header-grid { grid-template-columns: 1fr; }
