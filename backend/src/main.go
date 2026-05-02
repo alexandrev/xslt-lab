@@ -5,13 +5,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"html"
+	"io"
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -187,143 +185,82 @@ func main() {
 		}
 		log.Printf("processing transform: xslt %d bytes, %d parameters", len(req.XSLT), len(req.Parameters))
 
-		tmpDir, err := os.MkdirTemp("", "xslt")
-		if err != nil {
-			log.Printf("temp dir creation failed: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot create temp dir"})
-			return
-		}
-		defer os.RemoveAll(tmpDir)
-
-		xsltPath := filepath.Join(tmpDir, "transform.xsl")
-		inputPath := filepath.Join(tmpDir, "input.xml")
-		outputPath := filepath.Join(tmpDir, "result.xml")
-
-		if err := os.WriteFile(xsltPath, []byte(req.XSLT), 0644); err != nil {
-			log.Printf("write xslt failed: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write xslt"})
-			return
-		}
-
 		sourceXML, sourceKey := pickSourceXML(req.Parameters)
-		if err := os.WriteFile(inputPath, []byte(sourceXML), 0644); err != nil {
-			log.Printf("write input failed: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write input"})
-			return
-		}
 		if sourceKey != "" {
 			log.Printf("using parameter %q as source document", sourceKey)
 		}
 
-		argsPath := filepath.Join(tmpDir, "args")
-		var cmdArgs []string
-		cmdArgs = append(cmdArgs,
-			"-cp",
-			config.SaxonClasspath,
-			"com.xsltplayground.Runner",
-			"-s:"+inputPath,
-			"-xsl:"+xsltPath,
-			"-o:"+outputPath,
-		)
-
-		var tracePath string
-		if req.Trace {
-			// Enable Runner instrumentation and capture trace output
-			cmdArgs = append(cmdArgs, "-trace")
-			// Provide a trace output file to capture Saxon messages
-			tracePath = filepath.Join(tmpDir, "trace.log")
-			cmdArgs = append(cmdArgs, "-traceout:"+tracePath)
-			// Also enable Saxon CLI tracing flag for richer diagnostics
-			cmdArgs = append(cmdArgs, "-T")
-		}
-
-		log.Printf("+++++++++++++ msg %s", strings.Join(cmdArgs, "\n"))
-
-		idx := 0
+		// Split params: XML values go as fileParameters (passed inline), rest as string parameters
+		stringParams := make(map[string]string)
+		fileParams := make(map[string]string)
 		for k, v := range req.Parameters {
-			paramFile := filepath.Join(tmpDir, fmt.Sprintf("param_%d", idx))
-			if err := os.WriteFile(paramFile, []byte(v), 0644); err != nil {
-				log.Printf("write parameter %s failed: %v", k, err)
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write parameter"})
-				return
+			if k == sourceKey {
+				continue
 			}
-			// Heuristic check: if value looks like XML (starts with '<' and ends with '>'), treat it as file-based
 			trimmed := strings.TrimSpace(v)
 			if strings.HasPrefix(trimmed, "&lt;") || strings.HasPrefix(trimmed, "<") {
-				cmdArgs = append(cmdArgs, fmt.Sprintf("+%s=%s", k, paramFile))
+				fileParams[k] = html.UnescapeString(trimmed)
 			} else {
-				cmdArgs = append(cmdArgs, fmt.Sprintf("%s=%s", k, v))
+				stringParams[k] = v
 			}
-			idx++
 		}
 
-		if err := os.WriteFile(argsPath, []byte(strings.Join(cmdArgs, "\n")), 0644); err != nil {
-			log.Printf("write args file failed: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot write args"})
-			return
+		daemonReq := map[string]interface{}{
+			"xslt":           req.XSLT,
+			"source":         sourceXML,
+			"parameters":     stringParams,
+			"fileParameters": fileParams,
+			"trace":          req.Trace,
 		}
-
-		log.Printf("+++++++++++++ msg %s", strings.Join(cmdArgs, "\n"))
-
-		cmd := exec.Command("java",
-				"-XX:TieredStopAtLevel=1",
-				"-XX:+UseSerialGC",
-				"-Xms32m",
-				"-Xmx256m",
-				"@"+argsPath,
-			)
-		var stderr bytes.Buffer
-		cmd.Stderr = &stderr
-		start := time.Now()
-
-		timeout := time.Second * 10
-		errChan := make(chan error, 1)
-		go func() { errChan <- cmd.Run() }()
-
-		select {
-		case err := <-errChan:
-			if err != nil {
-				log.Printf("saxon error: %v; stderr: %s", err, stderr.String())
-				c.JSON(http.StatusBadRequest, gin.H{"error": stderr.String()})
-				return
-			}
-		case <-time.After(timeout):
-			cmd.Process.Kill()
-			log.Printf("saxon timeout after %v", timeout)
-			c.JSON(http.StatusRequestTimeout, gin.H{"error": "transformation timeout"})
-			return
-		}
-
-		result, err := os.ReadFile(outputPath)
+		daemonBody, err := json.Marshal(daemonReq)
 		if err != nil {
-			log.Printf("read result failed: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot read result"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot encode request"})
 			return
 		}
 
+		start := time.Now()
+		httpClient := &http.Client{Timeout: 10 * time.Second}
+		resp, err := httpClient.Post(
+			"http://127.0.0.1:8081/transform",
+			"application/json",
+			bytes.NewReader(daemonBody),
+		)
+		if err != nil {
+			log.Printf("daemon call failed: %v", err)
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "transform service unavailable"})
+			return
+		}
+		defer resp.Body.Close()
+
+		respBody, err := io.ReadAll(resp.Body)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot read daemon response"})
+			return
+		}
 		duration := time.Since(start).Milliseconds()
+
+		var daemonResp struct {
+			Result    string `json:"result"`
+			TraceText string `json:"traceText"`
+			Error     string `json:"error"`
+		}
+		if err := json.Unmarshal(respBody, &daemonResp); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot parse daemon response"})
+			return
+		}
+
+		if daemonResp.Error != "" {
+			log.Printf("saxon error after %dms: %s", duration, daemonResp.Error)
+			c.JSON(http.StatusBadRequest, gin.H{"error": daemonResp.Error})
+			return
+		}
+
 		log.Printf("transformation done in %dms", duration)
 
 		var traceEntries []TraceEntry
-		var traceText string
-		if req.Trace {
-			// Load trace text from file (preferred) or stderr
-			if tracePath != "" {
-				if data, err := os.ReadFile(tracePath); err == nil {
-					traceText = string(data)
-					log.Printf("trace file %s size=%d bytes", tracePath, len(traceText))
-				} else {
-					log.Printf("trace read error: %v", err)
-				}
-			}
-			if traceText == "" {
-				traceText = stderr.String()
-				if traceText != "" {
-					log.Printf("trace fallback from stderr size=%d bytes", len(traceText))
-				}
-			}
-
-			// Parse block-based variable traces and legacy single-line ones
+		traceText := daemonResp.TraceText
+		if req.Trace && traceText != "" {
+			log.Printf("trace size=%d bytes", len(traceText))
 			lines := strings.Split(traceText, "\n")
 			filtered := make([]string, 0, len(lines))
 			capturing := false
@@ -342,8 +279,7 @@ func main() {
 				}
 				if strings.HasPrefix(l, "TRACE_VAR_END") {
 					if capturing {
-						value := strings.Join(buf, "\n")
-						traceEntries = append(traceEntries, TraceEntry{Name: currName, Value: value})
+						traceEntries = append(traceEntries, TraceEntry{Name: currName, Value: strings.Join(buf, "\n")})
 					}
 					capturing = false
 					currName = ""
@@ -364,7 +300,7 @@ func main() {
 			traceText = strings.Join(filtered, "\n")
 		}
 
-		c.JSON(http.StatusOK, TransformResponse{Result: string(result), DurationMs: duration, Trace: traceEntries, TraceText: traceText})
+		c.JSON(http.StatusOK, TransformResponse{Result: daemonResp.Result, DurationMs: duration, Trace: traceEntries, TraceText: traceText})
 	})
 
 	r.GET("/", func(c *gin.Context) {

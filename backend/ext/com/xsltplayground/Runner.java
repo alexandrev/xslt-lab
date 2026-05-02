@@ -229,7 +229,7 @@ public class Runner {
         }
     }
 
-    private static boolean enableCompileWithTracing(XsltCompiler compiler) {
+    static boolean enableCompileWithTracing(XsltCompiler compiler) {
         try {
             compiler.setCompileWithTracing(true);
             return true;
@@ -245,7 +245,7 @@ public class Runner {
         }
     }
 
-    private static final class DeduplicatingErrorReporter implements ErrorReporter {
+    static final class DeduplicatingErrorReporter implements ErrorReporter {
         private final ErrorReporter downstream;
         private final Set<String> seen = ConcurrentHashMap.newKeySet();
 
@@ -299,7 +299,7 @@ public class Runner {
         }
     }
 
-    private static void attachTraceListener(Processor processor, XsltTransformer transformer, PrintStream sink) {
+    static void attachTraceListener(Processor processor, XsltTransformer transformer, PrintStream sink) {
         try {
             Controller controller = transformer.getUnderlyingController();
             if (controller == null) {
