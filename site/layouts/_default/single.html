@@ -1,14 +1,26 @@
 {{ define "main" }}
-<article class="post">
-  <p class="eyebrow">{{ .Section | title }}</p>
-  <h1>{{ .Title }}</h1>
-  <p class="muted">{{ .Date.Format "02 Jan 2006" }}</p>
-  {{ with .Params.description }}<p class="lead">{{ . }}</p>{{ end }}
-  {{ partial "adsense/in-article.html" . }}
-  <div class="content">
-    {{ .Content }}
-  </div>
-  <p class="muted back-link"><a href="{{ .CurrentSection.RelPermalink }}">← Back to {{ .CurrentSection.Title }}</a></p>
-  {{ partial "related-posts.html" . }}
-</article>
+{{- $showAd := and .Site.Params.ethicalads.publisher (ne hugo.Environment "development") -}}
+<div class="article-layout{{ if not $showAd }} article-layout--no-ad{{ end }}">
+  <article class="post">
+    <p class="eyebrow">{{ .Section | title }}</p>
+    <h1>{{ .Title }}</h1>
+    <p class="muted">{{ .Date.Format "02 Jan 2006" }}</p>
+    {{ with .Params.description }}<p class="lead">{{ . }}</p>{{ end }}
+    {{ partial "adsense/in-article.html" . }}
+    <div class="content">
+      {{ .Content }}
+    </div>
+    <p class="muted back-link"><a href="{{ .CurrentSection.RelPermalink }}">← Back to {{ .CurrentSection.Title }}</a></p>
+    {{ partial "related-posts.html" . }}
+  </article>
+  {{- if $showAd -}}
+  <aside class="article-sidebar">
+    <div
+      id="xsltplayground-blog"
+      data-ea-publisher="{{ .Site.Params.ethicalads.publisher }}"
+      data-ea-type="image"
+    ></div>
+  </aside>
+  {{- end -}}
+</div>
 {{ end }}

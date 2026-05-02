@@ -12,11 +12,15 @@
   <meta property="og:url" content="{{ .Permalink }}">
   {{ partial "schema-app.html" . }}
   {{ partial "adsense/head.html" . }}
+  {{- if and .Site.Params.ethicalads.publisher (ne hugo.Environment "development") -}}
+  <script async src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
+  {{- end -}}
   <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
 </head>
 {{- $ethicalAds := and .Site.Params.ethicalads.publisher (ne hugo.Environment "development") -}}
-<body{{ if $ethicalAds }} class="has-ethicalads"{{ end }}>
-  {{ partial "ethicalads.html" . }}
+{{- $ethicalAdsHeader := and $ethicalAds (not .IsPage) -}}
+<body{{ if $ethicalAdsHeader }} class="has-ethicalads"{{ end }}>
+  {{- if $ethicalAdsHeader -}}{{ partial "ethicalads.html" . }}{{- end -}}
   <header class="site-header">
     <div class="container header-grid">
       <div>
