@@ -5,7 +5,7 @@ set -e
 java \
   -Xms64m -Xmx256m \
   -XX:+UseSerialGC \
-  -cp /opt/saxon/* \
+  -cp '/opt/saxon/*' \
   com.xsltplayground.SaxonDaemon &
 
 DAEMON_PID=$!
