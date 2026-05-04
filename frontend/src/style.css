@@ -1037,7 +1037,11 @@ a:focus-visible {
   flex-shrink: 0;
   display: flex;
   justify-content: center;
-  padding: 0.25rem 0 0.5rem;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
+  background: var(--bg-secondary, #fafafa);
+  padding: 0.15rem 0.5rem;
+  min-height: 0;
 }
 
 .icon-button {

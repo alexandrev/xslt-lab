@@ -494,8 +494,7 @@ export default function App() {
   const ethicalAdsEnabled =
     Boolean(ethicalAdsPublisher) &&
     (!isLocalhost || env.VITE_ETHICALADS_DEV === "true");
-  const ethicalAdType =
-    viewportWidth && viewportWidth < ETHICAL_AD_TEXT_BREAKPOINT ? "text" : "image";
+  const ethicalAdType = "text";
 
   const backendBase = (env.VITE_BACKEND_URL || "").replace(/\/$/, "");
 
