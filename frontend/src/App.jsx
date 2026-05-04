@@ -2125,7 +2125,8 @@ export default function App() {
                 id="xsltplayground-main"
                 className="result-ad"
                 data-ea-publisher={ethicalAdsPublisher}
-                data-ea-type={ethicalAdType}
+                data-ea-type="text"
+                data-ea-style="fixedheader"
                 aria-label="Advertisement"
               />
             )}
