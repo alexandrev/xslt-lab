@@ -2119,6 +2119,16 @@ export default function App() {
         )}
         {showResultPane && (
           <>
+            {ethicalAdsEnabled && (
+              <div
+                ref={ethicalSlotRef}
+                id="xsltplayground-main"
+                className="result-ad"
+                data-ea-publisher={ethicalAdsPublisher}
+                data-ea-type={ethicalAdType}
+                aria-label="Advertisement"
+              />
+            )}
             {isRunning ? (
               <div className="running-box" role="status" aria-live="polite">
                 <span className="running-dot" />
@@ -2229,16 +2239,6 @@ export default function App() {
                 <Icon name="refresh" />
               </button>
             </div>
-            {ethicalAdsEnabled && (
-              <div
-                ref={ethicalSlotRef}
-                id="xsltplayground-main"
-                className="result-ad"
-                data-ea-publisher={ethicalAdsPublisher}
-                data-ea-type={ethicalAdType}
-                aria-label="Advertisement"
-              />
-            )}
             <div className={`result-editor-wrap${isRunning ? " result--loading" : ""}`}>
               {effectiveResultView === "render" && canRenderHtml ? (
                 <div className="result-render">
