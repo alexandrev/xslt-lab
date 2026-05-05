@@ -1500,25 +1500,34 @@ export default function App() {
     };
   }, [ethicalAdsEnabled]);
 
+  const loadEaSlot = useCallback((ref) => {
+    try {
+      if (ref.current && window.ethicalads) {
+        ref.current.innerHTML = "";
+        window.ethicalads.load(ref.current);
+      }
+    } catch {}
+  }, []);
+
+  // Load header slot when EA is ready
   useEffect(() => {
     if (!ethicalAdsEnabled || !ethicalAdsReady) return;
-    const loadSlot = (ref) => {
-      try {
-        if (ref.current) {
-          ref.current.innerHTML = "";
-          window.ethicalads?.load(ref.current);
-        }
-      } catch {}
-    };
-    loadSlot(ethicalSlotRef);
-    loadSlot(ethicalStickyRef);
-    // Retry if slots still empty after 1.5s
+    loadEaSlot(ethicalSlotRef);
     const t = window.setTimeout(() => {
-      if (ethicalSlotRef.current && !ethicalSlotRef.current.children.length) loadSlot(ethicalSlotRef);
-      if (ethicalStickyRef.current && !ethicalStickyRef.current.children.length) loadSlot(ethicalStickyRef);
+      if (ethicalSlotRef.current && !ethicalSlotRef.current.children.length) loadEaSlot(ethicalSlotRef);
     }, 1500);
     return () => window.clearTimeout(t);
-  }, [ethicalAdsEnabled, ethicalAdsReady]);
+  }, [ethicalAdsEnabled, ethicalAdsReady, loadEaSlot]);
+
+  // Load stickybox when its ref mounts (showResultPane becomes true after first transform)
+  useEffect(() => {
+    if (!ethicalAdsEnabled || !ethicalAdsReady || !ethicalStickyRef.current) return;
+    loadEaSlot(ethicalStickyRef);
+    const t = window.setTimeout(() => {
+      if (ethicalStickyRef.current && !ethicalStickyRef.current.children.length) loadEaSlot(ethicalStickyRef);
+    }, 1500);
+    return () => window.clearTimeout(t);
+  }, [ethicalAdsEnabled, ethicalAdsReady, showResultPane, loadEaSlot]);
 
 
   return (
