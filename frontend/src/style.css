@@ -1033,9 +1033,11 @@ a:focus-visible {
   color: #007acc;
 }
 
-/* EthicalAds — fixedheader stays native (position:fixed, full width) */
+/* EthicalAds — fixedheader: reserve 50px so layout doesn't jump on load */
 .ea-header-slot {
   display: block;
+  min-height: 50px;
+  flex-shrink: 0;
 }
 
 /* EthicalAds — stickybox in result pane right column */
