@@ -1033,33 +1033,25 @@ a:focus-visible {
   color: #007acc;
 }
 
-.result-ad {
-  flex-shrink: 0;
-  border-bottom: 1px solid var(--border-color, #e0e0e0);
-  background: var(--bg-secondary, #fafafa);
-  overflow: hidden;
+/* EthicalAds — fixedheader stays native (position:fixed, full width) */
+.ea-header-slot {
+  display: block;
 }
 
-/* Use EthicalAds fixedheader layout inline — only neutralize fixed positioning */
-.result-ad {
-  flex-shrink: 0;
+/* EthicalAds — stickybox in result pane right column */
+.result-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
-  border-bottom: 1px solid var(--border-color, #e0e0e0);
 }
-.result-ad .ethical-ad,
-.result-ad [data-ea-style="fixedheader"] {
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  bottom: auto !important;
-  z-index: auto !important;
-  width: 100% !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-top: none !important;
+.result-body .result-editor-wrap {
+  flex: 1;
+  min-width: 0;
+}
+.ea-sticky-slot {
+  flex-shrink: 0;
+  width: 160px;
 }
 
 .icon-button {

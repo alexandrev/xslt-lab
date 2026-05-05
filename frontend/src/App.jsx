@@ -488,13 +488,14 @@ export default function App() {
   const [widgetsReady, setWidgetsReady] = useState(false);
   const [autoRunReady, setAutoRunReady] = useState(() => !!urlPreload);
   const ethicalSlotRef = useRef(null);
+  const ethicalStickyRef = useRef(null);
   const isLocalhost =
     typeof window !== "undefined" &&
     /^(localhost|127(?:\\.[0-9]+){3}|mac)$/i.test(window.location.hostname);
   const ethicalAdsEnabled =
     Boolean(ethicalAdsPublisher) &&
     (!isLocalhost || env.VITE_ETHICALADS_DEV === "true");
-  const ethicalAdType = "text";
+  const ethicalAdType = "image";
 
   const backendBase = (env.VITE_BACKEND_URL || "").replace(/\/$/, "");
 
@@ -1500,21 +1501,21 @@ export default function App() {
   }, [ethicalAdsEnabled]);
 
   useEffect(() => {
-    if (!ethicalAdsEnabled || !ethicalAdsReady || !ethicalSlotRef.current) return;
-    const doLoad = () => {
+    if (!ethicalAdsEnabled || !ethicalAdsReady) return;
+    const loadSlot = (ref) => {
       try {
-        if (ethicalSlotRef.current) {
-          ethicalSlotRef.current.innerHTML = "";
-          window.ethicalads?.load(ethicalSlotRef.current);
+        if (ref.current) {
+          ref.current.innerHTML = "";
+          window.ethicalads?.load(ref.current);
         }
       } catch {}
     };
-    doLoad();
-    // Retry if slot still empty after 1.5s (race: ethicalads init vs load event)
+    loadSlot(ethicalSlotRef);
+    loadSlot(ethicalStickyRef);
+    // Retry if slots still empty after 1.5s
     const t = window.setTimeout(() => {
-      if (ethicalSlotRef.current && !ethicalSlotRef.current.children.length) {
-        doLoad();
-      }
+      if (ethicalSlotRef.current && !ethicalSlotRef.current.children.length) loadSlot(ethicalSlotRef);
+      if (ethicalStickyRef.current && !ethicalStickyRef.current.children.length) loadSlot(ethicalStickyRef);
     }, 1500);
     return () => window.clearTimeout(t);
   }, [ethicalAdsEnabled, ethicalAdsReady]);
@@ -1523,6 +1524,17 @@ export default function App() {
   return (
     <div className="app-container">
       <h1 className="sr-only">XSLT Playground - Online XSLT Editor and Tester</h1>
+      {ethicalAdsEnabled && (
+        <div
+          ref={ethicalSlotRef}
+          id="xsltplayground-main"
+          className="ea-header-slot"
+          data-ea-publisher={ethicalAdsPublisher}
+          data-ea-type="text"
+          data-ea-style="fixedheader"
+          aria-label="Advertisement"
+        />
+      )}
       <div className="tabs">
         <TabsNav
           tabs={tabs}
@@ -2119,17 +2131,6 @@ export default function App() {
         )}
         {showResultPane && (
           <>
-            {ethicalAdsEnabled && (
-              <div
-                ref={ethicalSlotRef}
-                id="xsltplayground-main"
-                className="result-ad"
-                data-ea-publisher={ethicalAdsPublisher}
-                data-ea-type="text"
-                data-ea-style="fixedheader"
-                aria-label="Advertisement"
-              />
-            )}
             {isRunning ? (
               <div className="running-box" role="status" aria-live="polite">
                 <span className="running-dot" />
@@ -2240,30 +2241,43 @@ export default function App() {
                 <Icon name="refresh" />
               </button>
             </div>
-            <div className={`result-editor-wrap${isRunning ? " result--loading" : ""}`}>
-              {effectiveResultView === "render" && canRenderHtml ? (
-                <div className="result-render">
-                  <iframe
-                    title="Rendered HTML output"
-                    srcDoc={result || "<!-- empty -->"}
-                    sandbox=""
-                    loading="lazy"
+            <div className="result-body">
+              <div className={`result-editor-wrap${isRunning ? " result--loading" : ""}`}>
+                {effectiveResultView === "render" && canRenderHtml ? (
+                  <div className="result-render">
+                    <iframe
+                      title="Rendered HTML output"
+                      srcDoc={result || "<!-- empty -->"}
+                      sandbox=""
+                      loading="lazy"
+                    />
+                  </div>
+                ) : (
+                  <Editor
+                    height="100%"
+                    language="xml"
+                    theme={editorTheme}
+                    value={result}
+                    onMount={(editor) => (resultEditorRef.current = editor)}
+                    options={{
+                      readOnly: true,
+                      minimap: { enabled: false },
+                      automaticLayout: true,
+                      wordWrap: "bounded",
+                      wordWrapBreakAfterCharacters: ' \t})]?|>'
+                    }}
                   />
-                </div>
-              ) : (
-                <Editor
-                  height="100%"
-                  language="xml"
-                  theme={editorTheme}
-                  value={result}
-                  onMount={(editor) => (resultEditorRef.current = editor)}
-                  options={{
-                    readOnly: true,
-                    minimap: { enabled: false },
-                    automaticLayout: true,
-                    wordWrap: "bounded",
-                    wordWrapBreakAfterCharacters: ' \t})]?|>'
-                  }}
+                )}
+              </div>
+              {ethicalAdsEnabled && (
+                <div
+                  ref={ethicalStickyRef}
+                  id="xsltplayground-sticky"
+                  className="ea-sticky-slot"
+                  data-ea-publisher={ethicalAdsPublisher}
+                  data-ea-type={ethicalAdType}
+                  data-ea-style="stickybox"
+                  aria-label="Advertisement"
                 />
               )}
             </div>
