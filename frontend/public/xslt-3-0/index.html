@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XSLT 3.0 Online Tester — Free XSLT 3.0 Editor &amp; Transformer | XSLT Playground</title>
+  <meta name="description" content="Test XSLT 3.0 online for free. Full Saxon HE support for maps, arrays, streaming, higher-order functions and JSON. The only free online XSLT 3.0 tool. No install." />
+  <link rel="canonical" href="https://xsltplayground.com/xslt-3-0/" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <meta property="og:title" content="XSLT 3.0 Online Tester — Free Editor &amp; Transformer" />
+  <meta property="og:description" content="Test XSLT 3.0 online with full Saxon HE support. Maps, arrays, streaming, higher-order functions, JSON. The only free online XSLT 3.0 tool." />
+  <meta property="og:url" content="https://xsltplayground.com/xslt-3-0/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://xsltplayground.com/og-image.png" />
+  <script type="application/ld+json">
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": ["WebApplication", "SoftwareApplication"],
+      "name": "XSLT 3.0 Online Tester",
+      "url": "https://xsltplayground.com/xslt-3-0/",
+      "description": "Free online XSLT 3.0 editor and tester powered by Saxon HE 12.5. The only free tool supporting XSLT 3.0 maps, arrays, streaming and higher-order functions.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "XSLT Online", "item": "https://xsltplayground.com/" },
+        { "@type": "ListItem", "position": 2, "name": "XSLT 3.0 Online Tester", "item": "https://xsltplayground.com/xslt-3-0/" }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is new in XSLT 3.0?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "XSLT 3.0 adds maps and arrays (key-value data structures), streaming for processing large documents without loading them in memory, higher-order functions, JSON input/output support, xsl:try/xsl:catch error handling, xsl:on-empty/xsl:on-non-empty, and xsl:merge for merging sorted sequences."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there a free online XSLT 3.0 tester?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "XSLT Playground is the only free online tool that fully supports XSLT 3.0 via Saxon HE 12.5. All other free online XSLT tools only support XSLT 1.0. No installation or account required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I process JSON with XSLT 3.0 online?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. XSLT 3.0 supports JSON input and output via the json-doc() function and xsl:output method='json'. XSLT Playground's Saxon HE backend fully supports these features."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does XSLT 3.0 support higher-order functions?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. XSLT 3.0 introduces higher-order functions including fn:apply(), fn:fold-left(), fn:fold-right(), fn:for-each(), and fn:filter(). You can pass functions as parameters and return them from functions."
+          }
+        }
+      ]
+    }
+  ]
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; color: #21426c; background: #f5f7fb; }
+    a { color: #2563eb; }
+    header {
+      background: #21426c;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    header img { width: 28px; height: 28px; }
+    header a { color: #fff; text-decoration: none; font-weight: 700; font-size: 1rem; }
+    header nav { margin-left: auto; display: flex; gap: 1.25rem; font-size: 0.9rem; }
+    header nav a { color: #c8d8f0; font-weight: 400; }
+    .hero {
+      background: linear-gradient(135deg, #1a3a5c 0%, #0f5499 100%);
+      color: #fff;
+      padding: 3.5rem 1.5rem 3rem;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2.2rem; margin: 0 0 1rem; }
+    .hero p { font-size: 1.15rem; opacity: 0.9; max-width: 640px; margin: 0 auto 2rem; }
+    .cta-btn {
+      display: inline-block;
+      background: #fff;
+      color: #21426c;
+      font-weight: 700;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1.05rem;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 20px;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+    }
+    .unique-badge {
+      display: inline-block;
+      background: #f59e0b;
+      color: #1c1917;
+      border-radius: 20px;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-left: 0.5rem;
+    }
+    main { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    h2 { font-size: 1.4rem; margin: 2.5rem 0 0.6rem; color: #1a365d; }
+    p { line-height: 1.75; color: #374151; }
+    ul, ol { color: #374151; line-height: 1.75; padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+    code { background: #eef2ff; padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.9em; }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .feature-card {
+      background: #fff;
+      border: 1px solid #dde6f5;
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem;
+    }
+    .feature-card h3 { margin: 0 0 0.4rem; font-size: 1rem; color: #21426c; }
+    .feature-card p { margin: 0; font-size: 0.92rem; }
+    dl dt { font-weight: 700; margin-top: 1.4rem; color: #21426c; }
+    dl dd { margin: 0.25rem 0 0; color: #374151; line-height: 1.7; }
+    .nav-versions { display: flex; gap: 1rem; margin: 2rem 0; flex-wrap: wrap; }
+    .nav-versions a {
+      padding: 0.5rem 1.2rem;
+      border: 2px solid #21426c;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #21426c;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+    .nav-versions a.active { background: #21426c; color: #fff; }
+    .callout {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.5rem 0;
+    }
+    .callout strong { color: #1d4ed8; }
+    footer {
+      background: #21426c;
+      color: #c8d8f0;
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.88rem;
+    }
+    footer a { color: #93c5fd; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="/logo.svg" alt="XSLT Playground logo" />
+    <a href="/">XSLT Playground</a>
+    <nav>
+      <a href="/">Editor</a>
+      <a href="/xslt-2-0/">XSLT 2.0</a>
+      <a href="/xslt-3-0/">XSLT 3.0</a>
+      <a href="https://blog.xsltplayground.com/">Blog</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div class="badge">Powered by Saxon HE 12.5</div>
+    <h1>XSLT 3.0 Online Tester <span class="unique-badge">Only free tool</span></h1>
+    <p>Test XSLT 3.0 in your browser — maps, arrays, streaming, higher-order functions, JSON. Powered by the real Saxon processor. Completely free.</p>
+    <a class="cta-btn" href="/?v=3.0">Open XSLT 3.0 Editor →</a>
+  </div>
+
+  <main>
+    <div class="nav-versions">
+      <a href="/">XSLT 1.0</a>
+      <a href="/xslt-2-0/">XSLT 2.0</a>
+      <a href="/xslt-3-0/" class="active">XSLT 3.0</a>
+    </div>
+
+    <div class="callout">
+      <strong>XSLT Playground is the only free online tool that supports XSLT 3.0.</strong> Every other free online XSLT tester is limited to XSLT 1.0. XSLT Playground uses Saxon HE 12.5 on the server — the reference implementation of XSLT 3.0.
+    </div>
+
+    <h2>What is XSLT 3.0?</h2>
+    <p>
+      XSLT 3.0 is the latest version of the XSL Transformations language, published by the W3C in 2017.
+      It represents a major evolution that makes XSLT a modern functional programming language,
+      adding maps and arrays, streaming for large document processing, higher-order functions,
+      and native JSON support.
+    </p>
+    <p>
+      XSLT 3.0 is used in demanding enterprise scenarios: processing large XML feeds without
+      loading them in memory, building complex data pipelines, and integrating XML and JSON systems.
+      Testing XSLT 3.0 stylesheets requires a full Saxon processor — XSLT Playground provides this for free.
+    </p>
+
+    <h2>Key Features of XSLT 3.0</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>Maps and Arrays</h3>
+        <p>First-class key-value maps and arrays. Process JSON data, build lookup tables, and handle complex data structures natively in XSLT.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Streaming</h3>
+        <p>Process multi-gigabyte XML documents without loading them in memory using <code>xsl:stream</code> and streaming modes.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Higher-Order Functions</h3>
+        <p><code>fn:fold-left()</code>, <code>fn:for-each()</code>, <code>fn:filter()</code> — pass and return functions as values for functional-style transformations.</p>
+      </div>
+      <div class="feature-card">
+        <h3>JSON Support</h3>
+        <p>Read JSON with <code>json-doc()</code>, output JSON with <code>method="json"</code>. Bridge XML and JSON systems in a single stylesheet.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Error Handling</h3>
+        <p><code>xsl:try</code> / <code>xsl:catch</code> for robust error handling. <code>xsl:on-empty</code> / <code>xsl:on-non-empty</code> for conditional output.</p>
+      </div>
+      <div class="feature-card">
+        <h3>xsl:merge</h3>
+        <p>Merge multiple sorted input sequences efficiently — ideal for combining data from multiple sorted XML sources.</p>
+      </div>
+    </div>
+
+    <h2>How to Test XSLT 3.0 Online</h2>
+    <ol>
+      <li>Click <a href="/?v=3.0">Open XSLT 3.0 Editor</a> — the tool opens with XSLT 3.0 pre-selected.</li>
+      <li>Paste your XSLT 3.0 stylesheet. Declare <code>version="3.0"</code> in the root element.</li>
+      <li>Add your XML (or JSON) input in the Data Pipeline panel.</li>
+      <li>Results appear automatically. Switch to trace mode to debug template execution.</li>
+      <li>Share your stylesheet with a single link — no account needed.</li>
+    </ol>
+
+    <h2>XSLT 3.0 vs XSLT 2.0 — What's New</h2>
+    <ul>
+      <li><strong>Maps &amp; Arrays:</strong> XSLT 2.0 has no native map or array type. XSLT 3.0 adds <code>map{}</code> and <code>array{}</code> as first-class types.</li>
+      <li><strong>Streaming:</strong> New in 3.0. Process documents larger than available memory without loading them fully.</li>
+      <li><strong>Higher-order functions:</strong> Functions as values — pass, store and return functions. Enables functional programming patterns.</li>
+      <li><strong>JSON:</strong> XSLT 2.0 has no JSON support. XSLT 3.0 has built-in JSON parsing and output.</li>
+      <li><strong>xsl:try/catch:</strong> Structured error handling, new in 3.0.</li>
+      <li><strong>Packages:</strong> <code>xsl:package</code> for modular, reusable stylesheet libraries.</li>
+    </ul>
+
+    <h2>Frequently Asked Questions</h2>
+    <dl>
+      <dt>What is new in XSLT 3.0?</dt>
+      <dd>XSLT 3.0 adds maps and arrays, streaming for large documents, higher-order functions, JSON input/output, <code>xsl:try</code>/<code>xsl:catch</code> error handling, <code>xsl:on-empty</code>/<code>xsl:on-non-empty</code>, and <code>xsl:merge</code>.</dd>
+
+      <dt>Is there a free online XSLT 3.0 tester?</dt>
+      <dd>XSLT Playground is the only free online tool with full XSLT 3.0 support via Saxon HE 12.5. All other free online XSLT tools are limited to XSLT 1.0. No installation or account required.</dd>
+
+      <dt>Can I process JSON with XSLT 3.0 online?</dt>
+      <dd>Yes. XSLT 3.0 supports JSON via <code>json-doc()</code> and <code>method="json"</code>. XSLT Playground's Saxon HE backend fully supports these features.</dd>
+
+      <dt>Does XSLT 3.0 support higher-order functions?</dt>
+      <dd>Yes. XSLT 3.0 has <code>fn:apply()</code>, <code>fn:fold-left()</code>, <code>fn:fold-right()</code>, <code>fn:for-each()</code>, and <code>fn:filter()</code>. You can pass and return functions as values.</dd>
+
+      <dt>Do browsers support XSLT 3.0?</dt>
+      <dd>No. Browsers only support XSLT 1.0 natively. XSLT 3.0 requires a dedicated processor like Saxon. XSLT Playground runs Saxon on the server so you can test XSLT 3.0 without installing anything.</dd>
+    </dl>
+
+    <h2>Also Available</h2>
+    <p>Need XSLT 2.0 with grouping and regular expressions? <a href="/xslt-2-0/">Try the XSLT 2.0 Online Tester →</a></p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 <a href="https://xsltplayground.com/">XSLT Playground</a> — Free Online XSLT Editor, Tester &amp; Validator</p>
+  </footer>
+</body>
+</html>

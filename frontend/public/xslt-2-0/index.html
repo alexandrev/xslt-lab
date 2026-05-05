@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XSLT 2.0 Online Tester — Free XSLT 2.0 Editor &amp; Transformer | XSLT Playground</title>
+  <meta name="description" content="Test XSLT 2.0 online for free. Full Saxon HE support for grouping, regular expressions, XPath 2.0 and multiple output documents. No install, no signup." />
+  <link rel="canonical" href="https://xsltplayground.com/xslt-2-0/" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <meta property="og:title" content="XSLT 2.0 Online Tester — Free Editor &amp; Transformer" />
+  <meta property="og:description" content="Test XSLT 2.0 online with full Saxon HE support. Grouping, regular expressions, XPath 2.0, multiple output documents. Free, no install." />
+  <meta property="og:url" content="https://xsltplayground.com/xslt-2-0/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://xsltplayground.com/og-image.png" />
+  <script type="application/ld+json">
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": ["WebApplication", "SoftwareApplication"],
+      "name": "XSLT 2.0 Online Tester",
+      "url": "https://xsltplayground.com/xslt-2-0/",
+      "description": "Free online XSLT 2.0 editor and tester powered by Saxon HE. Supports grouping, regular expressions, XPath 2.0 and multiple output documents.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "XSLT Online", "item": "https://xsltplayground.com/" },
+        { "@type": "ListItem", "position": 2, "name": "XSLT 2.0 Online Tester", "item": "https://xsltplayground.com/xslt-2-0/" }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What features does XSLT 2.0 add over XSLT 1.0?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "XSLT 2.0 introduces xsl:for-each-group for grouping, regular expression support, multiple output documents with xsl:result-document, XPath 2.0 with sequences and types, user-defined functions, and much richer string handling."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there a free online XSLT 2.0 tester?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. XSLT Playground offers a completely free online XSLT 2.0 tester powered by Saxon HE 12.5. No installation or account required — test your XSLT 2.0 stylesheets directly in your browser."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I test xsl:for-each-group online?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. XSLT Playground fully supports xsl:for-each-group with group-by, group-adjacent, group-starting-with, and group-ending-with. Select XSLT 2.0 in the version dropdown and test your grouping logic instantly."
+          }
+        }
+      ]
+    }
+  ]
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; color: #21426c; background: #f5f7fb; }
+    a { color: #2563eb; }
+    header {
+      background: #21426c;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    header img { width: 28px; height: 28px; }
+    header a { color: #fff; text-decoration: none; font-weight: 700; font-size: 1rem; }
+    header nav { margin-left: auto; display: flex; gap: 1.25rem; font-size: 0.9rem; }
+    header nav a { color: #c8d8f0; font-weight: 400; }
+    .hero {
+      background: linear-gradient(135deg, #21426c 0%, #1e5fa8 100%);
+      color: #fff;
+      padding: 3.5rem 1.5rem 3rem;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2.2rem; margin: 0 0 1rem; }
+    .hero p { font-size: 1.15rem; opacity: 0.9; max-width: 640px; margin: 0 auto 2rem; }
+    .cta-btn {
+      display: inline-block;
+      background: #fff;
+      color: #21426c;
+      font-weight: 700;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1.05rem;
+      transition: background 0.2s;
+    }
+    .cta-btn:hover { background: #e8f0fe; }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 20px;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+    }
+    main { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    h2 { font-size: 1.4rem; margin: 2.5rem 0 0.6rem; color: #1a365d; }
+    p { line-height: 1.75; color: #374151; }
+    ul, ol { color: #374151; line-height: 1.75; padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+    code { background: #eef2ff; padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.9em; }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .feature-card {
+      background: #fff;
+      border: 1px solid #dde6f5;
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem;
+    }
+    .feature-card h3 { margin: 0 0 0.4rem; font-size: 1rem; color: #21426c; }
+    .feature-card p { margin: 0; font-size: 0.92rem; }
+    dl dt { font-weight: 700; margin-top: 1.4rem; color: #21426c; }
+    dl dd { margin: 0.25rem 0 0; color: #374151; line-height: 1.7; }
+    .nav-versions {
+      display: flex; gap: 1rem; margin: 2rem 0; flex-wrap: wrap;
+    }
+    .nav-versions a {
+      padding: 0.5rem 1.2rem;
+      border: 2px solid #21426c;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #21426c;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+    .nav-versions a.active {
+      background: #21426c; color: #fff;
+    }
+    footer {
+      background: #21426c;
+      color: #c8d8f0;
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.88rem;
+    }
+    footer a { color: #93c5fd; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="/logo.svg" alt="XSLT Playground logo" />
+    <a href="/">XSLT Playground</a>
+    <nav>
+      <a href="/">Editor</a>
+      <a href="/xslt-2-0/">XSLT 2.0</a>
+      <a href="/xslt-3-0/">XSLT 3.0</a>
+      <a href="https://blog.xsltplayground.com/">Blog</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div class="badge">Powered by Saxon HE 12.5</div>
+    <h1>XSLT 2.0 Online Tester</h1>
+    <p>Test and transform XML with XSLT 2.0 instantly in your browser. Full grouping, regular expressions, XPath 2.0 support — completely free.</p>
+    <a class="cta-btn" href="/?v=2.0">Open XSLT 2.0 Editor →</a>
+  </div>
+
+  <main>
+    <div class="nav-versions">
+      <a href="/">XSLT 1.0</a>
+      <a href="/xslt-2-0/" class="active">XSLT 2.0</a>
+      <a href="/xslt-3-0/">XSLT 3.0</a>
+    </div>
+
+    <h2>What is XSLT 2.0?</h2>
+    <p>
+      XSLT 2.0 is the second major version of the XSL Transformations language, published by the W3C in 2007.
+      It dramatically extends XSLT 1.0 with powerful grouping capabilities, regular expression support,
+      XPath 2.0's richer type system, and the ability to generate multiple output documents from a single transformation.
+    </p>
+    <p>
+      XSLT 2.0 is widely used in enterprise data integration, document publishing, and ETL pipelines.
+      XSLT Playground's Saxon HE backend is the reference implementation of XSLT 2.0 — results match
+      production exactly, making it ideal for development and debugging.
+    </p>
+
+    <h2>Key Features of XSLT 2.0</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>Grouping with xsl:for-each-group</h3>
+        <p>Group nodes by value, adjacency, or pattern. Replaces complex Muenchian grouping from XSLT 1.0 with clean, readable syntax.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Regular Expressions</h3>
+        <p>Use <code>matches()</code>, <code>replace()</code>, and <code>tokenize()</code> for powerful string processing with regex patterns.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Multiple Output Documents</h3>
+        <p><code>xsl:result-document</code> lets a single stylesheet generate multiple output files in one transformation pass.</p>
+      </div>
+      <div class="feature-card">
+        <h3>XPath 2.0 &amp; Types</h3>
+        <p>Full XPath 2.0 with sequences, types (<code>xs:date</code>, <code>xs:integer</code>…), and functions like <code>distinct-values()</code>.</p>
+      </div>
+      <div class="feature-card">
+        <h3>User-Defined Functions</h3>
+        <p><code>xsl:function</code> lets you define reusable functions with typed parameters and return values.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Schema-Aware Processing</h3>
+        <p>Validate input against XSD schemas and use type annotations to write more robust transformations.</p>
+      </div>
+    </div>
+
+    <h2>How to Test XSLT 2.0 Online</h2>
+    <ol>
+      <li>Click <a href="/?v=2.0">Open XSLT 2.0 Editor</a> to launch the tool with XSLT 2.0 pre-selected.</li>
+      <li>Paste your XSLT 2.0 stylesheet in the editor panel.</li>
+      <li>Add your XML input document in the Data Pipeline section.</li>
+      <li>Results appear automatically in the output panel.</li>
+      <li>Use the trace feature to debug variable values and template matching.</li>
+    </ol>
+
+    <h2>XSLT 2.0 vs XSLT 1.0 — Key Differences</h2>
+    <ul>
+      <li><strong>Grouping:</strong> XSLT 1.0 requires Muenchian grouping (keys + generate-id tricks). XSLT 2.0 has <code>xsl:for-each-group</code>.</li>
+      <li><strong>Strings:</strong> XSLT 1.0 has basic string functions. XSLT 2.0 adds regex, <code>tokenize()</code>, <code>normalize-unicode()</code>.</li>
+      <li><strong>Types:</strong> XSLT 1.0 works with node-sets. XSLT 2.0 uses XPath 2.0 sequences and the XML Schema type system.</li>
+      <li><strong>Multiple outputs:</strong> XSLT 1.0 produces one output. XSLT 2.0 can produce many with <code>xsl:result-document</code>.</li>
+      <li><strong>Date/time:</strong> XSLT 2.0 has built-in date, time and duration types with arithmetic support.</li>
+    </ul>
+
+    <h2>Frequently Asked Questions</h2>
+    <dl>
+      <dt>What features does XSLT 2.0 add over XSLT 1.0?</dt>
+      <dd>XSLT 2.0 introduces <code>xsl:for-each-group</code> for grouping, regular expression functions, multiple output documents with <code>xsl:result-document</code>, XPath 2.0 with sequences and types, user-defined functions, and richer string handling.</dd>
+
+      <dt>Is there a free online XSLT 2.0 tester?</dt>
+      <dd>Yes. XSLT Playground offers a completely free online XSLT 2.0 tester powered by Saxon HE 12.5. No installation or account required.</dd>
+
+      <dt>Can I test xsl:for-each-group online?</dt>
+      <dd>Yes. XSLT Playground fully supports <code>xsl:for-each-group</code> with <code>group-by</code>, <code>group-adjacent</code>, <code>group-starting-with</code>, and <code>group-ending-with</code>.</dd>
+
+      <dt>Does XSLT 2.0 work in all browsers?</dt>
+      <dd>No. Browsers only support XSLT 1.0 natively. XSLT 2.0 requires a processor like Saxon. XSLT Playground runs Saxon on the server so you can test XSLT 2.0 stylesheets without installing anything.</dd>
+    </dl>
+
+    <h2>Also Available</h2>
+    <p>Looking for XSLT 3.0 with maps, arrays and higher-order functions? <a href="/xslt-3-0/">Try the XSLT 3.0 Online Tester →</a></p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 <a href="https://xsltplayground.com/">XSLT Playground</a> — Free Online XSLT Editor, Tester &amp; Validator</p>
+  </footer>
+</body>
+</html>
