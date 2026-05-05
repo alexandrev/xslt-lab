@@ -1040,7 +1040,11 @@ a:focus-visible {
   flex-shrink: 0;
 }
 
-/* EthicalAds — stickybox in result pane right column */
+/* EthicalAds — stickybox is position:fixed by EA itself, just needs to exist in DOM */
+.ea-sticky-slot {
+  display: block;
+}
+
 .result-body {
   display: flex;
   flex: 1;
@@ -1050,10 +1054,6 @@ a:focus-visible {
 .result-body .result-editor-wrap {
   flex: 1;
   min-width: 0;
-}
-.ea-sticky-slot {
-  flex-shrink: 0;
-  width: 160px;
 }
 
 .icon-button {

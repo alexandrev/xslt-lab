@@ -1509,40 +1509,43 @@ export default function App() {
     } catch {}
   }, []);
 
-  // Load header slot when EA is ready
+  // Both slots are always in the DOM — load both when EA is ready
   useEffect(() => {
     if (!ethicalAdsEnabled || !ethicalAdsReady) return;
     loadEaSlot(ethicalSlotRef);
-    const t = window.setTimeout(() => {
-      if (ethicalSlotRef.current && !ethicalSlotRef.current.children.length) loadEaSlot(ethicalSlotRef);
-    }, 1500);
-    return () => window.clearTimeout(t);
-  }, [ethicalAdsEnabled, ethicalAdsReady, loadEaSlot]);
-
-  // Load stickybox when its ref mounts (showResultPane becomes true after first transform)
-  useEffect(() => {
-    if (!ethicalAdsEnabled || !ethicalAdsReady || !ethicalStickyRef.current) return;
     loadEaSlot(ethicalStickyRef);
     const t = window.setTimeout(() => {
+      if (ethicalSlotRef.current && !ethicalSlotRef.current.children.length) loadEaSlot(ethicalSlotRef);
       if (ethicalStickyRef.current && !ethicalStickyRef.current.children.length) loadEaSlot(ethicalStickyRef);
     }, 1500);
     return () => window.clearTimeout(t);
-  }, [ethicalAdsEnabled, ethicalAdsReady, showResultPane, loadEaSlot]);
+  }, [ethicalAdsEnabled, ethicalAdsReady, loadEaSlot]);
 
 
   return (
     <div className="app-container">
       <h1 className="sr-only">XSLT Playground - Online XSLT Editor and Tester</h1>
       {ethicalAdsEnabled && (
-        <div
-          ref={ethicalSlotRef}
-          id="xsltplayground-main"
-          className="ea-header-slot"
-          data-ea-publisher={ethicalAdsPublisher}
-          data-ea-type="text"
-          data-ea-style="fixedheader"
-          aria-label="Advertisement"
-        />
+        <>
+          <div
+            ref={ethicalSlotRef}
+            id="xsltplayground-main"
+            className="ea-header-slot"
+            data-ea-publisher={ethicalAdsPublisher}
+            data-ea-type="text"
+            data-ea-style="fixedheader"
+            aria-label="Advertisement"
+          />
+          <div
+            ref={ethicalStickyRef}
+            id="xsltplayground-sticky"
+            className="ea-sticky-slot"
+            data-ea-publisher={ethicalAdsPublisher}
+            data-ea-type={ethicalAdType}
+            data-ea-style="stickybox"
+            aria-label="Advertisement"
+          />
+        </>
       )}
       <div className="tabs">
         <TabsNav
@@ -2278,17 +2281,6 @@ export default function App() {
                   />
                 )}
               </div>
-              {ethicalAdsEnabled && (
-                <div
-                  ref={ethicalStickyRef}
-                  id="xsltplayground-sticky"
-                  className="ea-sticky-slot"
-                  data-ea-publisher={ethicalAdsPublisher}
-                  data-ea-type={ethicalAdType}
-                  data-ea-style="stickybox"
-                  aria-label="Advertisement"
-                />
-              )}
             </div>
           </>
         )}
