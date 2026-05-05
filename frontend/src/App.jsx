@@ -1500,26 +1500,21 @@ export default function App() {
     };
   }, [ethicalAdsEnabled]);
 
-  const loadEaSlot = useCallback((ref) => {
-    try {
-      if (ref.current && window.ethicalads) {
-        ref.current.innerHTML = "";
-        window.ethicalads.load(ref.current);
-      }
-    } catch {}
-  }, []);
-
-  // Both slots are always in the DOM — load both when EA is ready
+  // Both slots are always in the DOM — call load() with no args so EA auto-discovers all
   useEffect(() => {
     if (!ethicalAdsEnabled || !ethicalAdsReady) return;
-    loadEaSlot(ethicalSlotRef);
-    loadEaSlot(ethicalStickyRef);
+    try {
+      window.ethicalads?.load();
+    } catch {}
     const t = window.setTimeout(() => {
-      if (ethicalSlotRef.current && !ethicalSlotRef.current.children.length) loadEaSlot(ethicalSlotRef);
-      if (ethicalStickyRef.current && !ethicalStickyRef.current.children.length) loadEaSlot(ethicalStickyRef);
+      try {
+        if (ethicalSlotRef.current && !ethicalSlotRef.current.children.length) {
+          window.ethicalads?.load();
+        }
+      } catch {}
     }, 1500);
     return () => window.clearTimeout(t);
-  }, [ethicalAdsEnabled, ethicalAdsReady, loadEaSlot]);
+  }, [ethicalAdsEnabled, ethicalAdsReady]);
 
 
   return (
