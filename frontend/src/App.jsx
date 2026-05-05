@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from "react";
+import { createPortal } from "react-dom";
 import logo from "./logo.svg";
 import TabsNav from "./components/TabsNav";
 import DataPipelineHeader from "./components/DataPipelineHeader";
@@ -1531,15 +1532,17 @@ export default function App() {
             data-ea-style="fixedheader"
             aria-label="Advertisement"
           />
-          <div
-            ref={ethicalStickyRef}
-            id="xsltplayground-sticky"
-            className="ea-sticky-slot"
-            data-ea-publisher={ethicalAdsPublisher}
-            data-ea-type={ethicalAdType}
-            data-ea-style="stickybox"
-            aria-label="Advertisement"
-          />
+          {createPortal(
+            <div
+              ref={ethicalStickyRef}
+              id="xsltplayground-params"
+              data-ea-publisher={ethicalAdsPublisher}
+              data-ea-type="image"
+              data-ea-style="stickybox"
+              aria-label="Advertisement"
+            />,
+            document.body
+          )}
         </>
       )}
       <div className="tabs">
