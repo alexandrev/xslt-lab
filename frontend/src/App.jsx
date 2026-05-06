@@ -489,14 +489,13 @@ export default function App() {
   const [widgetsReady, setWidgetsReady] = useState(false);
   const [autoRunReady, setAutoRunReady] = useState(() => !!urlPreload);
   const ethicalSlotRef = useRef(null);
-  const ethicalStickyRef = useRef(null);
   const isLocalhost =
     typeof window !== "undefined" &&
     /^(localhost|127(?:\\.[0-9]+){3}|mac)$/i.test(window.location.hostname);
   const ethicalAdsEnabled =
     Boolean(ethicalAdsPublisher) &&
     (!isLocalhost || env.VITE_ETHICALADS_DEV === "true");
-  const ethicalAdType = "image";
+  const ethicalAdVariant = "stickybox";
 
   const backendBase = (env.VITE_BACKEND_URL || "").replace(/\/$/, "");
 
@@ -1501,49 +1500,40 @@ export default function App() {
     };
   }, [ethicalAdsEnabled]);
 
-  // Both slots are always in the DOM — call load() with no args so EA auto-discovers all
   useEffect(() => {
-    if (!ethicalAdsEnabled || !ethicalAdsReady) return;
-    try {
-      window.ethicalads?.load();
-    } catch {}
-    const t = window.setTimeout(() => {
+    if (!ethicalAdsEnabled || !ethicalAdsReady || !ethicalSlotRef.current) return;
+    const doLoad = () => {
       try {
-        if (ethicalSlotRef.current && !ethicalSlotRef.current.children.length) {
-          window.ethicalads?.load();
+        if (ethicalSlotRef.current) {
+          ethicalSlotRef.current.innerHTML = "";
+          window.ethicalads?.load(ethicalSlotRef.current);
         }
       } catch {}
+    };
+    doLoad();
+    // Retry if slot still empty after 1.5s (race: ethicalads init vs load event)
+    const t = window.setTimeout(() => {
+      if (ethicalSlotRef.current && !ethicalSlotRef.current.children.length) {
+        doLoad();
+      }
     }, 1500);
     return () => window.clearTimeout(t);
-  }, [ethicalAdsEnabled, ethicalAdsReady]);
+  }, [ethicalAdsEnabled, ethicalAdsReady, ethicalAdVariant]);
 
 
   return (
     <div className="app-container">
       <h1 className="sr-only">XSLT Playground - Online XSLT Editor and Tester</h1>
-      {ethicalAdsEnabled && (
-        <>
-          <div
-            ref={ethicalSlotRef}
-            id="xsltplayground-main"
-            className="ea-header-slot"
-            data-ea-publisher={ethicalAdsPublisher}
-            data-ea-type="text"
-            data-ea-style="fixedheader"
-            aria-label="Advertisement"
-          />
-          {createPortal(
-            <div
-              ref={ethicalStickyRef}
-              id="xsltplayground-params"
-              data-ea-publisher={ethicalAdsPublisher}
-              data-ea-type="image"
-              data-ea-style="stickybox"
-              aria-label="Advertisement"
-            />,
-            document.body
-          )}
-        </>
+      {ethicalAdsEnabled && createPortal(
+        <div
+          ref={ethicalSlotRef}
+          id="xsltplayground-params"
+          data-ea-publisher={ethicalAdsPublisher}
+          data-ea-type="image"
+          data-ea-style="stickybox"
+          aria-label="Advertisement"
+        />,
+        document.body
       )}
       <div className="tabs">
         <TabsNav
