@@ -489,6 +489,7 @@ export default function App() {
   const [widgetsReady, setWidgetsReady] = useState(false);
   const [autoRunReady, setAutoRunReady] = useState(() => !!urlPreload);
   const ethicalSlotRef = useRef(null);
+  const ethicalHeaderRef = useRef(null);
   const isLocalhost =
     typeof window !== "undefined" &&
     /^(localhost|127(?:\\.[0-9]+){3}|mac)$/i.test(window.location.hostname);
@@ -1502,7 +1503,8 @@ export default function App() {
 
   useEffect(() => {
     if (!ethicalAdsEnabled || !ethicalAdsReady || !ethicalSlotRef.current) return;
-    const doLoad = () => {
+    // Load stickybox explicitly with element reference (most reliable for stickybox)
+    const doLoadSticky = () => {
       try {
         if (ethicalSlotRef.current) {
           ethicalSlotRef.current.innerHTML = "";
@@ -1510,30 +1512,54 @@ export default function App() {
         }
       } catch {}
     };
-    doLoad();
-    // Retry if slot still empty after 1.5s (race: ethicalads init vs load event)
-    const t = window.setTimeout(() => {
+    doLoadSticky();
+    // Load fixedheader via no-args after stickybox is initialized
+    const t1 = window.setTimeout(() => {
+      try {
+        if (ethicalHeaderRef.current && !ethicalHeaderRef.current.children.length) {
+          window.ethicalads?.load(ethicalHeaderRef.current);
+        }
+      } catch {}
+    }, 300);
+    // Retry stickybox if still empty after 1.5s
+    const t2 = window.setTimeout(() => {
       if (ethicalSlotRef.current && !ethicalSlotRef.current.children.length) {
-        doLoad();
+        doLoadSticky();
       }
     }, 1500);
-    return () => window.clearTimeout(t);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
   }, [ethicalAdsEnabled, ethicalAdsReady, ethicalAdVariant]);
 
 
   return (
     <div className="app-container">
       <h1 className="sr-only">XSLT Playground - Online XSLT Editor and Tester</h1>
-      {ethicalAdsEnabled && createPortal(
-        <div
-          ref={ethicalSlotRef}
-          id="xsltplayground-params"
-          data-ea-publisher={ethicalAdsPublisher}
-          data-ea-type="image"
-          data-ea-style="stickybox"
-          aria-label="Advertisement"
-        />,
-        document.body
+      {ethicalAdsEnabled && (
+        <>
+          <div
+            ref={ethicalHeaderRef}
+            id="xsltplayground-main"
+            className="ea-header-slot"
+            data-ea-publisher={ethicalAdsPublisher}
+            data-ea-type="text"
+            data-ea-style="fixedheader"
+            aria-label="Advertisement"
+          />
+          {createPortal(
+            <div
+              ref={ethicalSlotRef}
+              id="xsltplayground-params"
+              data-ea-publisher={ethicalAdsPublisher}
+              data-ea-type="image"
+              data-ea-style="stickybox"
+              aria-label="Advertisement"
+            />,
+            document.body
+          )}
+        </>
       )}
       <div className="tabs">
         <TabsNav
