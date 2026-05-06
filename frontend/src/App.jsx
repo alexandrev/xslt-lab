@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from "react";
-import { createPortal } from "react-dom";
 import logo from "./logo.svg";
 import TabsNav from "./components/TabsNav";
 import DataPipelineHeader from "./components/DataPipelineHeader";
@@ -489,7 +488,6 @@ export default function App() {
   const [widgetsReady, setWidgetsReady] = useState(false);
   const [autoRunReady, setAutoRunReady] = useState(() => !!urlPreload);
   const ethicalSlotRef = useRef(null);
-  const ethicalHeaderRef = useRef(null);
   const isLocalhost =
     typeof window !== "undefined" &&
     /^(localhost|127(?:\\.[0-9]+){3}|mac)$/i.test(window.location.hostname);
@@ -1503,8 +1501,7 @@ export default function App() {
 
   useEffect(() => {
     if (!ethicalAdsEnabled || !ethicalAdsReady || !ethicalSlotRef.current) return;
-    // Load stickybox explicitly with element reference (most reliable for stickybox)
-    const doLoadSticky = () => {
+    const doLoad = () => {
       try {
         if (ethicalSlotRef.current) {
           ethicalSlotRef.current.innerHTML = "";
@@ -1512,25 +1509,14 @@ export default function App() {
         }
       } catch {}
     };
-    doLoadSticky();
-    // Load fixedheader via no-args after stickybox is initialized
-    const t1 = window.setTimeout(() => {
-      try {
-        if (ethicalHeaderRef.current && !ethicalHeaderRef.current.children.length) {
-          window.ethicalads?.load(ethicalHeaderRef.current);
-        }
-      } catch {}
-    }, 300);
-    // Retry stickybox if still empty after 1.5s
-    const t2 = window.setTimeout(() => {
+    doLoad();
+    // Retry if slot still empty after 1.5s (race: ethicalads init vs load event)
+    const t = window.setTimeout(() => {
       if (ethicalSlotRef.current && !ethicalSlotRef.current.children.length) {
-        doLoadSticky();
+        doLoad();
       }
     }, 1500);
-    return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-    };
+    return () => window.clearTimeout(t);
   }, [ethicalAdsEnabled, ethicalAdsReady, ethicalAdVariant]);
 
 
@@ -1538,28 +1524,15 @@ export default function App() {
     <div className="app-container">
       <h1 className="sr-only">XSLT Playground - Online XSLT Editor and Tester</h1>
       {ethicalAdsEnabled && (
-        <>
-          <div
-            ref={ethicalHeaderRef}
-            id="xsltplayground-main"
-            className="ea-header-slot"
-            data-ea-publisher={ethicalAdsPublisher}
-            data-ea-type="text"
-            data-ea-style="fixedheader"
-            aria-label="Advertisement"
-          />
-          {createPortal(
-            <div
-              ref={ethicalSlotRef}
-              id="xsltplayground-params"
-              data-ea-publisher={ethicalAdsPublisher}
-              data-ea-type="image"
-              data-ea-style="stickybox"
-              aria-label="Advertisement"
-            />,
-            document.body
-          )}
-        </>
+        <div
+          ref={ethicalSlotRef}
+          id="xsltplayground-main"
+          className="ea-header-slot"
+          data-ea-publisher={ethicalAdsPublisher}
+          data-ea-type="text"
+          data-ea-style="fixedheader"
+          aria-label="Advertisement"
+        />
       )}
       <div className="tabs">
         <TabsNav
@@ -1745,6 +1718,17 @@ export default function App() {
                 </label>
               </div>
             </div>
+            {ethicalAdsEnabled && ethicalAdsReady && (
+              <div className="params-ad">
+                <div
+                  id="xsltplayground-params"
+                  className="ethical-ad"
+                  data-ea-publisher={ethicalAdsPublisher}
+                  data-ea-type="image"
+                  data-ea-style="stickybox"
+                />
+              </div>
+            )}
             <div
               className={`pane-divider${isResizingParams ? " dragging" : ""}`}
               onMouseDown={handleParamResizeStart}
