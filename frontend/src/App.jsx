@@ -2311,6 +2311,10 @@ export default function App() {
             Blog &amp; Tutorials
           </a>
           <span className="footer-blog-links">
+            <a href="/xslt-2-0/">XSLT 2.0</a>
+            {" · "}
+            <a href="/xslt-3-0/">XSLT 3.0</a>
+            {" · "}
             <a href="https://blog.xsltplayground.com/posts/xslt-for-beginners/" target="_blank" rel="noopener noreferrer">XSLT for Beginners</a>
             {" · "}
             <a href="https://blog.xsltplayground.com/posts/xslt-3-new-features/" target="_blank" rel="noopener noreferrer">XSLT 3.0</a>
