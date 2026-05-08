@@ -336,7 +336,13 @@ function normalizeWorkspaceImport(payload) {
 export default function App() {
   // URL preload takes priority over localStorage
   const urlPreload = parseUrlPreload();
-  if (urlPreload) {
+  const urlVersion = (() => {
+    try {
+      const v = new URLSearchParams(window.location.search).get("v");
+      return ["1.0", "2.0", "3.0"].includes(v) ? v : null;
+    } catch { return null; }
+  })();
+  if (urlPreload || urlVersion) {
     // Remove query params from the URL without reloading
     window.history.replaceState({}, "", window.location.pathname);
   }
@@ -364,6 +370,14 @@ export default function App() {
     });
     if (initialTabs.length > MAX_WORKSPACES) {
       initialTabs = initialTabs.slice(0, MAX_WORKSPACES);
+    }
+    // Apply ?v= version override to the active tab
+    if (urlVersion) {
+      initialTabs = initialTabs.map((tab, i) =>
+        i === 0
+          ? { ...tab, version: urlVersion, xslt: setStylesheetVersion(tab.xslt, urlVersion) }
+          : tab
+      );
     }
   }
   let initialActive = initialTabs[0]?.id;
