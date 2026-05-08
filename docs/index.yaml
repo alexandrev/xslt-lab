@@ -3,11 +3,11 @@ entries:
   xslt-playground:
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2026-05-08T11:17:35.284098793Z"
+    created: "2026-05-08T15:49:39.096102058Z"
     description: Helm chart for xslt-playground frontend and backend
-    digest: f46b4f028ba18eecfdbae495968542c5e78e2887803d1b194ce79caf8c3d46cc
+    digest: 282b5b4d7f2ebfd7603b2b88d5cf29b553f131d3ed65d91def402e4d514a6d38
     name: xslt-playground
     urls:
     - https://blog.xsltplayground.com/xslt-playground-0.1.4.tgz
     version: 0.1.4
-generated: "2026-05-08T11:17:35.283553796Z"
+generated: "2026-05-08T15:49:39.095521994Z"
