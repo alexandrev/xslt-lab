@@ -74,7 +74,7 @@ func pickSourceXML(params map[string]string) (string, string) {
 			return html.UnescapeString(strings.TrimSpace(val)), key
 		}
 	}
-	return "<root/>", ""
+	return "", ""
 }
 
 func loadConfig(filename string) (*AppConfig, error) {

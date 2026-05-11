@@ -84,7 +84,7 @@ public class SaxonDaemon {
                 JsonObject req = GSON.fromJson(body, JsonObject.class);
 
                 String xslt   = req.has("xslt")   ? req.get("xslt").getAsString()   : "";
-                String source = req.has("source")  ? req.get("source").getAsString() : "<root/>";
+                String source = req.has("source")  ? req.get("source").getAsString() : "";
                 boolean trace = req.has("trace") && req.get("trace").getAsBoolean();
 
                 Map<String, String> params     = jsonObjectToMap(req, "parameters");
@@ -126,10 +126,12 @@ public class SaxonDaemon {
                     Runner.attachTraceListener(proc, transformer, traceSink);
                 }
 
-                // Source document
-                XdmNode doc = proc.newDocumentBuilder()
-                        .build(new StreamSource(new StringReader(source)));
-                transformer.setInitialContextNode(doc);
+                // Source document — omit when empty so Saxon can invoke xsl:initial-template
+                if (source != null && !source.isEmpty()) {
+                    XdmNode doc = proc.newDocumentBuilder()
+                            .build(new StreamSource(new StringReader(source)));
+                    transformer.setInitialContextNode(doc);
+                }
 
                 // String parameters
                 for (Map.Entry<String, String> e : params.entrySet()) {
