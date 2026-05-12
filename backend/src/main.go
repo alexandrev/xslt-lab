@@ -218,10 +218,18 @@ func main() {
 			return
 		}
 
+		daemonPort := "8081" // Saxon 12 — XSLT 3.0 (default)
+		switch req.Version {
+		case "1.0":
+			daemonPort = "8082" // XSLTC (JDK) — true XSLT 1.0
+		case "2.0":
+			daemonPort = "8083" // Saxon 9 — true XSLT 2.0
+		}
+
 		start := time.Now()
 		httpClient := &http.Client{Timeout: 10 * time.Second}
 		resp, err := httpClient.Post(
-			"http://127.0.0.1:8081/transform",
+			"http://127.0.0.1:"+daemonPort+"/transform",
 			"application/json",
 			bytes.NewReader(daemonBody),
 		)
@@ -250,7 +258,7 @@ func main() {
 		}
 
 		if daemonResp.Error != "" {
-			log.Printf("saxon error after %dms: %s", duration, daemonResp.Error)
+			log.Printf("transform error after %dms: %s", duration, daemonResp.Error)
 			c.JSON(http.StatusBadRequest, gin.H{"error": daemonResp.Error})
 			return
 		}
