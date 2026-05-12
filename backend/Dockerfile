@@ -19,10 +19,10 @@ RUN mkdir -p /tmp/saxon12 && \
     curl -L -o /tmp/saxon12/gson.jar \
         https://repo1.maven.org/maven2/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar
 
-# Download JARs for Saxon 9 (XSLT 2.0)
+# Download JARs for Saxon 10 (XSLT 2.0)
 RUN mkdir -p /tmp/saxon9 && \
     curl -L -o /tmp/saxon9/saxon-he.jar \
-        https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/9.9.1.8/Saxon-HE-9.9.1.8.jar && \
+        https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/10.9/Saxon-HE-10.9.jar && \
     curl -L -o /tmp/saxon9/gson.jar \
         https://repo1.maven.org/maven2/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar
 
@@ -35,7 +35,7 @@ RUN mkdir -p /tmp/classes12 && \
         com/xsltplayground/SaxonDaemon.java && \
     jar cf /tmp/custom-functions-12.jar -C /tmp/classes12 .
 
-# Compile Saxon2Daemon + Runner + CustomFunctions against Saxon 9
+# Compile Saxon2Daemon + Runner + CustomFunctions against Saxon 10
 RUN mkdir -p /tmp/classes9 && \
     javac -cp "/tmp/saxon9/saxon-he.jar:/tmp/saxon9/gson.jar" \
         -d /tmp/classes9 \
@@ -75,10 +75,10 @@ RUN mkdir -p /opt/saxon12 && \
         https://repo1.maven.org/maven2/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar
 COPY --from=builder /tmp/custom-functions-12.jar /opt/saxon12/
 
-# Saxon 9 (XSLT 2.0) — port 8083
+# Saxon 10 (XSLT 2.0) — port 8083
 RUN mkdir -p /opt/saxon9 && \
     curl -L -o /opt/saxon9/saxon-he.jar \
-        https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/9.9.1.8/Saxon-HE-9.9.1.8.jar && \
+        https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/10.9/Saxon-HE-10.9.jar && \
     curl -L -o /opt/saxon9/gson.jar \
         https://repo1.maven.org/maven2/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar
 COPY --from=builder /tmp/custom-functions-9.jar /opt/saxon9/
