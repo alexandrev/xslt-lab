@@ -15,7 +15,7 @@ java \
   -cp '/opt/xalan/*' \
   com.xsltplayground.XalanDaemon &
 
-# ── Saxon 10 — XSLT 2.0 (port 8083) ─────────────────────────────────────────
+# ── Saxon 9.6 — XSLT 2.0 (port 8083) ────────────────────────────────────────
 java \
   -Xms32m -Xmx128m \
   -XX:+UseSerialGC \
