@@ -3,9 +3,10 @@ package com.xsltplayground;
 import com.google.gson.*;
 import com.sun.net.httpserver.*;
 import com.xsltplayground.ext.CustomFunctions;
-import net.sf.saxon.lib.FeatureKeys;
 import net.sf.saxon.s9api.*;
 
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -14,41 +15,36 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /**
- * XSLT 2.0 daemon using Saxon HE 9.x.
- * Runs on port 8083. Compiled and run against Saxon 9 JARs.
+ * XSLT 2.0 daemon using Saxon HE 9.6 — the last Saxon release focused on
+ * XSLT 2.0. Compiled and run with Saxon 9.6 JARs only (no Runner dependency
+ * since ErrorReporter / XmlProcessingError don't exist in Saxon 9.6).
+ * Runs on port 8083.
  */
 public class Saxon2Daemon {
 
     static final Processor PROCESSOR;
-    static final Processor TRACE_PROCESSOR;
     private static final Gson GSON = new Gson();
 
     static {
         PROCESSOR = new Processor(false);
         CustomFunctions.registerAll(PROCESSOR);
 
-        TRACE_PROCESSOR = new Processor(false);
-        TRACE_PROCESSOR.setConfigurationProperty(FeatureKeys.OPTIMIZATION_LEVEL, "0");
-        CustomFunctions.registerAll(TRACE_PROCESSOR);
-
+        // Warm up
         String warmupXslt =
             "<xsl:stylesheet version='2.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +
             "<xsl:template match='/'><out/></xsl:template></xsl:stylesheet>";
-        String warmupXml = "<root/>";
-        for (Processor proc : new Processor[]{PROCESSOR, TRACE_PROCESSOR}) {
-            try {
-                XsltCompiler c = proc.newXsltCompiler();
-                XsltExecutable exec = c.compile(new StreamSource(new StringReader(warmupXslt)));
-                XsltTransformer t = exec.load();
-                XdmNode doc = proc.newDocumentBuilder()
-                        .build(new StreamSource(new StringReader(warmupXml)));
-                t.setInitialContextNode(doc);
-                Serializer ser = proc.newSerializer(new StringWriter());
-                t.setDestination(ser);
-                t.transform();
-            } catch (Exception e) {
-                System.err.println("Saxon2Daemon warm-up warning: " + e.getMessage());
-            }
+        try {
+            XsltCompiler c = PROCESSOR.newXsltCompiler();
+            XsltExecutable exec = c.compile(new StreamSource(new StringReader(warmupXslt)));
+            XsltTransformer t = exec.load();
+            XdmNode doc = PROCESSOR.newDocumentBuilder()
+                    .build(new StreamSource(new StringReader("<root/>")));
+            t.setInitialContextNode(doc);
+            Serializer ser = PROCESSOR.newSerializer(new StringWriter());
+            t.setDestination(ser);
+            t.transform();
+        } catch (Exception e) {
+            System.err.println("Saxon2Daemon warm-up warning: " + e.getMessage());
         }
         System.out.println("Saxon2Daemon: warm-up complete.");
     }
@@ -87,47 +83,28 @@ public class Saxon2Daemon {
 
                 String xslt   = req.has("xslt")   ? req.get("xslt").getAsString()   : "";
                 String source = req.has("source")  ? req.get("source").getAsString() : "";
-                boolean trace = req.has("trace") && req.get("trace").getAsBoolean();
 
                 Map<String, String> params     = jsonObjectToMap(req, "parameters");
                 Map<String, String> fileParams = jsonObjectToMap(req, "fileParameters");
 
-                Processor proc = trace ? TRACE_PROCESSOR : PROCESSOR;
-
-                ByteArrayOutputStream traceBuf = new ByteArrayOutputStream();
-                PrintStream traceSink = new PrintStream(traceBuf, true, StandardCharsets.UTF_8);
-
-                XsltCompiler compiler = proc.newXsltCompiler();
-                compiler.setErrorReporter(
-                    new Runner.DeduplicatingErrorReporter(compiler.getErrorReporter()));
-
-                boolean instrumentationEnabled = false;
-                if (trace) {
-                    instrumentationEnabled = Runner.enableCompileWithTracing(compiler);
-                }
-
-                XsltExecutable exec;
-                try {
-                    exec = compiler.compile(new StreamSource(new StringReader(xslt)));
-                } catch (SaxonApiException e) {
-                    if (trace && instrumentationEnabled) {
-                        compiler = proc.newXsltCompiler();
-                        compiler.setErrorReporter(
-                            new Runner.DeduplicatingErrorReporter(compiler.getErrorReporter()));
-                        exec = compiler.compile(new StreamSource(new StringReader(xslt)));
-                    } else {
-                        throw e;
+                // Saxon 9.6 uses JAXP ErrorListener (no ErrorReporter API)
+                StringBuilder warnings = new StringBuilder();
+                ErrorListener errorListener = new ErrorListener() {
+                    @Override public void warning(TransformerException e) {
+                        warnings.append("Warning: ").append(e.getMessage()).append("\n");
                     }
-                }
+                    @Override public void error(TransformerException e) throws TransformerException { throw e; }
+                    @Override public void fatalError(TransformerException e) throws TransformerException { throw e; }
+                };
 
+                XsltCompiler compiler = PROCESSOR.newXsltCompiler();
+                compiler.setErrorListener(errorListener);
+
+                XsltExecutable exec = compiler.compile(new StreamSource(new StringReader(xslt)));
                 XsltTransformer transformer = exec.load();
 
-                if (trace) {
-                    Runner.attachTraceListener(proc, transformer, traceSink);
-                }
-
                 if (source != null && !source.isEmpty()) {
-                    XdmNode doc = proc.newDocumentBuilder()
+                    XdmNode doc = PROCESSOR.newDocumentBuilder()
                             .build(new StreamSource(new StringReader(source)));
                     transformer.setInitialContextNode(doc);
                 }
@@ -139,7 +116,7 @@ public class Saxon2Daemon {
                 for (Map.Entry<String, String> e : fileParams.entrySet()) {
                     String val = e.getValue().trim();
                     if (val.startsWith("<")) {
-                        XdmNode node = proc.newDocumentBuilder()
+                        XdmNode node = PROCESSOR.newDocumentBuilder()
                                 .build(new StreamSource(new StringReader(val)));
                         transformer.setParameter(new QName(e.getKey()), node);
                     } else {
@@ -148,13 +125,12 @@ public class Saxon2Daemon {
                 }
 
                 StringWriter resultWriter = new StringWriter();
-                Serializer ser = proc.newSerializer(resultWriter);
+                Serializer ser = PROCESSOR.newSerializer(resultWriter);
                 transformer.setDestination(ser);
                 transformer.transform();
 
-                traceSink.flush();
                 response.addProperty("result", resultWriter.toString());
-                response.addProperty("traceText", trace ? traceBuf.toString(StandardCharsets.UTF_8) : "");
+                response.addProperty("traceText", warnings.toString());
 
             } catch (SaxonApiException e) {
                 response.addProperty("error", e.getMessage() != null ? e.getMessage() : e.toString());

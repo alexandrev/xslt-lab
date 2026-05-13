@@ -37,12 +37,12 @@ RUN mkdir -p /tmp/classes12 && \
         com/xsltplayground/SaxonDaemon.java && \
     jar cf /tmp/custom-functions-12.jar -C /tmp/classes12 .
 
-# Compile Saxon2Daemon + Runner + CustomFunctions against Saxon 9.6
+# Compile Saxon2Daemon + CustomFunctions against Saxon 9.6
+# (Runner.java excluded — it uses ErrorReporter/XmlProcessingError from Saxon 10+)
 RUN mkdir -p /tmp/classes9 && \
     javac -cp "/tmp/saxon96/saxon9he.jar:/tmp/saxon96/gson.jar" \
         -d /tmp/classes9 \
         com/xsltplayground/ext/CustomFunctions.java \
-        com/xsltplayground/Runner.java \
         com/xsltplayground/Saxon2Daemon.java && \
     jar cf /tmp/custom-functions-9.jar -C /tmp/classes9 .
 
