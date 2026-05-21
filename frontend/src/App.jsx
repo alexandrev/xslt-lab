@@ -14,6 +14,55 @@ import {
 
 /* global __APP_VERSION__, __GIT_COMMIT__ */
 
+const WELCOME_EXAMPLE = {
+  name: "Quick start — edit me!",
+  version: "1.0",
+  xslt: `<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!-- Filter books by language and build a summary -->
+  <xsl:template match="/">
+    <catalog total="{count(//book)}">
+      <xsl:apply-templates select="//book[@lang='en']"/>
+    </catalog>
+  </xsl:template>
+
+  <xsl:template match="book">
+    <item>
+      <xsl:value-of select="title"/>
+      <xsl:text> — </xsl:text>
+      <xsl:value-of select="author"/>
+      <xsl:text> (</xsl:text>
+      <xsl:value-of select="year"/>
+      <xsl:text>)</xsl:text>
+    </item>
+  </xsl:template>
+</xsl:stylesheet>`,
+  params: [
+    {
+      name: "input",
+      value: `<books>
+  <book lang="en">
+    <title>XSLT 2.0 and XPath 2.0</title>
+    <author>Michael Kay</author>
+    <year>2008</year>
+  </book>
+  <book lang="es">
+    <title>Aprende XML con XSLT</title>
+    <author>Jorge Pérez</author>
+    <year>2010</year>
+  </book>
+  <book lang="en">
+    <title>XML in a Nutshell</title>
+    <author>Harold &amp; Means</author>
+    <year>2004</year>
+  </book>
+</books>`,
+      open: true,
+    },
+  ],
+};
+
 import CodeMirror, { EditorView } from "@uiw/react-codemirror";
 import { xml, completeFromSchema } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -348,12 +397,18 @@ export default function App() {
   }
 
   let initialTabs = [defaultTab()];
+  let isFirstVisit = false;
   if (urlPreload) {
     initialTabs = [defaultTab(urlPreload)];
   } else {
     try {
       const stored = localStorage.getItem("tabs");
-      if (stored) initialTabs = JSON.parse(stored);
+      if (stored) {
+        initialTabs = JSON.parse(stored);
+      } else {
+        isFirstVisit = true;
+        initialTabs = [defaultTab(WELCOME_EXAMPLE)];
+      }
     } catch {}
     if (!Array.isArray(initialTabs)) {
       initialTabs = [defaultTab()];
@@ -500,7 +555,7 @@ export default function App() {
   );
   const [userInteracted, setUserInteracted] = useState(false);
   const [widgetsReady, setWidgetsReady] = useState(false);
-  const [autoRunReady, setAutoRunReady] = useState(() => !!urlPreload);
+  const [autoRunReady, setAutoRunReady] = useState(() => !!urlPreload || isFirstVisit);
   const ethicalSlotRef = useRef(null);
   const isLocalhost =
     typeof window !== "undefined" &&

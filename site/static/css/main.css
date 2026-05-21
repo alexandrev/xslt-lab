@@ -287,14 +287,45 @@ code {
   text-decoration: underline;
 }
 
-.related-cta {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--muted);
+.playground-cta {
+  margin-top: 2.5rem;
+  padding: 1.5rem 1.75rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(50, 213, 255, 0.07), rgba(255, 126, 103, 0.05));
+  border: 1px solid rgba(50, 213, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
 }
 
-.related-cta a {
+.playground-cta__eyebrow {
+  margin: 0 0 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   color: var(--accent);
+}
+
+.playground-cta__headline {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.playground-cta__sub {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--muted);
+  max-width: 480px;
+}
+
+.playground-cta .button {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ── Reference pages ───────────────────────────────────────────── */
