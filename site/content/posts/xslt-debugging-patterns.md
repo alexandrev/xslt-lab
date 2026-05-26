@@ -30,4 +30,4 @@ You can drop this at the top of the stylesheet, run a quick transform, and then 
 
 Finally, keep a checklist of the classic XSLT footguns: missing namespaces, wrong context node, incorrect `@` in attribute selection, and predicates that use 1-based indexes when you thought they were 0-based. I also look for template import precedence issues and for unexpected whitespace handling when the output is textual. These are easy to miss because the transform still runs, it just runs incorrectly.
 
-If you want a fast place to test these patterns with real inputs, use the online editor at [https://xsltplayground.com](https://xsltplayground.com). It is built for rapid iteration with multiple inputs and parameters, which makes debugging much less painful and keeps your feedback loop tight.
+If you want a fast place to test these patterns with real inputs, use the [XSLT online editor at xsltplayground.com](https://xsltplayground.com). It supports [XSLT 2.0](https://xsltplayground.com/xslt-2-0/) and [XSLT 3.0](https://xsltplayground.com/xslt-3-0/) via Saxon, and is built for rapid iteration with multiple inputs and parameters.

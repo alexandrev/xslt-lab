@@ -132,4 +132,4 @@ These group nodes based on a pattern match rather than a key value. Every time a
 
 ## Try it in XSLT Playground
 
-Paste any of the examples above into [XSLT Playground](https://xsltplayground.com) with version set to 2.0 or 3.0. Grouping is one of the features that benefits most from live testing — you can immediately see how changing the grouping key or switching between `group-by` and `group-adjacent` affects the output structure.
+Paste any of the examples above into the [XSLT 2.0 Online Tester](https://xsltplayground.com/xslt-2-0/) — Saxon HE included, no install. Grouping is one of the features that benefits most from live testing — you can immediately see how changing the grouping key or switching between `group-by` and `group-adjacent` affects the output structure. For `xsl:stream`, switch to the [XSLT 3.0 tester](https://xsltplayground.com/xslt-3-0/).

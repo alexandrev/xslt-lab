@@ -92,6 +92,6 @@ Packages reduce coupling and enable reuse across projects without copy-paste.
 
 ## Try it in XSLT Playground
 
-All the examples above run in [XSLT Playground](https://xsltplayground.com) with version set to 3.0. Maps and JSON support are the quickest to explore. Paste the `json-to-xml()` example, provide a JSON string as input, and see the intermediate representation immediately.
+All the examples above run in the [XSLT 3.0 Online Tester](https://xsltplayground.com/xslt-3-0/) — Saxon 12 included, no install. Maps and JSON support are the quickest to explore. Paste the `json-to-xml()` example, provide a JSON string as input, and see the intermediate representation immediately.
 
 XSLT 3.0 is available today. If your integration still targets 2.0, the features above are the best reasons to upgrade.
