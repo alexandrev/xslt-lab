@@ -1,5 +1,8 @@
 {{- $client := .Site.Params.adsense.client -}}
+{{- $slot := .Site.Params.adsense.inArticleSlot -}}
 {{- if and $client (ne hugo.Environment "development") -}}
   <meta name="google-adsense-account" content="{{ $client }}">
+  {{- if $slot -}}
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ $client }}" crossorigin="anonymous"></script>
+  {{- end -}}
 {{- end -}}
