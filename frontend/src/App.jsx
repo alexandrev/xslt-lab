@@ -95,7 +95,6 @@ function xmlLinter(view) {
 const xmlLintExtension = linter(xmlLinter, { delay: 500 });
 
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
-const BuyMeACoffee = lazy(() => import("./components/BuyMeACoffee"));
 const UsageSurvey = lazy(() => import("./components/UsageSurvey"));
 
 function runWhenIdle(callback, timeout = 2000) {
@@ -2438,7 +2437,6 @@ export default function App() {
       )}
       {widgetsReady && (
         <Suspense fallback={null}>
-          <BuyMeACoffee />
           <FeedbackWidget />
           {!surveyDone && transformCount >= 3 && (
             <UsageSurvey
