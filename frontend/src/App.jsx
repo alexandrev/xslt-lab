@@ -262,6 +262,7 @@ function defaultWorkspaceStatus() {
     showRawTrace: false,
     resultView: "source",
     isRunning: false,
+    secondaryResults: {},
   };
 }
 
@@ -380,6 +381,63 @@ function normalizeWorkspaceImport(payload) {
   };
 }
 
+
+function SecondaryResultItem({ href, content, theme }) {
+  const [collapsed, setCollapsed] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    try {
+      navigator.clipboard?.writeText(content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  };
+
+  return (
+    <div className="secondary-result-item">
+      <div className="secondary-result-header">
+        <button
+          type="button"
+          className="icon-button"
+          onClick={() => setCollapsed((v) => !v)}
+          aria-label={collapsed ? "Expand secondary output" : "Collapse secondary output"}
+          title={collapsed ? "Expand" : "Collapse"}
+        >
+          <Icon name={collapsed ? "chevron-right" : "chevron-down"} />
+        </button>
+        <span className="secondary-result-href" title={href}>{href}</span>
+        <button
+          type="button"
+          className="icon-button"
+          onClick={handleCopy}
+          aria-label="Copy secondary output"
+          title={copied ? "Copied!" : "Copy"}
+        >
+          <Icon name={copied ? "check" : "copy"} />
+        </button>
+      </div>
+      {!collapsed && (
+        <div className="secondary-result-body">
+          <Editor
+            height="200px"
+            language="xml"
+            theme={theme}
+            value={content}
+            options={{
+              readOnly: true,
+              minimap: { enabled: false },
+              automaticLayout: true,
+              lineNumbers: "off",
+              wordWrap: "bounded",
+              wordWrapBreakAfterCharacters: ' \t})]?|>',
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function App() {
   // URL preload takes priority over localStorage
@@ -734,6 +792,7 @@ export default function App() {
     showRawTrace,
     resultView,
     isRunning,
+    secondaryResults,
   } = activeStatus;
   const MAX_ERROR_LINES = 3;
   const limitedErrorLines = (errorLines || []).slice(0, MAX_ERROR_LINES);
@@ -1252,6 +1311,7 @@ export default function App() {
           showRawTrace: false,
           resultView: "source",
           isRunning: false,
+          secondaryResults: {},
         });
         return;
       }
@@ -1271,6 +1331,7 @@ export default function App() {
         isServerError: false,
         showRawTrace: false,
         resultView: defaultView,
+        secondaryResults: data.secondary_results || {},
       });
       const newEntries = traceEnabled ? (data.trace || []) : [];
       updateWorkspaceStatus(tabId, (prev) => ({
@@ -1294,6 +1355,7 @@ export default function App() {
         showRawTrace: false,
         resultView: "source",
         isRunning: false,
+        secondaryResults: {},
       });
     }
   }, 2000);
@@ -2347,6 +2409,21 @@ export default function App() {
                   />
                 )}
               </div>
+              {secondaryResults && Object.keys(secondaryResults).length > 0 && (
+                <div className="secondary-results">
+                  <div className="secondary-results-header">
+                    Secondary outputs ({Object.keys(secondaryResults).length})
+                  </div>
+                  {Object.entries(secondaryResults).map(([href, content]) => (
+                    <SecondaryResultItem
+                      key={href}
+                      href={href}
+                      content={content}
+                      theme={editorTheme}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </>
         )}

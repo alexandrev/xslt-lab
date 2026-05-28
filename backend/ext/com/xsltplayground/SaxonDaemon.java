@@ -150,6 +150,15 @@ public class SaxonDaemon {
                     }
                 }
 
+                // Capture secondary documents produced by xsl:result-document
+                Map<String, StringWriter> secondaryWriters = new LinkedHashMap<>();
+                transformer.setResultDocumentHandler(uri -> {
+                    String key = uri != null ? uri.toString() : "secondary-" + secondaryWriters.size();
+                    StringWriter sw = new StringWriter();
+                    secondaryWriters.put(key, sw);
+                    return proc.newSerializer(sw);
+                });
+
                 StringWriter resultWriter = new StringWriter();
                 Serializer ser = proc.newSerializer(resultWriter);
                 transformer.setDestination(ser);
@@ -158,6 +167,14 @@ public class SaxonDaemon {
                 traceSink.flush();
                 response.addProperty("result", resultWriter.toString());
                 response.addProperty("traceText", trace ? traceBuf.toString(StandardCharsets.UTF_8) : "");
+
+                if (!secondaryWriters.isEmpty()) {
+                    JsonObject secondary = new JsonObject();
+                    for (Map.Entry<String, StringWriter> e : secondaryWriters.entrySet()) {
+                        secondary.addProperty(e.getKey(), e.getValue().toString());
+                    }
+                    response.add("secondaryResults", secondary);
+                }
 
             } catch (SaxonApiException e) {
                 response.addProperty("error", e.getMessage() != null ? e.getMessage() : e.toString());

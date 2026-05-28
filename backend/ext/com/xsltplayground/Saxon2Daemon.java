@@ -6,8 +6,11 @@ import com.xsltplayground.ext.CustomFunctions;
 import net.sf.saxon.s9api.*;
 
 import javax.xml.transform.ErrorListener;
+import javax.xml.transform.Result;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import net.sf.saxon.lib.OutputURIResolver;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -124,6 +127,24 @@ public class Saxon2Daemon {
                     }
                 }
 
+                // Capture secondary documents produced by xsl:result-document (Saxon 9.6 API)
+                Map<String, StringWriter> secondaryWriters = new LinkedHashMap<>();
+                transformer.getUnderlyingController().setOutputURIResolver(new OutputURIResolver() {
+                    @Override
+                    public OutputURIResolver newInstance() { return this; }
+                    @Override
+                    public Result resolve(String href, String base) throws TransformerException {
+                        String key = href != null ? href : "secondary-" + secondaryWriters.size();
+                        StringWriter sw = new StringWriter();
+                        secondaryWriters.put(key, sw);
+                        StreamResult sr = new StreamResult(sw);
+                        sr.setSystemId(key);
+                        return sr;
+                    }
+                    @Override
+                    public void close(Result result) throws TransformerException {}
+                });
+
                 StringWriter resultWriter = new StringWriter();
                 Serializer ser = PROCESSOR.newSerializer(resultWriter);
                 transformer.setDestination(ser);
@@ -131,6 +152,14 @@ public class Saxon2Daemon {
 
                 response.addProperty("result", resultWriter.toString());
                 response.addProperty("traceText", warnings.toString());
+
+                if (!secondaryWriters.isEmpty()) {
+                    JsonObject secondary = new JsonObject();
+                    for (Map.Entry<String, StringWriter> e : secondaryWriters.entrySet()) {
+                        secondary.addProperty(e.getKey(), e.getValue().toString());
+                    }
+                    response.add("secondaryResults", secondary);
+                }
 
             } catch (SaxonApiException e) {
                 response.addProperty("error", e.getMessage() != null ? e.getMessage() : e.toString());

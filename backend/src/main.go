@@ -30,10 +30,11 @@ type TransformRequest struct {
 }
 
 type TransformResponse struct {
-	Result     string       `json:"result"`
-	DurationMs int64        `json:"duration_ms"`
-	Trace      []TraceEntry `json:"trace,omitempty"`
-	TraceText  string       `json:"trace_text,omitempty"`
+	Result           string            `json:"result"`
+	DurationMs       int64             `json:"duration_ms"`
+	Trace            []TraceEntry      `json:"trace,omitempty"`
+	TraceText        string            `json:"trace_text,omitempty"`
+	SecondaryResults map[string]string `json:"secondary_results,omitempty"`
 }
 
 type TraceEntry struct {
@@ -248,9 +249,10 @@ func main() {
 		duration := time.Since(start).Milliseconds()
 
 		var daemonResp struct {
-			Result    string `json:"result"`
-			TraceText string `json:"traceText"`
-			Error     string `json:"error"`
+			Result           string            `json:"result"`
+			TraceText        string            `json:"traceText"`
+			Error            string            `json:"error"`
+			SecondaryResults map[string]string `json:"secondaryResults"`
 		}
 		if err := json.Unmarshal(respBody, &daemonResp); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot parse daemon response"})
@@ -308,7 +310,13 @@ func main() {
 			traceText = strings.Join(filtered, "\n")
 		}
 
-		c.JSON(http.StatusOK, TransformResponse{Result: daemonResp.Result, DurationMs: duration, Trace: traceEntries, TraceText: traceText})
+		c.JSON(http.StatusOK, TransformResponse{
+			Result:           daemonResp.Result,
+			DurationMs:       duration,
+			Trace:            traceEntries,
+			TraceText:        traceText,
+			SecondaryResults: daemonResp.SecondaryResults,
+		})
 	})
 
 	r.GET("/", func(c *gin.Context) {
