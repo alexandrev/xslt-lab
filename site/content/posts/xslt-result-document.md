@@ -1,7 +1,7 @@
 ---
 title: "xsl:result-document: generating multiple output files from one XSLT transform"
 description: "How to use xsl:result-document in XSLT 2.0 and 3.0 to produce multiple output files from a single stylesheet. Covers split by category, multi-format output, serialization control, and streaming."
-date: 2026-05-28T00:00:00Z
+date: 2026-05-16T00:00:00Z
 tags: ["xslt", "xslt2", "xslt3", "saxon"]
 ---
 
