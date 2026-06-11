@@ -19,7 +19,7 @@
     />
     <meta
       name="keywords"
-      content="xslt online, xslt editor, xslt tester, xslt validator, xsl editor, xsl tester, xslt playground, xslt 3.0, xslt 2.0, online xslt editor, xslt transformation online, xml transformation, saxon xslt"
+      content="xslt online, xslt editor, xslt tester, xslt validator, xslt viewer, xsl editor, xsl tester, xsl viewer, xslt playground, xslt 3.0, xslt 2.0, online xslt editor, xslt transformation online, validate xslt online, xml transformation, saxon xslt"
     />
     <meta property="og:title" content="XSLT Tester &amp; Validator Online — Free, XSLT 1.0 / 2.0 / 3.0" />
     <meta
@@ -114,6 +114,14 @@
               "acceptedAnswer": {
                 "@type": "Answer",
                 "text": "XSLT 1.0 is the original standard (1999), supported by all browsers. XSLT 2.0 (2007) adds grouping, regular expressions, multiple output documents and XPath 2.0. XSLT 3.0 (2017) adds streaming, maps, arrays, higher-order functions and JSON support. XSLT Playground supports all three versions via Saxon."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I view and validate XSLT output online?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. XSLT Playground works as an online XSLT viewer and validator: it shows the formatted transformation output with syntax highlighting and a live HTML preview, and validates your stylesheet by reporting the exact line number and Saxon error message for any problem."
               }
             },
             {
@@ -275,12 +283,13 @@
 
     <!-- Static SEO content — always in DOM, indexed by crawlers, visible below the app -->
     <section id="seo-content" aria-label="About XSLT Playground">
-      <h1>XSLT Online — Free XSLT Editor, Tester &amp; Validator</h1>
+      <h1>XSLT Online — Free XSLT Editor, Tester, Viewer &amp; Validator</h1>
       <p>
-        <strong>XSLT Playground</strong> is the most powerful free online XSLT tool available.
-        Unlike every other online XSLT tester, it supports <strong>XSLT 1.0, XSLT 2.0, and XSLT 3.0</strong>
-        via <strong>Saxon HE 12.5</strong> — the same enterprise-grade processor used in production
-        applications worldwide. No installation, no account, no limits.
+        <strong>XSLT Playground</strong> is the most powerful free online XSLT tool available — an
+        editor, tester, viewer and validator in one. Unlike every other online XSLT tester, it supports
+        <strong>XSLT 1.0, XSLT 2.0, and XSLT 3.0</strong> via <strong>Saxon HE 12.5</strong> — the same
+        enterprise-grade processor used in production applications worldwide. Run any XSLT transformation
+        online and see the result instantly. No installation, no account, no limits.
       </p>
       <a class="seo-cta" href="https://xsltplayground.com/">Open the XSLT Editor →</a>
       <div class="version-links">
@@ -300,6 +309,20 @@
         or learning the differences between the standards.
       </p>
 
+      <h2>XSLT Viewer, Validator and Transformation Tool</h2>
+      <p>
+        XSLT Playground works as an <strong>online XSLT viewer</strong>: paste a stylesheet and an XML
+        document to view the formatted transformation output, with syntax highlighting and a live HTML
+        preview when your stylesheet uses <code>method="html"</code>. It is also a full
+        <strong>XSLT validator</strong> — invalid stylesheets are flagged with the exact line number and
+        the original Saxon error message, so you can validate XSLT online before deploying it to production.
+      </p>
+      <p>
+        Every <strong>XSLT transformation online</strong> runs against a real Saxon backend in
+        milliseconds. There is nothing to install and nothing to configure: open the editor, paste your
+        code, and the result appears automatically as you type.
+      </p>
+
       <h2>How to Use the Online XSLT Tester</h2>
       <ol>
         <li>Open the editor at <a href="https://xsltplayground.com/">xsltplayground.com</a></li>
@@ -315,6 +338,7 @@
         <li><strong>XSLT 3.0 support</strong> — maps, arrays, streaming, higher-order functions, JSON output. No other free online tool offers this.</li>
         <li><strong>XSLT 2.0 support</strong> — grouping (<code>xsl:for-each-group</code>), regular expressions, multiple output documents, XPath 2.0.</li>
         <li><strong>Real Saxon processor</strong> — Saxon HE 12.5 on the server, not a simplified browser implementation. Results match production exactly.</li>
+        <li><strong>Built-in XSLT validator &amp; viewer</strong> — validate stylesheets with exact line-number errors and view formatted output with a live HTML render preview.</li>
         <li><strong>Multiple XML inputs</strong> — pass multiple documents as named parameters, just like in production pipelines.</li>
         <li><strong>Execution trace</strong> — debug your stylesheet step by step, inspect variable values at runtime.</li>
         <li><strong>Multiple workspaces</strong> — save up to 3 workspaces locally, no account needed.</li>
@@ -334,6 +358,9 @@
 
         <dt>What is the difference between XSLT 1.0, 2.0 and 3.0?</dt>
         <dd>XSLT 1.0 (1999) is the original standard. XSLT 2.0 (2007) adds grouping, regular expressions, multiple output documents, and XPath 2.0. XSLT 3.0 (2017) adds streaming, maps, arrays, higher-order functions and JSON support. XSLT Playground supports all three.</dd>
+
+        <dt>Can I view and validate XSLT output online?</dt>
+        <dd>Yes. XSLT Playground is an online XSLT viewer and validator: it shows formatted output with syntax highlighting and a live HTML preview, and reports the exact line number and Saxon error message when a stylesheet is invalid.</dd>
 
         <dt>Is XSLT Playground free?</dt>
         <dd>Yes, completely free. No account, no signup, no installation required. Workspaces are saved locally in your browser.</dd>

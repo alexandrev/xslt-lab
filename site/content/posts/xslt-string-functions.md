@@ -7,6 +7,28 @@ tags: ["xslt", "xpath", "strings", "functions"]
 
 String manipulation is one of the most common tasks in XSLT. Whether you are formatting output, parsing codes, or normalising values from external systems, XPath provides a rich set of string functions. This reference covers the most useful ones with examples you can run in [XSLT Playground](https://xsltplayground.com).
 
+## XSLT string functions at a glance
+
+| Function | Purpose | Minimum version |
+|---|---|---|
+| `string-length` | Number of characters in a string | XSLT 1.0 |
+| `substring` | Extract part of a string by position | XSLT 1.0 |
+| `substring-before` / `substring-after` | Split a string on a delimiter | XSLT 1.0 |
+| `contains` / `starts-with` | Test for a substring or prefix | XSLT 1.0 |
+| `concat` | Join strings together | XSLT 1.0 |
+| `normalize-space` | Trim and collapse whitespace | XSLT 1.0 |
+| `translate` | Replace characters one-for-one | XSLT 1.0 |
+| `upper-case` / `lower-case` | Change case | XSLT 2.0 |
+| `ends-with` | Test for a suffix | XSLT 2.0 |
+| `replace` | Regex-based substitution | XSLT 2.0 |
+| `matches` | Test a string against a regex | XSLT 2.0 |
+| `tokenize` | Split a string into a sequence by regex | XSLT 2.0 |
+| `string-join` | Join a sequence with a separator | XSLT 2.0 |
+| `format-number` | Format a number with a picture pattern | XSLT 1.0 |
+| `format-date` / `format-dateTime` | Format dates with a picture string | XSLT 2.0 |
+
+Each function is explained with runnable examples below. Try them in the [XSLT 2.0 online tester](https://xsltplayground.com/xslt-2-0/) for the 2.0 functions, or the main [online XSLT editor](https://xsltplayground.com) for the 1.0 ones.
+
 ## Basic string functions (XSLT 1.0+)
 
 ### string-length
@@ -178,4 +200,10 @@ Format xs:date and xs:dateTime values using picture strings.
 ```
 
 All of these work in [XSLT Playground](https://xsltplayground.com). Set the version to 2.0 or 3.0 for the functions that require it.
+
+## Related guides
+
+- [XSLT grouping with xsl:for-each-group](https://blog.xsltplayground.com/posts/xslt-grouping-for-each-group/) — group and aggregate string values
+- [Transforming XML to JSON and CSV with XSLT](https://blog.xsltplayground.com/posts/xslt-xml-to-json-csv/) — `string-join` and `tokenize` in practice
+- [XSLT template matching explained](https://blog.xsltplayground.com/posts/xslt-template-matching-explained/) — apply string logic inside template rules
 

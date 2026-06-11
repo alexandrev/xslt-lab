@@ -131,6 +131,8 @@
     ul, ol { color: #374151; line-height: 1.75; padding-left: 1.5rem; }
     li { margin-bottom: 0.4rem; }
     code { background: #eef2ff; padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 1rem 1.25rem; border-radius: 8px; overflow-x: auto; line-height: 1.5; }
+    pre code { background: none; padding: 0; color: inherit; font-size: 0.86rem; }
     .feature-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -283,6 +285,39 @@
       <dt>Do browsers support XSLT 3.0?</dt>
       <dd>No. Browsers only support XSLT 1.0 natively. XSLT 3.0 requires a dedicated processor like Saxon. XSLT Playground runs Saxon on the server so you can test XSLT 3.0 without installing anything.</dd>
     </dl>
+
+    <h2>Live XSLT 3.0 Example: Maps and Higher-Order Functions</h2>
+    <p>
+      This stylesheet builds a map of currency rates and uses the higher-order function
+      <code>fn:fold-left()</code> to sum a converted total — both impossible in XSLT 2.0. Paste it into
+      the <a href="/?v=3.0">XSLT 3.0 editor</a> to run it.
+    </p>
+    <p><strong>XSLT 3.0 stylesheet:</strong></p>
+    <pre><code>&lt;xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;xsl:output method="text"/&gt;
+  &lt;xsl:template name="xsl:initial-template"&gt;
+    &lt;xsl:variable name="rates" select="map{'EUR': 1.0, 'USD': 0.92, 'GBP': 1.17}"/&gt;
+    &lt;xsl:variable name="amounts" select="100, 200, 50"/&gt;
+    &lt;xsl:variable name="total" select="
+      fold-left($amounts, 0.0, function($acc, $n) { $acc + $n * $rates('USD') })"/&gt;
+    &lt;xsl:value-of select="format-number($total, '0.00')"/&gt;
+  &lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;</code></pre>
+    <p><strong>Output:</strong></p>
+    <pre><code>322.00</code></pre>
+    <p>
+      Run it with no XML input — the named <code>xsl:initial-template</code> is an XSLT 3.0 entry point
+      that needs no source document.
+    </p>
+
+    <h2>Learn More About XSLT 3.0</h2>
+    <ul>
+      <li><a href="https://blog.xsltplayground.com/posts/xslt-3-new-features/">XSLT 3.0 new features: what changed from 2.0</a></li>
+      <li><a href="https://blog.xsltplayground.com/posts/xslt-result-document/">Streaming and multiple outputs with xsl:result-document</a></li>
+      <li><a href="https://blog.xsltplayground.com/posts/xslt-xml-to-json-csv/">Transforming XML to JSON and CSV with XSLT 3.0</a></li>
+    </ul>
 
     <h2>Also Available</h2>
     <p>Need XSLT 2.0 with grouping and regular expressions? <a href="/xslt-2-0/">Try the XSLT 2.0 Online Tester →</a></p>

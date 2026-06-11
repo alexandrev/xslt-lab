@@ -27,6 +27,8 @@ In practice, when people say "XSL" in an integration or development context, the
 
 The output appears immediately. If the stylesheet has errors, the error panel shows the exact line and message from Saxon.
 
+If you already know which version you need, there are dedicated testers: the [XSLT 2.0 online tester](https://xsltplayground.com/xslt-2-0/) for grouping and regular expressions, and the [XSLT 3.0 online tester](https://xsltplayground.com/xslt-3-0/) for maps, arrays and streaming. Both run the same Saxon HE backend.
+
 ## Common XSL use cases
 
 **XML to HTML** — the most common use. An XSL stylesheet walks an XML document tree and emits HTML tags:
@@ -96,3 +98,23 @@ For most development and debugging tasks, the online tester is faster than runni
 - You need to integrate the transform into a build pipeline
 
 For everything else — prototyping, debugging, sharing test cases — the online XSL tester is quicker.
+
+## Frequently asked questions
+
+**Is there a free XSL online tester?**
+Yes. [XSLT Playground](https://xsltplayground.com) is a completely free online XSL tester. It runs XSLT 1.0, 2.0 and 3.0 on a real Saxon HE backend, with no account, signup or installation required.
+
+**Can I run XSL transformations in the browser?**
+The editor runs in your browser, but the transformation itself executes on a Saxon server so the results match production exactly — unlike the browser's built-in XSLT 1.0 engine, which is limited and inconsistent across browsers.
+
+**What is the difference between .xsl and .xslt files?**
+Both extensions are valid and interchangeable. `.xsl` is older and common in enterprise systems; `.xslt` is more explicit. Saxon and XSLT Playground accept either.
+
+**Can I validate an XSL stylesheet online?**
+Yes. If your stylesheet is malformed or has a runtime error, the [XSLT validator](https://blog.xsltplayground.com/posts/xslt-validator-online/) reports the exact line number and the original Saxon error message so you can fix it before deploying.
+
+## Related guides
+
+- [XSLT online editor: how to test transformations without installing anything](https://blog.xsltplayground.com/posts/xslt-online-editor-guide/)
+- [XSLT for beginners: your first transformation](https://blog.xsltplayground.com/posts/xslt-for-beginners/)
+- [XSLT validator online: catch errors before running your transform](https://blog.xsltplayground.com/posts/xslt-validator-online/)

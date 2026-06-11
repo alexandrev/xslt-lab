@@ -115,6 +115,8 @@
     ul, ol { color: #374151; line-height: 1.75; padding-left: 1.5rem; }
     li { margin-bottom: 0.4rem; }
     code { background: #eef2ff; padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 1rem 1.25rem; border-radius: 8px; overflow-x: auto; line-height: 1.5; }
+    pre code { background: none; padding: 0; color: inherit; font-size: 0.86rem; }
     .feature-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -254,6 +256,45 @@
       <dt>Does XSLT 2.0 work in all browsers?</dt>
       <dd>No. Browsers only support XSLT 1.0 natively. XSLT 2.0 requires a processor like Saxon. XSLT Playground runs Saxon on the server so you can test XSLT 2.0 stylesheets without installing anything.</dd>
     </dl>
+
+    <h2>Live XSLT 2.0 Example: Grouping with xsl:for-each-group</h2>
+    <p>
+      This stylesheet groups a flat list of sales by region and totals each group — a task that needs
+      verbose Muenchian keys in XSLT 1.0 but is trivial in XSLT 2.0. Paste it into the
+      <a href="/?v=2.0">XSLT 2.0 editor</a> to run it.
+    </p>
+    <p><strong>XML input:</strong></p>
+    <pre><code>&lt;sales&gt;
+  &lt;sale region="EU" amount="120"/&gt;
+  &lt;sale region="US" amount="200"/&gt;
+  &lt;sale region="EU" amount="80"/&gt;
+  &lt;sale region="US" amount="50"/&gt;
+&lt;/sales&gt;</code></pre>
+    <p><strong>XSLT 2.0 stylesheet:</strong></p>
+    <pre><code>&lt;xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;
+  &lt;xsl:output method="xml" indent="yes"/&gt;
+  &lt;xsl:template match="/sales"&gt;
+    &lt;totals&gt;
+      &lt;xsl:for-each-group select="sale" group-by="@region"&gt;
+        &lt;region name="{current-grouping-key()}"
+                total="{sum(current-group()/@amount)}"/&gt;
+      &lt;/xsl:for-each-group&gt;
+    &lt;/totals&gt;
+  &lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;</code></pre>
+    <p><strong>Output:</strong></p>
+    <pre><code>&lt;totals&gt;
+  &lt;region name="EU" total="200"/&gt;
+  &lt;region name="US" total="250"/&gt;
+&lt;/totals&gt;</code></pre>
+
+    <h2>Learn More About XSLT 2.0</h2>
+    <ul>
+      <li><a href="https://blog.xsltplayground.com/posts/xslt-grouping-for-each-group/">XSLT grouping with xsl:for-each-group — complete guide</a></li>
+      <li><a href="https://blog.xsltplayground.com/posts/xslt-result-document/">Generating multiple output files with xsl:result-document</a></li>
+      <li><a href="https://blog.xsltplayground.com/posts/xslt-string-functions/">XSLT string functions reference (substring, replace, tokenize)</a></li>
+      <li><a href="https://blog.xsltplayground.com/posts/xslt-xml-to-json-csv/">Transforming XML to JSON and CSV with XSLT</a></li>
+    </ul>
 
     <h2>Also Available</h2>
     <p>Looking for XSLT 3.0 with maps, arrays and higher-order functions? <a href="/xslt-3-0/">Try the XSLT 3.0 Online Tester →</a></p>
