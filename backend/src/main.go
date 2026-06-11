@@ -199,8 +199,13 @@ func main() {
 				continue
 			}
 			trimmed := strings.TrimSpace(v)
-			if strings.HasPrefix(trimmed, "&lt;") || strings.HasPrefix(trimmed, "<") {
+			if strings.HasPrefix(trimmed, "&lt;") {
+				// HTML-encoded XML (e.g. sent from a form field): decode first
 				fileParams[k] = html.UnescapeString(trimmed)
+			} else if strings.HasPrefix(trimmed, "<") {
+				// Already valid XML — do NOT call html.UnescapeString or it will
+				// convert &amp; → & and break well-formed entity references
+				fileParams[k] = trimmed
 			} else {
 				stringParams[k] = v
 			}
