@@ -11,6 +11,12 @@ spec:
       targetPort: {{ .Values.service.backend.port }}
       protocol: TCP
       name: http
+{{- if .Values.metrics.enabled }}
+    - port: {{ .Values.metrics.backendPort }}
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+{{- end }}
   selector:
     {{- include "xslt-playground.selectorLabels" . | nindent 4 }}
     component: backend

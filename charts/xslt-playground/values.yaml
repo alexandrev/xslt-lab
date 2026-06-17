@@ -72,3 +72,28 @@ frontend:
 # Content for the optional ads.txt file served by the frontend
 adsTxt: ""
 
+# Prometheus metrics + Grafana dashboard
+metrics:
+  enabled: true
+  # Dedicated internal port where the Go backend exposes /metrics.
+  # Not routed through the public ingress.
+  backendPort: 9100
+  # nginx-prometheus-exporter sidecar for the frontend.
+  frontend:
+    exporter:
+      image: nginx/nginx-prometheus-exporter:1.3.0
+      port: 9113
+      # Internal-only nginx stub_status endpoint scraped by the exporter.
+      stubStatusPort: 8081
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 10s
+    # Label the kube-prometheus-stack Prometheus selects ServiceMonitors by.
+    releaseLabel: kube-prom-stack
+  dashboard:
+    enabled: true
+    # Namespace label the Grafana dashboard sidecar watches by.
+    label: grafana_dashboard
+    labelValue: "1"
+

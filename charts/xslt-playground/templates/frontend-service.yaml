@@ -11,6 +11,12 @@ spec:
       targetPort: {{ .Values.service.frontend.port }}
       protocol: TCP
       name: http
+{{- if .Values.metrics.enabled }}
+    - port: {{ .Values.metrics.frontend.exporter.port }}
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+{{- end }}
   selector:
     {{- include "xslt-playground.selectorLabels" . | nindent 4 }}
     component: frontend

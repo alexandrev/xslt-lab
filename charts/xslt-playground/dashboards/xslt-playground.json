@@ -1,0 +1,201 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "graphTooltip": 1,
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": ["xslt-playground"],
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "label": "Data source",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {},
+        "hide": 0,
+        "refresh": 1
+      },
+      {
+        "name": "namespace",
+        "label": "Namespace",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "${datasource}" },
+        "query": "label_values(xslt_http_requests_total, namespace)",
+        "refresh": 2,
+        "includeAll": false,
+        "multi": false,
+        "current": {}
+      }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "",
+  "title": "XSLT Playground",
+  "uid": "xslt-playground",
+  "panels": [
+    {
+      "type": "row",
+      "title": "Overview",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "type": "stat",
+      "title": "Requests / s",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 1 },
+      "fieldConfig": { "defaults": { "unit": "reqps", "decimals": 2 } },
+      "targets": [
+        { "expr": "sum(rate(xslt_http_requests_total{namespace=\"$namespace\"}[5m]))", "refId": "A" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Error rate (5xx) %",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 1 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "green", "value": null },
+            { "color": "yellow", "value": 1 },
+            { "color": "red", "value": 5 }
+          ] }
+        }
+      },
+      "targets": [
+        { "expr": "100 * sum(rate(xslt_http_requests_total{namespace=\"$namespace\",status=~\"5..\"}[5m])) / clamp_min(sum(rate(xslt_http_requests_total{namespace=\"$namespace\"}[5m])), 1)", "refId": "A" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "HTTP latency p95",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 1 },
+      "fieldConfig": { "defaults": { "unit": "s", "decimals": 3 } },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum by (le) (rate(xslt_http_request_duration_seconds_bucket{namespace=\"$namespace\"}[5m])))", "refId": "A" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Requests in flight",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 1 },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [
+        { "expr": "sum(xslt_http_requests_in_flight{namespace=\"$namespace\"})", "refId": "A" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "HTTP",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Request rate by status",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 7 },
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "drawStyle": "line", "fillOpacity": 10, "stacking": { "mode": "normal" } } } },
+      "targets": [
+        { "expr": "sum by (status) (rate(xslt_http_requests_total{namespace=\"$namespace\"}[5m]))", "legendFormat": "{{status}}", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP latency quantiles",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 7 },
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "drawStyle": "line", "fillOpacity": 0 } } },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum by (le) (rate(xslt_http_request_duration_seconds_bucket{namespace=\"$namespace\"}[5m])))", "legendFormat": "p50", "refId": "A" },
+        { "expr": "histogram_quantile(0.95, sum by (le) (rate(xslt_http_request_duration_seconds_bucket{namespace=\"$namespace\"}[5m])))", "legendFormat": "p95", "refId": "B" },
+        { "expr": "histogram_quantile(0.99, sum by (le) (rate(xslt_http_request_duration_seconds_bucket{namespace=\"$namespace\"}[5m])))", "legendFormat": "p99", "refId": "C" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Transformations (usage)",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 15 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Transformations / s by XSLT version",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "drawStyle": "line", "fillOpacity": 10, "stacking": { "mode": "normal" } } } },
+      "targets": [
+        { "expr": "sum by (version) (rate(xslt_transformations_total{namespace=\"$namespace\"}[5m]))", "legendFormat": "v{{version}}", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Transformations / s by outcome",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "drawStyle": "line", "fillOpacity": 10, "stacking": { "mode": "normal" } } } },
+      "targets": [
+        { "expr": "sum by (status) (rate(xslt_transformations_total{namespace=\"$namespace\"}[5m]))", "legendFormat": "{{status}}", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Saxon transform duration p95 by version",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "drawStyle": "line", "fillOpacity": 0 } } },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum by (le, version) (rate(xslt_transformation_duration_seconds_bucket{namespace=\"$namespace\"}[5m])))", "legendFormat": "v{{version}} p95", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Submitted stylesheet size p95 by version",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 8, "w": 8, "x": 12, "y": 24 },
+      "fieldConfig": { "defaults": { "unit": "bytes", "custom": { "drawStyle": "line", "fillOpacity": 0 } } },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum by (le, version) (rate(xslt_transformation_payload_bytes_bucket{namespace=\"$namespace\"}[5m])))", "legendFormat": "v{{version}} p95", "refId": "A" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Trace usage / s",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 8, "w": 4, "x": 20, "y": 24 },
+      "fieldConfig": { "defaults": { "unit": "reqps", "decimals": 3 } },
+      "targets": [
+        { "expr": "sum(rate(xslt_trace_requests_total{namespace=\"$namespace\"}[5m]))", "refId": "A" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Frontend (nginx)",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Frontend requests / s",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 33 },
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "drawStyle": "line", "fillOpacity": 10 } } },
+      "targets": [
+        { "expr": "sum(rate(nginx_http_requests_total{namespace=\"$namespace\"}[5m]))", "legendFormat": "requests", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Frontend active connections",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 33 },
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "drawStyle": "line", "fillOpacity": 10 } } },
+      "targets": [
+        { "expr": "sum(nginx_connections_active{namespace=\"$namespace\"})", "legendFormat": "active", "refId": "A" },
+        { "expr": "sum(nginx_connections_waiting{namespace=\"$namespace\"})", "legendFormat": "waiting", "refId": "B" }
+      ]
+    }
+  ]
+}

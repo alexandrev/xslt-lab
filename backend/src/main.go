@@ -170,19 +170,33 @@ func main() {
 		}
 	}
 
+	metricsPort := os.Getenv("METRICS_PORT")
+	if metricsPort == "" {
+		metricsPort = "9100"
+	}
+	go startMetricsServer(metricsPort)
+
 	r := gin.Default()
+	r.Use(metricsMiddleware())
 	r.Use(corsMiddleware())
 
 	r.POST("/transform", func(c *gin.Context) {
 		var req TransformRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
+			transformationsTotal.WithLabelValues("unknown", "bad_request").Inc()
 			log.Printf("bind request failed: %v (content-length=%d)", err, c.Request.ContentLength)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		if req.Version != "" && req.Version != "1.0" && req.Version != "2.0" && req.Version != "3.0" {
+		version := normalizeVersion(req.Version)
+		if req.Version != "" && version == "invalid" {
+			transformationsTotal.WithLabelValues("invalid", "bad_request").Inc()
 			c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported XSLT version: must be 1.0, 2.0 or 3.0"})
 			return
+		}
+		transformationPayloadBytes.WithLabelValues(version).Observe(float64(len(req.XSLT)))
+		if req.Trace {
+			traceRequestsTotal.Inc()
 		}
 		log.Printf("processing transform: xslt %d bytes, %d parameters", len(req.XSLT), len(req.Parameters))
 
@@ -220,6 +234,7 @@ func main() {
 		}
 		daemonBody, err := json.Marshal(daemonReq)
 		if err != nil {
+			transformationsTotal.WithLabelValues(version, "error").Inc()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot encode request"})
 			return
 		}
@@ -240,6 +255,7 @@ func main() {
 			bytes.NewReader(daemonBody),
 		)
 		if err != nil {
+			transformationsTotal.WithLabelValues(version, "unavailable").Inc()
 			log.Printf("daemon call failed: %v", err)
 			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "transform service unavailable"})
 			return
@@ -248,10 +264,13 @@ func main() {
 
 		respBody, err := io.ReadAll(resp.Body)
 		if err != nil {
+			transformationsTotal.WithLabelValues(version, "error").Inc()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot read daemon response"})
 			return
 		}
-		duration := time.Since(start).Milliseconds()
+		elapsed := time.Since(start)
+		transformationDuration.WithLabelValues(version).Observe(elapsed.Seconds())
+		duration := elapsed.Milliseconds()
 
 		var daemonResp struct {
 			Result           string            `json:"result"`
@@ -260,11 +279,13 @@ func main() {
 			SecondaryResults map[string]string `json:"secondaryResults"`
 		}
 		if err := json.Unmarshal(respBody, &daemonResp); err != nil {
+			transformationsTotal.WithLabelValues(version, "error").Inc()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot parse daemon response"})
 			return
 		}
 
 		if daemonResp.Error != "" {
+			transformationsTotal.WithLabelValues(version, "error").Inc()
 			log.Printf("transform error after %dms: %s", duration, daemonResp.Error)
 			c.JSON(http.StatusBadRequest, gin.H{"error": daemonResp.Error})
 			return
@@ -314,6 +335,8 @@ func main() {
 			}
 			traceText = strings.Join(filtered, "\n")
 		}
+
+		transformationsTotal.WithLabelValues(version, "success").Inc()
 
 		c.JSON(http.StatusOK, TransformResponse{
 			Result:           daemonResp.Result,

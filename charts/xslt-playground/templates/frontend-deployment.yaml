@@ -51,7 +51,23 @@ spec:
 {{- end }}
           ports:
             - containerPort: {{ .Values.service.frontend.port }}
+              name: http
           resources: {{- toYaml .Values.resources.frontend | nindent 12 }}
+{{- if .Values.metrics.enabled }}
+        - name: nginx-exporter
+          image: {{ .Values.metrics.frontend.exporter.image | quote }}
+          args:
+            - --nginx.scrape-uri=http://127.0.0.1:{{ .Values.metrics.frontend.exporter.stubStatusPort }}/stub_status
+          ports:
+            - containerPort: {{ .Values.metrics.frontend.exporter.port }}
+              name: metrics
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+{{- end }}
 {{- if .Values.adsTxt }}
       volumes:
         - name: ads

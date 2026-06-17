@@ -1,0 +1,12 @@
+{{- if and .Values.metrics.enabled .Values.metrics.dashboard.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "xslt-playground.fullname" . }}-dashboard
+  labels:
+    {{- include "xslt-playground.labels" . | nindent 4 }}
+    {{ .Values.metrics.dashboard.label }}: {{ .Values.metrics.dashboard.labelValue | quote }}
+data:
+  xslt-playground.json: |-
+{{ .Files.Get "dashboards/xslt-playground.json" | indent 4 }}
+{{- end }}
