@@ -4,6 +4,7 @@ metadata:
   name: {{ include "xslt-playground.fullname" . }}-backend
   labels:
     {{- include "xslt-playground.labels" . | nindent 4 }}
+    component: backend
 spec:
   type: {{ .Values.service.backend.type }}
   ports:
