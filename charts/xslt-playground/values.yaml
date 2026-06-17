@@ -93,7 +93,11 @@ metrics:
     releaseLabel: kube-prom-stack
   dashboard:
     enabled: true
-    # Namespace label the Grafana dashboard sidecar watches by.
+    # Namespace the dashboard ConfigMap is created in. The kube-prometheus-stack
+    # Grafana dashboard sidecar only watches its own namespace (observability),
+    # so the ConfigMap must live there to be auto-loaded. Empty = release namespace.
+    namespace: observability
+    # Label the Grafana dashboard sidecar selects ConfigMaps by.
     label: grafana_dashboard
     labelValue: "1"
 

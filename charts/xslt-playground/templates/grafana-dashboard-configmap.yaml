@@ -3,6 +3,9 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ include "xslt-playground.fullname" . }}-dashboard
+{{- if .Values.metrics.dashboard.namespace }}
+  namespace: {{ .Values.metrics.dashboard.namespace }}
+{{- end }}
   labels:
     {{- include "xslt-playground.labels" . | nindent 4 }}
     {{ .Values.metrics.dashboard.label }}: {{ .Values.metrics.dashboard.labelValue | quote }}
