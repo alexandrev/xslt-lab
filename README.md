@@ -1,6 +1,30 @@
-# xslt-lab
+# XSLT Playground — free online XSLT 1.0/2.0/3.0 tester & editor (Saxon HE)
 
-Your Lab for XSLT Transformation.
+**Live tool: [xsltplayground.com](https://xsltplayground.com)** · Blog: [blog.xsltplayground.com](https://blog.xsltplayground.com)
+
+XSLT Playground is a **free online XSLT editor, tester and validator** that runs XSLT
+1.0, 2.0 and **3.0** on a real **Saxon HE 12.5** backend — the same processor used in
+production integration pipelines. No install, no signup. Unlike browser-only
+(Saxon-JS) tools, it executes server-side Saxon HE, so results match production
+behaviour, including full XSLT 3.0: maps, arrays, `xsl:merge`, higher-order
+functions, streaming and JSON output.
+
+**What makes it useful for real-world XSLT work:**
+
+- ✅ XSLT **1.0, 2.0 and 3.0** via Saxon HE 12.5 (real server-side processor)
+- ✅ **Multiple XML inputs** passed as named parameters — like a production pipeline
+- ✅ **Execution trace** to debug stylesheets step by step
+- ✅ **Validation** with exact line-number error messages from Saxon
+- ✅ Up to 3 independent **workspaces**, export/import as JSON to share setups
+- ✅ Custom Saxon extension functions (`tib:uuid()`, `tib:timestamp()`, …)
+
+Built for integration engineers working with enterprise middleware (SAP, MuleSoft,
+Tibco, IBM), XML data engineers, and anyone who needs to write or debug XSLT without
+a heavy desktop IDE.
+
+This repository hosts the source: a React/Vite frontend and a Go backend that
+orchestrates Java/Saxon. Suggested GitHub topics: `xslt`, `xslt-3-0`, `saxon`,
+`xml`, `online-tool`, `xslt-editor`, `xslt-tester`.
 
 <a href="https://tinylaunch.com" target="_blank" rel="noopener">
     <img src="https://tinylaunch.com/tinylaunch_badge_launching_soon.svg" alt="TinyLaunch Badge" style="width:202px; height:auto;" />

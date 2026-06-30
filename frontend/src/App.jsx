@@ -571,7 +571,7 @@ export default function App() {
     if (
       adVisibleRef.current &&
       document.visibilityState === "visible" &&
-      now - lastAdRefreshRef.current >= 45_000 &&
+      now - lastAdRefreshRef.current >= 60_000 &&
       window.ethicalads
     ) {
       window.ethicalads.reload();
