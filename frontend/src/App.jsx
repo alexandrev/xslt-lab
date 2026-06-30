@@ -552,6 +552,7 @@ export default function App() {
   const [traceNameWidth, setTraceNameWidth] = useState(240);
   const [traceScrollLeft, setTraceScrollLeft] = useState(0);
   const [paramsCollapsed, setParamsCollapsed] = useState(false);
+  const [namedParamsOpen, setNamedParamsOpen] = useState(false);
   const [errorCollapsed, setErrorCollapsed] = useState(false);
   const [ethicalAdsReady, setEthicalAdsReady] = useState(false);
   const [transformCount, setTransformCount] = useState(0);
@@ -779,6 +780,8 @@ export default function App() {
   }, []);
 
   const activeTab = tabs.find((t) => t.id === active) || tabs[0];
+  const primaryInput = activeTab.params[0];
+  const namedParamCount = Math.max(activeTab.params.length - 1, 0);
   const activeStatus = activeTab
     ? (workspaceStatus[activeTab.id] || defaultWorkspaceStatus())
     : defaultWorkspaceStatus();
@@ -1180,20 +1183,22 @@ export default function App() {
     setTabs((tabs) =>
       tabs.map((t) => {
         if (t.id !== active) return t;
-        let params = [...t.params];
-        let changed = false;
+        // Keep the primary Input XML (index 0) untouched; only sync named parameters.
+        const primary = t.params[0] || { name: "input", value: "", open: true };
+        let named = t.params.slice(1);
+        let changed = t.params.length === 0;
         names.forEach((n) => {
-          if (!params.some((p) => p.name === n)) {
-            params.push({ name: n, value: "", open: false });
+          if (!named.some((p) => p.name === n)) {
+            named.push({ name: n, value: "", open: true });
             changed = true;
           }
         });
-        const filtered = params.filter((p) => names.includes(p.name) || p.value);
-        if (filtered.length !== params.length) {
-          params = filtered;
+        const filtered = named.filter((p) => names.includes(p.name) || p.value);
+        if (filtered.length !== named.length) {
+          named = filtered;
           changed = true;
         }
-        return changed ? { ...t, params } : t;
+        return changed ? { ...t, params: [primary, ...named] } : t;
       }),
     );
   }, [active, activeTab.xslt]);
@@ -1256,7 +1261,7 @@ export default function App() {
           if (t.id !== targetId) return t;
           const cleared = {
             ...defaultTab({ id: t.id, name: t.name }),
-            params: [],
+            params: [{ name: "input", value: "", open: true }],
           };
           return cleared;
         }),
@@ -1394,14 +1399,18 @@ export default function App() {
   };
 
   const addParam = () => {
+    setNamedParamsOpen(true);
     setTabs((tabs) =>
       tabs.map((t) =>
-        t.id === active ? { ...t, params: [...t.params, { name: "", value: "", open: false }] } : t,
+        t.id === active
+          ? { ...t, params: [...t.params, { name: `param${t.params.length}`, value: "", open: true }] }
+          : t,
       ),
     );
   };
 
   const removeParam = (index) => {
+    if (index === 0) return; // index 0 is the primary Input XML; never removed
     setTabs((tabs) =>
       tabs.map((t) =>
         t.id === active ? { ...t, params: t.params.filter((_, i) => i !== index) } : t,
@@ -1734,14 +1743,55 @@ export default function App() {
               <DataPipelineHeader
                 collapsed={paramsCollapsed}
                 onToggleCollapsed={() => setParamsCollapsed((v) => !v)}
-                onAddParam={addParam}
               />
               <div
                 className="params-body"
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={handleDropNewParam}
               >
-                {activeTab.params.map((p, i) => (
+                {primaryInput && (
+                  <div className="primary-input">
+                    <div className="primary-input-label">Input XML</div>
+                    <div
+                      className="param-editor primary-editor"
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.stopPropagation();
+                        handleDrop(e, (t) => updateParam(0, "value", t));
+                      }}
+                    >
+                      <Editor
+                        height="220px"
+                        language="xml"
+                        theme={editorTheme}
+                        value={primaryInput.value}
+                        onChange={(v) => updateParam(0, "value", v || "")}
+                        options={{
+                          minimap: { enabled: false },
+                          automaticLayout: true,
+                          lineNumbers: "off",
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+                <div className="named-params">
+                  <button
+                    type="button"
+                    className="named-params-toggle"
+                    onClick={() => setNamedParamsOpen((o) => !o)}
+                    aria-expanded={namedParamsOpen}
+                  >
+                    <Icon name={namedParamsOpen ? "chevron-down" : "chevron-right"} />
+                    <span>
+                      Named parameters{namedParamCount ? ` (${namedParamCount})` : ""}
+                    </span>
+                  </button>
+                  {namedParamsOpen && (
+                    <div className="named-params-body">
+                {activeTab.params.slice(1).map((p, j) => {
+                  const i = j + 1;
+                  return (
                   <div key={i} className={`param-card${p.open ? " open" : ""}`}>
                     <div className="param-header-row">
                       <div className="param-name-wrap">
@@ -1820,33 +1870,46 @@ export default function App() {
                       </div>
                     )}
                   </div>
-                ))}
-                <label className="drop-hint" title="Click to upload XML files">
-                  Drop your input XML files here..
-                  <input
-                    type="file"
-                    accept=".xml"
-                    multiple
-                    style={{ display: "none" }}
-                    onChange={(e) => {
-                      Array.from(e.target.files || []).forEach((file) => {
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                          const name = file.name.replace(/\.[^.]+$/, "");
-                          setTabs((tabs) =>
-                            tabs.map((t) =>
-                              t.id === active
-                                ? { ...t, params: [...t.params, { name, value: reader.result, open: false }] }
-                                : t,
-                            ),
-                          );
-                        };
-                        reader.readAsText(file);
-                      });
-                      e.target.value = "";
-                    }}
-                  />
-                </label>
+                  );
+                })}
+                      <button
+                        type="button"
+                        className="add-named-param"
+                        onClick={addParam}
+                      >
+                        <Icon name="plus" />
+                        <span>Add named parameter</span>
+                      </button>
+                      <label className="drop-hint" title="Click to upload XML files">
+                        Drop XML files as named parameters..
+                        <input
+                          type="file"
+                          accept=".xml"
+                          multiple
+                          style={{ display: "none" }}
+                          onChange={(e) => {
+                            setNamedParamsOpen(true);
+                            Array.from(e.target.files || []).forEach((file) => {
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                const name = file.name.replace(/\.[^.]+$/, "");
+                                setTabs((tabs) =>
+                                  tabs.map((t) =>
+                                    t.id === active
+                                      ? { ...t, params: [...t.params, { name, value: reader.result, open: true }] }
+                                      : t,
+                                  ),
+                                );
+                              };
+                              reader.readAsText(file);
+                            });
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             {ethicalAdsEnabled && ethicalAdsReady && (

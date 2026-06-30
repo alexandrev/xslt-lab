@@ -614,6 +614,102 @@ a:focus-visible {
   background: #ffffff;
 }
 
+/* Primary Input XML — first-class, always visible, no name required */
+.primary-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.primary-input-label {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #21426c;
+}
+
+.primary-editor {
+  box-shadow: 0 8px 22px rgba(15, 40, 94, 0.08);
+}
+
+/* Named parameters — secondary, collapsible advanced section */
+.named-params {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-top: 1px solid #e3e8f7;
+  padding-top: 0.6rem;
+}
+
+.named-params-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #51618a;
+  padding: 0.15rem 0;
+}
+
+.named-params-toggle:hover {
+  color: #21426c;
+}
+
+.named-params-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.add-named-param {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 1px dashed #c4d4ff;
+  border-radius: 12px;
+  background: #f7f9ff;
+  color: #3a5a92;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.45rem;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.add-named-param:hover {
+  background: #eef3ff;
+  border-color: #9bb8ff;
+}
+
+:root[data-theme="dark"] .primary-input-label {
+  color: #cdd9f5;
+}
+
+:root[data-theme="dark"] .named-params {
+  border-top-color: #2a3347;
+}
+
+:root[data-theme="dark"] .named-params-toggle {
+  color: #9fb0d6;
+}
+
+:root[data-theme="dark"] .named-params-toggle:hover {
+  color: #e6ecfb;
+}
+
+:root[data-theme="dark"] .add-named-param {
+  background: #1b2233;
+  border-color: #34406b;
+  color: #aebfe6;
+}
+
+:root[data-theme="dark"] .add-named-param:hover {
+  background: #222b40;
+}
+
 .param-footer {
   display: flex;
   align-items: center;
