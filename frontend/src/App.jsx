@@ -1188,12 +1188,19 @@ export default function App() {
         let named = t.params.slice(1);
         let changed = t.params.length === 0;
         names.forEach((n) => {
+          // The primary Input XML is already injected under its own name; never
+          // re-add it as a named parameter or it gets declared twice.
+          if (n === primary.name) return;
           if (!named.some((p) => p.name === n)) {
             named.push({ name: n, value: "", open: true });
             changed = true;
           }
         });
-        const filtered = named.filter((p) => names.includes(p.name) || p.value);
+        // Drop any named param that collides with the primary (self-heals state
+        // persisted by an earlier buggy build) or is no longer referenced.
+        const filtered = named.filter(
+          (p) => p.name !== primary.name && (names.includes(p.name) || p.value),
+        );
         if (filtered.length !== named.length) {
           named = filtered;
           changed = true;
