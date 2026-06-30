@@ -58,6 +58,18 @@ type Transformation struct {
 	CreatedAt  time.Time      `json:"created_at"`
 }
 
+// decodeSourceXML returns the source document as valid XML. HTML-encoded XML
+// (e.g. submitted from a form field, starting with "&lt;") is unescaped; XML
+// that is already well-formed is left untouched — calling html.UnescapeString
+// on it would turn "&amp;" into a bare "&" and break parsing.
+func decodeSourceXML(val string) string {
+	trimmed := strings.TrimSpace(val)
+	if strings.HasPrefix(trimmed, "&lt;") {
+		return html.UnescapeString(trimmed)
+	}
+	return trimmed
+}
+
 func pickSourceXML(params map[string]string) (string, string) {
 	looksLikeXML := func(s string) bool {
 		trimmed := strings.TrimSpace(s)
@@ -67,12 +79,12 @@ func pickSourceXML(params map[string]string) (string, string) {
 	preferred := []string{"input", "source", "xml", "document", "input1"}
 	for _, key := range preferred {
 		if val, ok := params[key]; ok && looksLikeXML(val) {
-			return html.UnescapeString(strings.TrimSpace(val)), key
+			return decodeSourceXML(val), key
 		}
 	}
 	for key, val := range params {
 		if looksLikeXML(val) {
-			return html.UnescapeString(strings.TrimSpace(val)), key
+			return decodeSourceXML(val), key
 		}
 	}
 	return "", ""
