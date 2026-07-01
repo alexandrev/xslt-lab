@@ -522,6 +522,15 @@ export default function App() {
   });
 
   const [shareCopied, setShareCopied] = useState(false);
+  const [resultCopied, setResultCopied] = useState(false);
+  const copyResult = () => {
+    if (!result) return;
+    try {
+      navigator.clipboard?.writeText(result);
+      setResultCopied(true);
+      setTimeout(() => setResultCopied(false), 2000);
+    } catch {}
+  };
   const [user, setUser] = useState(null);
   const [auth, setAuth] = useState(null);
   const [theme, setTheme] = useState(() => {
@@ -2376,6 +2385,16 @@ export default function App() {
               </div>
             ) : null}
             <div className="result-actions">
+              <button
+                type="button"
+                className={`icon-button result-copy-button${resultCopied ? " copied" : ""}`}
+                disabled={!result}
+                onClick={copyResult}
+                title={resultCopied ? "Copied!" : "Copy result"}
+                aria-label="Copy result"
+              >
+                <Icon name={resultCopied ? "check" : "copy"} />
+              </button>
               {canRenderHtml && (
                 <button
                   type="button"
@@ -2462,6 +2481,10 @@ export default function App() {
                       sandbox=""
                       loading="lazy"
                     />
+                  </div>
+                ) : !isRunning && !result ? (
+                  <div className="result-empty" role="status">
+                    <span>Run a transform — the output appears here.</span>
                   </div>
                 ) : (
                   <Editor

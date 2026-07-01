@@ -1152,6 +1152,28 @@ a:focus-visible {
   min-width: 0;
 }
 
+/* Empty state — shown instead of a blank read-only editor before a transform runs */
+.result-empty {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+  color: #8a97b3;
+  font-size: 0.95rem;
+  user-select: none;
+}
+
+.result-copy-button.copied {
+  color: #1f9d55;
+}
+
+:root[data-theme="dark"] .result-empty {
+  color: #6b7796;
+}
+
 .icon-button {
   background: transparent;
   border: 1px solid transparent;

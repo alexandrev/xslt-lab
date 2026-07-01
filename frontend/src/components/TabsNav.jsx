@@ -100,8 +100,9 @@ export default function TabsNav({
               <button
                 type="button"
                 className="tab-button"
-                onClick={() => onSelect?.(tab.id)}
-                title={label}
+                onClick={() => (isActive ? startEditing(tab) : onSelect?.(tab.id))}
+                onDoubleClick={() => startEditing(tab)}
+                title={isActive ? "Click to rename" : label}
               >
                 {label}
               </button>
