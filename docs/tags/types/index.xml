@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Types on XSLT Playground</title><link>https://blog.xsltplayground.com/tags/types/</link><description>Recent content in Types on XSLT Playground</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Thu, 02 Jul 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://blog.xsltplayground.com/tags/types/index.xml" rel="self" type="application/rss+xml"/><item><title>FORG0001</title><link>https://blog.xsltplayground.com/xslt/errors/forg0001/</link><pubDate>Thu, 02 Jul 2026 00:00:00 +0000</pubDate><guid>https://blog.xsltplayground.com/xslt/errors/forg0001/</guid><description>&lt;h2 id="what-it-means"&gt;What it means&lt;/h2&gt;
+&lt;p&gt;A constructor like &lt;code&gt;xs:integer(...)&lt;/code&gt;, &lt;code&gt;xs:date(...)&lt;/code&gt; or an implicit cast received a lexical value that is not valid for the target type: &lt;code&gt;xs:integer('abc')&lt;/code&gt;, &lt;code&gt;xs:date('2026-13-45')&lt;/code&gt;, or an empty string.&lt;/p&gt;
+&lt;h2 id="common-causes"&gt;Common causes&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Dirty or empty data&lt;/strong&gt; — casting &lt;code&gt;@qty&lt;/code&gt; when some elements have &lt;code&gt;qty=&amp;quot;&amp;quot;&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Format mismatch&lt;/strong&gt; — &lt;code&gt;xs:date('02/07/2026')&lt;/code&gt;: XSD dates must be &lt;code&gt;2026-07-02&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Locale-style numbers&lt;/strong&gt; — &lt;code&gt;xs:decimal('1.234,56')&lt;/code&gt; fails; XSD uses &lt;code&gt;.&lt;/code&gt; as decimal separator only.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="how-to-fix-it"&gt;How to fix it&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Guard the cast:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-xml" data-lang="xml"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;&amp;lt;xsl:value-of&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;select=&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;if (@qty castable as xs:integer)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#e6db74"&gt; then xs:integer(@qty) else 0&amp;#34;&lt;/span&gt;&lt;span style="color:#f92672"&gt;/&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;Or use &lt;code&gt;number()&lt;/code&gt; when NaN is acceptable: &lt;code&gt;number('abc')&lt;/code&gt; returns &lt;code&gt;NaN&lt;/code&gt; instead of raising an error — handy for optional numeric fields.&lt;/li&gt;
+&lt;li&gt;Normalize the lexical form first (&lt;code&gt;translate()&lt;/code&gt;, &lt;code&gt;replace()&lt;/code&gt;, &lt;a href="https://blog.xsltplayground.com/xslt/functions/"&gt;format-date patterns&lt;/a&gt;) before casting dates and decimals.&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>
