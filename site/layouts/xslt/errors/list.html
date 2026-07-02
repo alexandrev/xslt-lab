@@ -1,0 +1,30 @@
+{{ define "title" }}XSLT &amp; Saxon Error Reference — common errors explained with fixes | {{ .Site.Title }}{{ end }}
+{{ define "main" }}
+<div class="page-header">
+  <h1>XSLT &amp; Saxon Error Reference</h1>
+  <p class="lead">The most common XSLT and Saxon error codes and parser messages, explained in plain English: what each error means, what typically causes it, and how to fix it — with before/after examples you can verify in the <a href="https://xsltplayground.com/">online XSLT editor</a>.</p>
+</div>
+
+<div class="content ref-intro">
+  <p>Saxon error codes follow the W3C convention: <strong>XPST</strong> (XPath static), <strong>XPDY</strong> (XPath dynamic), <strong>XPTY</strong> (XPath type), <strong>XTSE</strong> (XSLT static), <strong>XTDE</strong> (XSLT dynamic), <strong>FO*</strong> (function library). Parser messages such as <em>"Content is not allowed in prolog"</em> come from the underlying XML parser and mean the input is not well-formed XML. Also see the <a href="/xslt/functions/">XSLT &amp; XPath function reference</a>.</p>
+</div>
+
+{{ $cats := slice }}
+{{ range .Pages }}{{ with .Params.category }}{{ $cats = $cats | append . }}{{ end }}{{ end }}
+{{ $cats = uniq $cats | sort }}
+
+{{ range $cat := $cats }}
+<section class="ref-section" id="{{ $cat | urlize }}">
+  <h2>{{ strings.FirstUpper $cat }}s</h2>
+  <ul class="ref-index-list">
+    {{ range where $.Pages "Params.category" $cat }}
+    <li>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      {{ with .Params.versionLabel }}<span class="ref-badge ref-badge--sm">{{ . }}</span>{{ end }}
+      <span class="muted">{{ .Description | truncate 90 }}</span>
+    </li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}
+{{ end }}

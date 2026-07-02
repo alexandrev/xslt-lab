@@ -15,12 +15,12 @@
   <strong>Jump to:</strong>
   <a href="#xslt-elements">XSLT Elements ({{ len $elements }})</a>
   {{ range $cats }}
-  <a href="#{{ . | urlize }}">{{ humanize . }}s ({{ len (where $functions "Params.category" .) }})</a>
+  <a href="#{{ . | urlize }}">{{ strings.FirstUpper . }}s ({{ len (where $functions "Params.category" .) }})</a>
   {{ end }}
 </nav>
 
 <div class="content ref-intro">
-  <p>Looking for how a specific XSLT instruction or XPath function works? This reference covers the <strong>string, numeric, boolean, date, node, sequence, map, array, JSON and higher-order functions</strong> available in each XSLT version, plus every <strong>XSLT element</strong> from <code>xsl:template</code> to <code>xsl:accumulator</code>. Entries marked <em>XSLT 2.0</em> or <em>XSLT 3.0</em> require a processor such as Saxon — exactly what <a href="https://xsltplayground.com/">XSLT Playground</a> runs, so you can verify behaviour before shipping.</p>
+  <p>Looking for how a specific XSLT instruction or XPath function works? This reference covers the <strong>string, numeric, boolean, date, node, sequence, map, array, JSON and higher-order functions</strong> available in each XSLT version, plus every <strong>XSLT element</strong> from <code>xsl:template</code> to <code>xsl:accumulator</code>. Entries marked <em>XSLT 2.0</em> or <em>XSLT 3.0</em> require a processor such as Saxon — exactly what <a href="https://xsltplayground.com/">XSLT Playground</a> runs, so you can verify behaviour before shipping. Hitting an error code instead? See the <a href="/xslt/errors/">XSLT &amp; Saxon error reference</a>.</p>
 </div>
 
 {{ if $elements }}
@@ -40,7 +40,7 @@
 
 {{ range $cat := $cats }}
 <section class="ref-section" id="{{ $cat | urlize }}">
-  <h2>{{ humanize $cat }}s</h2>
+  <h2>{{ strings.FirstUpper $cat }}s</h2>
   <ul class="ref-index-list">
     {{ range where $functions "Params.category" $cat }}
     <li>
