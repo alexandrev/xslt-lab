@@ -1,9 +1,15 @@
+{{ define "title" }}{{ .Title }} — {{ if eq .Params.category "element" }}XSLT element{{ else }}XPath function{{ end }}: syntax &amp; examples | {{ .Site.Title }}{{ end }}
 {{ define "main" }}
 <article class="post ref-page">
   <p class="eyebrow">XSLT Reference</p>
   <h1>{{ .Title }}</h1>
   <div class="ref-meta">
-    {{ with .Params.versionLabel }}<span class="ref-badge">{{ . }}</span>{{ end }}
+    {{ with .Params.versionLabel }}
+    {{ $verUrl := "https://xsltplayground.com/" }}
+    {{ if eq . "XSLT 2.0" }}{{ $verUrl = "https://xsltplayground.com/xslt-2-0/" }}{{ end }}
+    {{ if eq . "XSLT 3.0" }}{{ $verUrl = "https://xsltplayground.com/xslt-3-0/" }}{{ end }}
+    <a class="ref-badge" href="{{ $verUrl }}" title="Test {{ . }} online">{{ . }}</a>
+    {{ end }}
     {{ with .Params.category }}<span class="ref-badge ref-badge--cat">{{ . }}</span>{{ end }}
   </div>
   {{ with .Description }}<p class="lead">{{ . }}</p>{{ end }}
