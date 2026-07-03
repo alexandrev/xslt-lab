@@ -4,12 +4,14 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"html"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -88,6 +90,91 @@ func pickSourceXML(params map[string]string) (string, string) {
 		}
 	}
 	return "", ""
+}
+
+// --- Structured error logging -------------------------------------------
+// Every failed transformation emits one JSON line ("event":"transform_error")
+// to stdout. Promtail ships it to Loki, so failures can be reviewed in
+// Grafana and reproduced with one click via repro_url (same base64url share
+// format the frontend already parses: ?xslt=…&xml=…&version=…).
+
+var saxonErrorCodeRe = regexp.MustCompile(`\b[A-Z]{4}[0-9]{4}\b`)
+
+const (
+	errLogFieldMax     = 48_000 // per-field cap before base64 (Loki line limit safety)
+	errLogReproURLMax  = 30_000 // xslt+source above this → URL too long to be useful
+	errLogMessageMax   = 4_000
+	errLogPublicOrigin = "https://xsltplayground.com"
+)
+
+func truncateForLog(s string, max int) string {
+	if len(s) <= max {
+		return s
+	}
+	return s[:max]
+}
+
+func b64url(s string) string {
+	return base64.RawURLEncoding.EncodeToString([]byte(s))
+}
+
+// classifyTransformError buckets an error so review can focus on likely bugs:
+// input_xml (user data not well-formed), stylesheet (user XSLT invalid) or
+// other. Backend-side failures are logged with class "backend" explicitly.
+func classifyTransformError(msg string) (code, class string) {
+	code = saxonErrorCodeRe.FindString(msg)
+	lower := strings.ToLower(msg)
+	switch {
+	case strings.Contains(msg, "SAXParseException") ||
+		strings.Contains(lower, "not allowed in prolog") ||
+		strings.Contains(lower, "entity name must immediately follow") ||
+		strings.Contains(lower, "following the root element") ||
+		code == "SXXP0003":
+		class = "input_xml"
+		if code == "" {
+			code = "PARSE"
+		}
+	case code != "":
+		class = "stylesheet"
+	default:
+		class = "other"
+		code = "OTHER"
+	}
+	return code, class
+}
+
+func logTransformError(classOverride, version, errMsg string, req TransformRequest, sourceXML, sourceKey string) {
+	code, class := classifyTransformError(errMsg)
+	if classOverride != "" {
+		class = classOverride
+	}
+	entry := map[string]interface{}{
+		"event":      "transform_error",
+		"class":      class,
+		"error_code": code,
+		"version":    version,
+		"error":      truncateForLog(errMsg, errLogMessageMax),
+		"source_key": sourceKey,
+		"trace":      req.Trace,
+		"xslt_b64":   b64url(truncateForLog(req.XSLT, errLogFieldMax)),
+	}
+	if paramsJSON, err := json.Marshal(req.Parameters); err == nil {
+		entry["params_b64"] = b64url(truncateForLog(string(paramsJSON), errLogFieldMax))
+	}
+	if len(req.XSLT)+len(sourceXML) <= errLogReproURLMax {
+		u := errLogPublicOrigin + "/?version=" + version +
+			"&title=" + b64url("Error repro "+code) +
+			"&xslt=" + b64url(req.XSLT)
+		if sourceXML != "" {
+			u += "&xml=" + b64url(sourceXML)
+		}
+		entry["repro_url"] = u
+	}
+	// Write the raw JSON line (no log.Println timestamp prefix) so Loki's
+	// `| json` parser can consume it directly.
+	if line, err := json.Marshal(entry); err == nil {
+		os.Stdout.Write(append(line, '\n'))
+	}
 }
 
 func loadConfig(filename string) (*AppConfig, error) {
@@ -269,6 +356,7 @@ func main() {
 		if err != nil {
 			transformationsTotal.WithLabelValues(version, "unavailable").Inc()
 			log.Printf("daemon call failed: %v", err)
+			logTransformError("backend", version, "daemon unavailable: "+err.Error(), req, sourceXML, sourceKey)
 			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "transform service unavailable"})
 			return
 		}
@@ -277,6 +365,7 @@ func main() {
 		respBody, err := io.ReadAll(resp.Body)
 		if err != nil {
 			transformationsTotal.WithLabelValues(version, "error").Inc()
+			logTransformError("backend", version, "cannot read daemon response: "+err.Error(), req, sourceXML, sourceKey)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot read daemon response"})
 			return
 		}
@@ -292,6 +381,7 @@ func main() {
 		}
 		if err := json.Unmarshal(respBody, &daemonResp); err != nil {
 			transformationsTotal.WithLabelValues(version, "error").Inc()
+			logTransformError("backend", version, "cannot parse daemon response: "+truncateForLog(string(respBody), 500), req, sourceXML, sourceKey)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot parse daemon response"})
 			return
 		}
@@ -299,6 +389,7 @@ func main() {
 		if daemonResp.Error != "" {
 			transformationsTotal.WithLabelValues(version, "error").Inc()
 			log.Printf("transform error after %dms: %s", duration, daemonResp.Error)
+			logTransformError("", version, daemonResp.Error, req, sourceXML, sourceKey)
 			c.JSON(http.StatusBadRequest, gin.H{"error": daemonResp.Error})
 			return
 		}

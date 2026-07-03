@@ -1,0 +1,78 @@
+{
+  "title": "XSLT Playground — Errors",
+  "uid": "xslt-errors",
+  "tags": ["xslt-playground", "errors"],
+  "timezone": "browser",
+  "schemaVersion": 37,
+  "refresh": "1m",
+  "time": { "from": "now-24h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "loki",
+        "label": "Loki",
+        "type": "datasource",
+        "query": "loki",
+        "current": {},
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Transform errors by code",
+      "datasource": { "type": "loki", "uid": "${loki}" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (error_code) (count_over_time({namespace=\"xslt-lab\"} |= `\"event\":\"transform_error\"` | json | __error__=`` [$__interval]))",
+          "legendFormat": "{{error_code}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 60 } },
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Transform errors by class (backend = likely bug)",
+      "datasource": { "type": "loki", "uid": "${loki}" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (class) (count_over_time({namespace=\"xslt-lab\"} |= `\"event\":\"transform_error\"` | json | __error__=`` [$__interval]))",
+          "legendFormat": "{{class}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 60 } },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "type": "logs",
+      "title": "Recent errors — expand a line for xslt_b64/params_b64 and copy repro_url to reproduce",
+      "datasource": { "type": "loki", "uid": "${loki}" },
+      "gridPos": { "h": 14, "w": 24, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{namespace=\"xslt-lab\"} |= `\"event\":\"transform_error\"` | json | __error__=`` | line_format `[{{.class}} | {{.error_code}} | v{{.version}}] {{.error}}{{if .repro_url}}  ⇒ {{.repro_url}}{{end}}`"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    }
+  ]
+}

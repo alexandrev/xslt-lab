@@ -12,4 +12,6 @@ metadata:
 data:
   xslt-playground.json: |-
 {{ .Files.Get "dashboards/xslt-playground.json" | indent 4 }}
+  xslt-errors.json: |-
+{{ .Files.Get "dashboards/xslt-errors.json" | indent 4 }}
 {{- end }}
