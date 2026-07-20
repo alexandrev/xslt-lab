@@ -184,6 +184,28 @@
       .shell-bar {
         min-height: 48px;
       }
+      /* Skeleton panes carrying the real sample code. A CSS gradient is not an
+         LCP candidate but text is, so filling these makes the largest element on
+         the page paint at FCP instead of after React mounts. border-box keeps
+         them at exactly the same 160px as the empty shimmer panes, so adding the
+         content costs no extra layout shift. */
+      .shell-pane--code {
+        box-sizing: border-box;
+        animation: none;
+        background: #fbfdff;
+        border: 1px solid #e3ebf7;
+        padding: 0.55rem 0.7rem;
+        overflow: hidden;
+      }
+      .shell-code {
+        margin: 0;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 13px;
+        line-height: 1.45;
+        color: #4a5b7d;
+        white-space: pre;
+        overflow: hidden;
+      }
       @keyframes shell-shimmer {
         0% { background-position: 200% 0; }
         100% { background-position: -200% 0; }
@@ -274,8 +296,28 @@
           </div>
         </div>
         <div class="shell-grid">
-          <div class="shell-pane"></div>
-          <div class="shell-pane"></div>
+          <div class="shell-pane shell-pane--code">
+            <pre class="shell-code" aria-hidden="true">&lt;xsl:stylesheet version="1.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;
+  &lt;xsl:output method="xml" indent="yes"/&gt;
+
+  &lt;xsl:template match="/"&gt;
+    &lt;catalog total="{count(//book)}"&gt;
+      &lt;xsl:apply-templates select="//book[@lang='en']"/&gt;
+    &lt;/catalog&gt;
+  &lt;/xsl:template&gt;</pre>
+          </div>
+          <div class="shell-pane shell-pane--code">
+            <pre class="shell-code" aria-hidden="true">&lt;books&gt;
+  &lt;book lang="en"&gt;
+    &lt;title&gt;XSLT 2.0 and XPath 2.0&lt;/title&gt;
+    &lt;author&gt;Michael Kay&lt;/author&gt;
+    &lt;year&gt;2008&lt;/year&gt;
+  &lt;/book&gt;
+  &lt;book lang="es"&gt;
+    &lt;title&gt;Aprende XML con XSLT&lt;/title&gt;
+  &lt;/book&gt;</pre>
+          </div>
         </div>
         <div class="shell-bar"></div>
       </div>
