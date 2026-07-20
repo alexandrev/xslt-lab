@@ -206,3 +206,6 @@ credentials.json
 # Allow frontend source utilities
 !frontend/src/lib/
 !frontend/src/lib/**
+
+# Go build artifact (local)
+backend/src/xslt-playground

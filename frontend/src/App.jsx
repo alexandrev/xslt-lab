@@ -63,15 +63,20 @@ const WELCOME_EXAMPLE = {
   ],
 };
 
+// Saxon output for WELCOME_EXAMPLE. Seeded into the result pane on first visit so
+// the largest element on the page paints immediately instead of waiting for the
+// debounce + /transform round-trip (this element is the LCP candidate). The real
+// transform still runs and overwrites this a moment later.
+const WELCOME_EXAMPLE_RESULT = `<?xml version="1.0" encoding="UTF-8"?><catalog total="3">
+    <item>XSLT 2.0 and XPath 2.0 — Michael Kay (2008)</item>
+    <item>XML in a Nutshell — Harold &amp; Means (2004)</item>
+</catalog>
+`;
+
 import CodeMirror, { EditorView } from "@uiw/react-codemirror";
 import { xml, completeFromSchema } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { linter, lintGutter } from "@codemirror/lint";
-import { autocompletion } from "@codemirror/autocomplete";
-import { hoverTooltip } from "@codemirror/view";
 import { syntaxTree } from "@codemirror/language";
-import xmlFormatter from "xml-formatter";
-import { getCompletions, getXmlElements, getHoverTooltip } from "./lib/xsltCompletions";
 
 function xmlLinter(view) {
   const text = view.state.doc.toString().trim();
@@ -92,7 +97,59 @@ function xmlLinter(view) {
   return [{ from, to: Math.max(from + 1, to), severity: "error", message: clean }];
 }
 
-const xmlLintExtension = linter(xmlLinter, { delay: 500 });
+// Linting, autocompletion and hover docs are useless until the user starts typing,
+// but they pull in @codemirror/lint, @codemirror/autocomplete and the ~50KB
+// completions table. Loading them after the editor mounts keeps them off the
+// critical path; the editor reconfigures itself once they land.
+let editorExtras = null;
+let editorExtrasPromise = null;
+const editorExtrasListeners = new Set();
+
+function loadEditorExtras() {
+  if (editorExtras) return Promise.resolve(editorExtras);
+  if (editorExtrasPromise) return editorExtrasPromise;
+  editorExtrasPromise = Promise.all([
+    import("@codemirror/lint"),
+    import("@codemirror/autocomplete"),
+    import("@codemirror/view"),
+    import("./lib/xsltCompletions"),
+  ])
+    .then(([lintMod, acMod, viewMod, completionsMod]) => {
+      editorExtras = {
+        lintExtension: lintMod.linter(xmlLinter, { delay: 500 }),
+        lintGutter: lintMod.lintGutter,
+        autocompletion: acMod.autocompletion,
+        hoverTooltip: viewMod.hoverTooltip,
+        getCompletions: completionsMod.getCompletions,
+        getXmlElements: completionsMod.getXmlElements,
+        getHoverTooltip: completionsMod.getHoverTooltip,
+      };
+      editorExtrasListeners.forEach((notify) => notify());
+      return editorExtras;
+    })
+    .catch((err) => {
+      // Editing still works without them; don't take the editor down with it.
+      editorExtrasPromise = null;
+      console.error("Failed to load editor extras", err);
+      return null;
+    });
+  return editorExtrasPromise;
+}
+
+function useEditorExtras(enabled) {
+  const [extras, setExtras] = useState(editorExtras);
+  useEffect(() => {
+    if (!enabled || extras) return undefined;
+    const notify = () => setExtras(editorExtras);
+    editorExtrasListeners.add(notify);
+    const cancel = runWhenIdle(() => loadEditorExtras());
+    return () => {
+      editorExtrasListeners.delete(notify);
+      cancel();
+    };
+  }, [enabled, extras]);
+  return extras;
+}
 
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
 const UsageSurvey = lazy(() => import("./components/UsageSurvey"));
@@ -127,15 +184,18 @@ function Editor({
   xsltVersion,
 }) {
   const editable = !options.readOnly;
-  const xmlElements = xsltVersion ? getXmlElements(xsltVersion) : [];
+  const extras = useEditorExtras(editable);
+  const xmlElements =
+    extras && xsltVersion ? extras.getXmlElements(xsltVersion) : [];
   const extensions = [xml({ elements: xmlElements, autoCloseTags: editable })];
 
-  if (editable) {
-    extensions.push(xmlLintExtension, lintGutter());
+  if (editable && extras) {
+    const { autocompletion, hoverTooltip, lintGutter } = extras;
+    extensions.push(extras.lintExtension, lintGutter());
 
     if (xsltVersion) {
-      const completions = getCompletions(xsltVersion);
-      const hoverDesc   = getHoverTooltip(xsltVersion);
+      const completions = extras.getCompletions(xsltVersion);
+      const hoverDesc   = extras.getHoverTooltip(xsltVersion);
 
       // Custom source: xsl:* elements and XPath functions.
       // Skip when cursor is on an attribute name (let xmlCompletionSource handle it).
@@ -254,6 +314,7 @@ function defaultWorkspaceStatus() {
   return {
     result: "",
     duration: null,
+    serverMs: null,
     error: "",
     errorLines: [],
     isServerError: false,
@@ -513,10 +574,16 @@ export default function App() {
   const [workspaceStatus, setWorkspaceStatus] = useState(() => {
     const stored = readStoredWorkspaceStatus();
     const initialStatus = {};
-    initialTabs.forEach((tab) => {
+    initialTabs.forEach((tab, i) => {
       initialStatus[tab.id] = stored[tab.id]
         ? { ...defaultWorkspaceStatus(), ...stored[tab.id] }
         : defaultWorkspaceStatus();
+      // First visit shows WELCOME_EXAMPLE, whose output is known at build time.
+      // Seed it so the result pane renders on mount rather than ~2s later.
+      // duration/serverMs stay null — no timing is claimed until the real run lands.
+      if (isFirstVisit && i === 0 && !stored[tab.id]) {
+        initialStatus[tab.id].result = WELCOME_EXAMPLE_RESULT;
+      }
     });
     return initialStatus;
   });
@@ -797,6 +864,7 @@ export default function App() {
   const {
     result,
     duration,
+    serverMs,
     error,
     errorLines,
     isServerError,
@@ -1296,6 +1364,7 @@ export default function App() {
     p.forEach((pr) => {
       if (pr.name) paramObj[pr.name] = pr.value;
     });
+    const clientStart = performance.now();
     try {
       const res = await fetch(`${backendBase}/transform`, {
         method: "POST",
@@ -1338,6 +1407,9 @@ export default function App() {
         return;
       }
       const data = await res.json();
+      // Round-trip the user actually experiences (network + server), so the
+      // displayed time isn't just the server-side Saxon compute (data.duration_ms).
+      const roundTripMs = Math.round(performance.now() - clientStart);
       const defaultView = looksLikeHtml(data.result) ? "render" : "source";
       setTransformCount((prev) => prev + 1);
       if (userInteracted) setUserHasTransformed(true);
@@ -1346,7 +1418,8 @@ export default function App() {
       setXsltBeforeFormat(null);
       updateWorkspaceStatus(tabId, {
         result: data.result,
-        duration: data.duration_ms,
+        duration: roundTripMs,
+        serverMs: data.duration_ms,
         error: "",
         isRunning: false,
         errorLines: [],
@@ -1987,9 +2060,10 @@ export default function App() {
               className="icon-button"
               aria-label="Format XSLT"
               title="Format XSLT (2-space indent)"
-              onClick={() => {
+              onClick={async () => {
                 try {
-                  const formatted = xmlFormatter(
+                  const { default: formatXML } = await import("xml-formatter");
+                  const formatted = formatXML(
                     injectParamBlock(activeTab.xslt, activeTab.params),
                     { indentation: "  ", collapseContent: true },
                   );
@@ -2360,6 +2434,11 @@ export default function App() {
               <div className="success-area">
                 <div className="success-box" role="status" aria-live="polite">
                   Success in {duration} ms
+                  {serverMs != null && (
+                    <span className="success-server-time" title="Server-side Saxon compile + transform time (excludes network)">
+                      {" "}· Saxon {serverMs} ms
+                    </span>
+                  )}
                 </div>
                 {userHasTransformed && (
                   <button

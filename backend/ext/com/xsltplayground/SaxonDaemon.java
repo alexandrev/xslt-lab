@@ -3,6 +3,7 @@ package com.xsltplayground;
 import com.google.gson.*;
 import com.sun.net.httpserver.*;
 import com.xsltplayground.ext.CustomFunctions;
+import net.sf.saxon.lib.ErrorReporter;
 import net.sf.saxon.lib.FeatureKeys;
 import net.sf.saxon.s9api.*;
 
@@ -79,12 +80,15 @@ public class SaxonDaemon {
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             JsonObject response = new JsonObject();
             int status = 200;
+            // Declared before the try so the catch block can read them.
+            String source = "";
+            final List<String> compileErrors = new ArrayList<>();
 
             try {
                 JsonObject req = GSON.fromJson(body, JsonObject.class);
 
                 String xslt   = req.has("xslt")   ? req.get("xslt").getAsString()   : "";
-                String source = req.has("source")  ? req.get("source").getAsString() : "";
+                source = req.has("source")  ? req.get("source").getAsString() : "";
                 boolean trace = req.has("trace") && req.get("trace").getAsBoolean();
 
                 Map<String, String> params     = jsonObjectToMap(req, "parameters");
@@ -96,9 +100,27 @@ public class SaxonDaemon {
                 ByteArrayOutputStream traceBuf = new ByteArrayOutputStream();
                 PrintStream traceSink = new PrintStream(traceBuf, true, StandardCharsets.UTF_8);
 
+                // Collect detailed compile diagnostics (code + message + line) so the
+                // user sees the real error instead of Saxon's generic summary
+                // ("Errors were reported during stylesheet compilation").
+                final ErrorReporter collector = new ErrorReporter() {
+                    private final Set<String> seen = new LinkedHashSet<>();
+                    @Override public void report(XmlProcessingError error) {
+                        if (error == null || error.isWarning()) return;
+                        StringBuilder sb = new StringBuilder();
+                        QName code = error.getErrorCode();
+                        if (code != null) sb.append(code.getLocalName()).append(": ");
+                        String msg = error.getMessage();
+                        sb.append(msg != null ? msg : "static error");
+                        int line = (error.getLocation() != null) ? error.getLocation().getLineNumber() : -1;
+                        if (line > 0) sb.append(" (line ").append(line).append(")");
+                        String formatted = sb.toString();
+                        if (seen.add(formatted)) compileErrors.add(formatted);
+                    }
+                };
+
                 XsltCompiler compiler = proc.newXsltCompiler();
-                compiler.setErrorReporter(
-                    new Runner.DeduplicatingErrorReporter(compiler.getErrorReporter()));
+                compiler.setErrorReporter(new Runner.DeduplicatingErrorReporter(collector));
 
                 boolean instrumentationEnabled = false;
                 if (trace) {
@@ -111,9 +133,9 @@ public class SaxonDaemon {
                 } catch (SaxonApiException e) {
                     if (trace && instrumentationEnabled) {
                         // Retry without instrumentation
+                        compileErrors.clear();
                         compiler = proc.newXsltCompiler();
-                        compiler.setErrorReporter(
-                            new Runner.DeduplicatingErrorReporter(compiler.getErrorReporter()));
+                        compiler.setErrorReporter(new Runner.DeduplicatingErrorReporter(collector));
                         exec = compiler.compile(new StreamSource(new StringReader(xslt)));
                     } else {
                         throw e;
@@ -177,7 +199,22 @@ public class SaxonDaemon {
                 }
 
             } catch (SaxonApiException e) {
-                response.addProperty("error", e.getMessage() != null ? e.getMessage() : e.toString());
+                // Prefer the detailed diagnostics captured by the ErrorReporter over
+                // Saxon's generic top-level summary.
+                String detail = !compileErrors.isEmpty()
+                        ? String.join("\n", compileErrors)
+                        : (e.getMessage() != null ? e.getMessage() : e.toString());
+                // Friendly guidance for the common "forgot the input XML" case: with no
+                // source document Saxon invokes the default xsl:initial-template, which
+                // most stylesheets do not define.
+                if ((source == null || source.isEmpty()) && detail != null
+                        && detail.contains("initial-template")) {
+                    detail = "No input XML was provided, so Saxon tried to invoke the default "
+                            + "xsl:initial-template — which this stylesheet does not define. "
+                            + "Add an input XML document, or define "
+                            + "<xsl:template name=\"xsl:initial-template\"> as the entry point.";
+                }
+                response.addProperty("error", detail);
                 status = 400;
             } catch (Exception e) {
                 response.addProperty("error", e.toString());

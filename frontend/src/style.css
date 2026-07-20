@@ -364,6 +364,12 @@ a:focus-visible {
   padding: 0.5rem;
 }
 
+.success-server-time {
+  opacity: 0.65;
+  font-weight: 400;
+  font-size: 0.85em;
+}
+
 /* Share button — integrates into parent bar color (green success, red error) */
 .share-transform-btn {
   display: inline-flex;

@@ -136,6 +136,16 @@ func classifyTransformError(msg string) (code, class string) {
 		}
 	case code != "":
 		class = "stylesheet"
+	case strings.Contains(lower, "compilation") ||
+		strings.Contains(lower, "static error") ||
+		strings.Contains(lower, "is not bound") ||
+		strings.Contains(lower, "not a stylesheet") ||
+		strings.Contains(lower, "initial-template"):
+		// Stylesheet-authoring failures that Saxon reports without a code prefix.
+		class = "stylesheet"
+		if code == "" {
+			code = "COMPILE"
+		}
 	default:
 		class = "other"
 		code = "OTHER"
