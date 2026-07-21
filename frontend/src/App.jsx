@@ -73,10 +73,39 @@ const WELCOME_EXAMPLE_RESULT = `<?xml version="1.0" encoding="UTF-8"?><catalog t
 </catalog>
 `;
 
-import CodeMirror, { EditorView } from "@uiw/react-codemirror";
+// Hand-picked CodeMirror setup instead of @uiw/react-codemirror. Its default
+// basicSetup statically pulls @codemirror/autocomplete, /lint and /search into
+// the critical chunk (we already load lint+autocomplete on demand, so they were
+// shipping twice). Importing only the primitives below keeps ~31KB gzip of
+// editor code off the first paint. See useEditorExtras for the deferred half.
+import { EditorState, Compartment, Annotation } from "@codemirror/state";
+import {
+  EditorView,
+  lineNumbers,
+  highlightActiveLine,
+  drawSelection,
+  keymap,
+} from "@codemirror/view";
+import { history, historyKeymap, defaultKeymap, indentWithTab } from "@codemirror/commands";
+import {
+  syntaxHighlighting,
+  defaultHighlightStyle,
+  indentOnInput,
+  bracketMatching,
+  syntaxTree,
+} from "@codemirror/language";
 import { xml, completeFromSchema } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { syntaxTree } from "@codemirror/language";
+
+// Marks doc changes we pushed programmatically from the `value` prop, so the
+// updateListener doesn't echo them back through onChange (feedback loop).
+const ExternalChange = Annotation.define();
+
+// Fixed sizing/appearance applied to every instance.
+const cmSizeTheme = EditorView.theme({
+  "&": { height: "100%", fontSize: "13px" },
+  ".cm-scroller": { height: "100% !important" },
+});
 
 function xmlLinter(view) {
   const text = view.state.doc.toString().trim();
@@ -166,6 +195,68 @@ function runWhenIdle(callback, timeout = 2000) {
   return () => window.clearTimeout(id);
 }
 
+// Theme extension for a given app theme. oneDark carries its own highlight
+// style; light mode uses the default one.
+function cmThemeExt(theme) {
+  return theme === "vs-dark"
+    ? oneDark
+    : syntaxHighlighting(defaultHighlightStyle);
+}
+
+// Static, always-critical extensions derived from options. Kept in a compartment
+// so a rare options change reconfigures in place rather than recreating the view.
+function cmBaseExt(options, editable) {
+  const ext = [
+    xml({ autoCloseTags: editable }),
+    history(),
+    keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
+  ];
+  if (options.lineNumbers !== "off") ext.push(lineNumbers());
+  if (editable) {
+    ext.push(
+      drawSelection(),
+      highlightActiveLine(),
+      indentOnInput(),
+      bracketMatching(),
+    );
+  }
+  if (options.wordWrap) ext.push(EditorView.lineWrapping);
+  ext.push(EditorState.readOnly.of(!editable), EditorView.editable.of(editable));
+  return ext;
+}
+
+// The on-demand half: lint + autocomplete + hover docs. Empty until
+// useEditorExtras resolves; only meaningful for editable editors.
+function cmExtrasExt(extras, editable, xsltVersion) {
+  if (!editable || !extras) return [];
+  const { autocompletion, hoverTooltip, lintGutter } = extras;
+  const ext = [extras.lintExtension, lintGutter()];
+  if (xsltVersion) {
+    const completions = extras.getCompletions(xsltVersion);
+    const hoverDesc = extras.getHoverTooltip(xsltVersion);
+    const xmlElements = extras.getXmlElements(xsltVersion);
+    // xsl:* elements and XPath functions. Skip when the cursor sits on an
+    // attribute name, letting the schema source handle it.
+    const xsltSource = (ctx) => {
+      const node = syntaxTree(ctx.state).resolveInner(ctx.pos, -1);
+      if (node.name === "AttributeName") return null;
+      const word = ctx.matchBefore(/[\w:()-]+/);
+      if (!word && !ctx.explicit) return null;
+      return {
+        from: word ? word.from : ctx.pos,
+        options: completions,
+        validFor: /^[\w:()-]*$/,
+      };
+    };
+    const attrSource = completeFromSchema(xmlElements, []);
+    ext.push(
+      autocompletion({ override: [xsltSource, attrSource] }),
+      hoverTooltip((view, pos) => hoverDesc.resolve(view, pos), { hoverTime: 300 }),
+    );
+  }
+  return ext;
+}
+
 function Editor({
   height,
   value,
@@ -179,74 +270,102 @@ function Editor({
   eager,
   // eslint-disable-next-line no-unused-vars
   language,
-  // eslint-disable-next-line no-unused-vars
   onMount,
   xsltVersion,
 }) {
   const editable = !options.readOnly;
   const extras = useEditorExtras(editable);
-  const xmlElements =
-    extras && xsltVersion ? extras.getXmlElements(xsltVersion) : [];
-  const extensions = [xml({ elements: xmlElements, autoCloseTags: editable })];
 
-  if (editable && extras) {
-    const { autocompletion, hoverTooltip, lintGutter } = extras;
-    extensions.push(extras.lintExtension, lintGutter());
-
-    if (xsltVersion) {
-      const completions = extras.getCompletions(xsltVersion);
-      const hoverDesc   = extras.getHoverTooltip(xsltVersion);
-
-      // Custom source: xsl:* elements and XPath functions.
-      // Skip when cursor is on an attribute name (let xmlCompletionSource handle it).
-      const xsltSource = (ctx) => {
-        const node = syntaxTree(ctx.state).resolveInner(ctx.pos, -1);
-        if (node.name === "AttributeName") return null;
-        const word = ctx.matchBefore(/[\w:()-]+/);
-        if (!word && !ctx.explicit) return null;
-        return {
-          from: word ? word.from : ctx.pos,
-          options: completions,
-          validFor: /^[\w:()-]*$/,
-        };
-      };
-
-      const attrSource = completeFromSchema(xmlElements, []);
-
-      extensions.push(
-        autocompletion({ override: [xsltSource, attrSource] }),
-        hoverTooltip((view, pos) => hoverDesc.resolve(view, pos), { hoverTime: 300 }),
-      );
-    }
+  const containerRef = useRef(null);
+  const viewRef = useRef(null);
+  const compartments = useRef(null);
+  if (!compartments.current) {
+    compartments.current = {
+      theme: new Compartment(),
+      base: new Compartment(),
+      extras: new Compartment(),
+    };
   }
-  if (options.wordWrap) extensions.push(EditorView.lineWrapping);
+
+  // Keep the latest callbacks reachable from CodeMirror listeners without
+  // reconfiguring the view every time a parent re-renders with new closures.
+  const cbRef = useRef({});
+  cbRef.current = { onChange, onFocus, onBlur };
+
+  // Create the view once.
+  useEffect(() => {
+    const c = compartments.current;
+    const state = EditorState.create({
+      doc: value ?? "",
+      extensions: [
+        cmSizeTheme,
+        syntaxHighlighting(defaultHighlightStyle),
+        c.theme.of(cmThemeExt(theme)),
+        c.base.of(cmBaseExt(options, editable)),
+        c.extras.of(cmExtrasExt(extras, editable, xsltVersion)),
+        EditorView.updateListener.of((vu) => {
+          if (
+            vu.docChanged &&
+            !vu.transactions.some((tr) => tr.annotation(ExternalChange))
+          ) {
+            cbRef.current.onChange?.(vu.state.doc.toString());
+          }
+        }),
+        EditorView.domEventHandlers({
+          focus: () => cbRef.current.onFocus?.(),
+          blur: () => cbRef.current.onBlur?.(),
+        }),
+      ],
+    });
+    const view = new EditorView({ state, parent: containerRef.current });
+    viewRef.current = view;
+    onMount?.(view);
+    return () => {
+      view.destroy();
+      viewRef.current = null;
+    };
+    // Mount-only; live prop changes are handled by the reconfigure effects below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Sync the controlled value without stomping the cursor on our own edits.
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) return;
+    const next = value ?? "";
+    if (next !== view.state.doc.toString()) {
+      view.dispatch({
+        changes: { from: 0, to: view.state.doc.length, insert: next },
+        annotations: [ExternalChange.of(true)],
+      });
+    }
+  }, [value]);
+
+  // Reconfigure compartments when the inputs that shape them change.
+  useEffect(() => {
+    viewRef.current?.dispatch({
+      effects: compartments.current.theme.reconfigure(cmThemeExt(theme)),
+    });
+  }, [theme]);
+
+  useEffect(() => {
+    viewRef.current?.dispatch({
+      effects: compartments.current.base.reconfigure(cmBaseExt(options, editable)),
+    });
+    // options is a fresh literal each render; depend on the fields we read.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editable, options.lineNumbers, options.wordWrap]);
+
+  useEffect(() => {
+    viewRef.current?.dispatch({
+      effects: compartments.current.extras.reconfigure(
+        cmExtrasExt(extras, editable, xsltVersion),
+      ),
+    });
+  }, [extras, editable, xsltVersion]);
 
   const style = height ? { height, overflow: "hidden" } : undefined;
-
-  return (
-    <div style={style} {...wrapperProps}>
-      <CodeMirror
-        value={value ?? ""}
-        onChange={(val) => onChange?.(val)}
-        extensions={extensions}
-        theme={theme === "vs-dark" ? oneDark : "light"}
-        height={height || "100%"}
-        editable={!options.readOnly}
-        basicSetup={{
-          lineNumbers: options.lineNumbers !== "off",
-          foldGutter: false,
-          dropCursor: false,
-          allowMultipleSelections: false,
-          indentOnInput: true,
-          highlightActiveLine: !options.readOnly,
-          highlightSelectionMatches: false,
-        }}
-        onFocus={onFocus}
-        onBlur={onBlur}
-        style={{ height: "100%", fontSize: "13px" }}
-      />
-    </div>
-  );
+  return <div style={style} {...wrapperProps} ref={containerRef} />;
 }
 
 function debounce(fn, delay) {

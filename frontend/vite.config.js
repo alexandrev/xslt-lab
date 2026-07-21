@@ -26,7 +26,14 @@ export default defineConfig({
       output: {
         manualChunks: {
           react: ["react", "react-dom"],
-          codemirror: ["@uiw/react-codemirror", "@codemirror/lang-xml", "@codemirror/theme-one-dark"],
+          codemirror: [
+            "@codemirror/state",
+            "@codemirror/view",
+            "@codemirror/commands",
+            "@codemirror/language",
+            "@codemirror/lang-xml",
+            "@codemirror/theme-one-dark",
+          ],
         },
       },
     },
