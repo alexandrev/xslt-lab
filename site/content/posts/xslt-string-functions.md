@@ -9,23 +9,25 @@ String manipulation is one of the most common tasks in XSLT. Whether you are for
 
 ## XSLT string functions at a glance
 
+Each function name links to its full reference page with the complete signature and edge cases; the sections below give quick runnable examples.
+
 | Function | Purpose | Minimum version |
 |---|---|---|
-| `string-length` | Number of characters in a string | XSLT 1.0 |
-| `substring` | Extract part of a string by position | XSLT 1.0 |
-| `substring-before` / `substring-after` | Split a string on a delimiter | XSLT 1.0 |
-| `contains` / `starts-with` | Test for a substring or prefix | XSLT 1.0 |
-| `concat` | Join strings together | XSLT 1.0 |
-| `normalize-space` | Trim and collapse whitespace | XSLT 1.0 |
-| `translate` | Replace characters one-for-one | XSLT 1.0 |
-| `upper-case` / `lower-case` | Change case | XSLT 2.0 |
-| `ends-with` | Test for a suffix | XSLT 2.0 |
-| `replace` | Regex-based substitution | XSLT 2.0 |
-| `matches` | Test a string against a regex | XSLT 2.0 |
-| `tokenize` | Split a string into a sequence by regex | XSLT 2.0 |
-| `string-join` | Join a sequence with a separator | XSLT 2.0 |
-| `format-number` | Format a number with a picture pattern | XSLT 1.0 |
-| `format-date` / `format-dateTime` | Format dates with a picture string | XSLT 2.0 |
+| [`string-length`](/xslt/functions/xpath-string-length/) | Number of characters in a string | XSLT 1.0 |
+| [`substring`](/xslt/functions/xpath-substring/) | Extract part of a string by position | XSLT 1.0 |
+| [`substring-before`](/xslt/functions/xpath-substring-before/) / [`substring-after`](/xslt/functions/xpath-substring-after/) | Split a string on a delimiter | XSLT 1.0 |
+| [`contains`](/xslt/functions/xpath-contains/) / [`starts-with`](/xslt/functions/xpath-starts-with/) | Test for a substring or prefix | XSLT 1.0 |
+| [`concat`](/xslt/functions/xpath-concat/) | Join strings together | XSLT 1.0 |
+| [`normalize-space`](/xslt/functions/xpath-normalize-space/) | Trim and collapse whitespace | XSLT 1.0 |
+| [`translate`](/xslt/functions/xpath-translate/) | Replace characters one-for-one | XSLT 1.0 |
+| [`upper-case`](/xslt/functions/xpath-upper-case/) / [`lower-case`](/xslt/functions/xpath-lower-case/) | Change case | XSLT 2.0 |
+| [`ends-with`](/xslt/functions/xpath-ends-with/) | Test for a suffix | XSLT 2.0 |
+| [`replace`](/xslt/functions/xpath-replace/) | Regex-based substitution | XSLT 2.0 |
+| [`matches`](/xslt/functions/xpath-matches/) | Test a string against a regex | XSLT 2.0 |
+| [`tokenize`](/xslt/functions/xpath-tokenize/) | Split a string into a sequence by regex | XSLT 2.0 |
+| [`string-join`](/xslt/functions/xpath-string-join/) | Join a sequence with a separator | XSLT 2.0 |
+| [`format-number`](/xslt/functions/xpath-format-number/) | Format a number with a picture pattern | XSLT 1.0 |
+| [`format-date`](/xslt/functions/xpath-format-date/) / `format-dateTime` | Format dates with a picture string | XSLT 2.0 |
 
 Each function is explained with runnable examples below. Try them in the [XSLT 2.0 online tester](https://xsltplayground.com/xslt-2-0/) for the 2.0 functions, or the main [online XSLT editor](https://xsltplayground.com) for the 1.0 ones.
 

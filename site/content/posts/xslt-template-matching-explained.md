@@ -59,7 +59,7 @@ This overrides the built-in with an empty template, producing no output for text
 
 ## Modes
 
-Modes let you have multiple templates for the same node that serve different purposes. A mode is a named context for a set of templates.
+Modes let you have multiple templates for the same node that serve different purposes. A [mode](/xslt/functions/xsl-mode/) is a named context for a set of templates.
 
 ```xml
 <!-- Default mode: output a summary row -->
@@ -86,7 +86,7 @@ Modes are especially useful when you need to process the same nodes in multiple 
 
 ## apply-templates vs for-each
 
-Both iterate over a set of nodes. The difference is that `apply-templates` dispatches to the best matching template for each node, while `for-each` stays in the current context and does not do template lookup.
+Both iterate over a set of nodes. The difference is that [`apply-templates`](/xslt/functions/xsl-apply-templates/) dispatches to the best matching template for each node, while `for-each` stays in the current context and does not do template lookup.
 
 Use `apply-templates` when you want polymorphism — different node types handled differently. Use `for-each` when you are doing a simple iteration over a homogeneous set and do not need dispatch.
 
