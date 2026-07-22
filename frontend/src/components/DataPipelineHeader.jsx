@@ -15,7 +15,22 @@ export default function DataPipelineHeader({
       >
         <Icon name={collapsed ? "chevron-right" : "chevron-down"} />
       </button>
-      <div className="title">Input</div>
+      {/* The title reads as part of the collapse control — clicking it toggles
+          too, so clicks on the header text aren't dead. */}
+      <div
+        className="title title-clickable"
+        onClick={onToggleCollapsed}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onToggleCollapsed();
+          }
+        }}
+      >
+        Input
+      </div>
     </div>
   );
 }

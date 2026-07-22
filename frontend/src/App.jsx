@@ -1959,7 +1959,19 @@ export default function App() {
               >
                 {primaryInput && (
                   <div className="primary-input">
-                    <div className="primary-input-label">Input XML</div>
+                    {/* Acts as a label for the editor below: clicking focuses it
+                        so the click isn't dead. */}
+                    <div
+                      className="primary-input-label primary-input-label-clickable"
+                      onClick={(e) => {
+                        const cm = e.currentTarget.parentElement?.querySelector(
+                          ".primary-editor .cm-content",
+                        );
+                        cm?.focus();
+                      }}
+                    >
+                      Input XML
+                    </div>
                     <div
                       className="param-editor primary-editor"
                       onDragOver={(e) => e.preventDefault()}
@@ -2722,8 +2734,10 @@ export default function App() {
       </div>
       <div className="footer">
         <div className="footer-left">
-          <img src={logo} alt="XSLT Playground logo" className="logo" />
-          <strong>xsltplayground.com</strong>
+          <a href="/" className="footer-brand" aria-label="XSLT Playground home">
+            <img src={logo} alt="XSLT Playground logo" className="logo" />
+            <strong>xsltplayground.com</strong>
+          </a>
           <span className="footer-tagline">Free XSLT Editor &amp; Tester</span>
           <a
             className="news-link"

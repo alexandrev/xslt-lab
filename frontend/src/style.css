@@ -1119,6 +1119,24 @@ a:focus-visible {
   flex-wrap: wrap;
 }
 
+/* Logo + brand link home. Inherit colour/weight so it looks unchanged. */
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+.footer-brand:hover strong {
+  text-decoration: underline;
+}
+
+/* Header title and input label are clickable (collapse / focus editor). */
+.title-clickable,
+.primary-input-label-clickable {
+  cursor: pointer;
+}
+
 .footer-tagline {
   color: #536084;
   font-size: 0.8rem;
