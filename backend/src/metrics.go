@@ -50,6 +50,15 @@ var (
 		Name: "xslt_trace_requests_total",
 		Help: "Transformation requests with trace enabled.",
 	})
+
+	// Failed transformations broken down for triage. class distinguishes user
+	// errors (input_xml/stylesheet) from likely bugs (backend); error_code is the
+	// Saxon/parser code (or PARSE/COMPILE/OTHER). Cardinality is bounded: ~5
+	// classes x a finite set of codes x the normalized versions.
+	transformErrorsTotal = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "xslt_transform_errors_total",
+		Help: "Failed XSLT transformations, by class, error code and version.",
+	}, []string{"class", "error_code", "version"})
 )
 
 // normalizeVersion maps the requested XSLT version to a bounded set of label

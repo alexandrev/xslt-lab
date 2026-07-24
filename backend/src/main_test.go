@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 )
 
 func TestLoadConfigAppliesEnvOverrides(t *testing.T) {
@@ -237,5 +238,22 @@ func TestClassifyTransformError(t *testing.T) {
 				t.Errorf("code = %q, want %q", code, c.wantCode)
 			}
 		})
+	}
+}
+
+func TestLogTransformErrorIncrementsCounter(t *testing.T) {
+	req := TransformRequest{XSLT: "<xsl:stylesheet/>"}
+	m := transformErrorsTotal.WithLabelValues("stylesheet", "XPST0017", normalizeVersion("2.0"))
+	before := testutil.ToFloat64(m)
+	logTransformError("", "2.0", "XPST0017: function foo#1 is not defined", req, "", "key")
+	if got := testutil.ToFloat64(m) - before; got != 1 {
+		t.Fatalf("counter delta = %v, want 1", got)
+	}
+	// backend override should count under class="backend"
+	mb := transformErrorsTotal.WithLabelValues("backend", "OTHER", normalizeVersion("2.0"))
+	b := testutil.ToFloat64(mb)
+	logTransformError("backend", "2.0", "daemon unavailable", req, "", "key")
+	if got := testutil.ToFloat64(mb) - b; got != 1 {
+		t.Fatalf("backend counter delta = %v, want 1", got)
 	}
 }

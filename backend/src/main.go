@@ -188,6 +188,7 @@ func logTransformError(classOverride, version, errMsg string, req TransformReque
 	if classOverride != "" {
 		class = classOverride
 	}
+	transformErrorsTotal.WithLabelValues(class, code, normalizeVersion(version)).Inc()
 	entry := map[string]interface{}{
 		"event":      "transform_error",
 		"class":      class,

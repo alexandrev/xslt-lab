@@ -1993,6 +1993,94 @@ a:focus-visible {
   background: #1a2332;
 }
 
+/* Contextual feedback replaces the persistent draggable widget. */
+.contextual-feedback {
+  margin: 6px 8px;
+  padding: 8px 10px;
+  border: 1px solid #cfdcf4;
+  border-radius: 8px;
+  background: #f7faff;
+  color: #21426c;
+  font-size: 0.8rem;
+}
+
+.contextual-feedback.bug {
+  border-color: #efb2ae;
+  background: #fff7f6;
+  color: #7b2d26;
+}
+
+.contextual-feedback-heading,
+.contextual-feedback-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contextual-feedback-heading {
+  justify-content: space-between;
+  font-weight: 600;
+}
+
+.contextual-feedback form {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.contextual-feedback-actions {
+  margin-top: 6px;
+}
+
+.contextual-feedback-actions button,
+.contextual-feedback-actions a {
+  padding: 4px 9px;
+  border: 1px solid #c4d4ff;
+  border-radius: 6px;
+  background: #fff;
+  color: #21426c;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.contextual-feedback-actions button:hover,
+.contextual-feedback-actions a:hover {
+  border-color: #007acc;
+}
+
+.contextual-feedback-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.contextual-feedback-dismiss {
+  padding: 1px 5px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+:root[data-theme="dark"] .contextual-feedback {
+  border-color: #2b3645;
+  background: #141b24;
+  color: #e3e8ef;
+}
+
+:root[data-theme="dark"] .contextual-feedback.bug {
+  border-color: #6f3b38;
+  background: #281b1b;
+  color: #ffb4ae;
+}
+
+:root[data-theme="dark"] .contextual-feedback-actions button,
+:root[data-theme="dark"] .contextual-feedback-actions a {
+  border-color: #3d4b63;
+  background: #1a2332;
+  color: #d8e5f5;
+}
+
 /* ── Secondary results (xsl:result-document) ──────────────────────────────── */
 
 .secondary-results {

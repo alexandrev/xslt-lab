@@ -756,6 +756,11 @@ export default function App() {
   const [surveyDone, setSurveyDone] = useState(() => {
     try { return localStorage.getItem("xsp_survey_done") === "1"; } catch { return false; }
   });
+  const [satisfactionDone, setSatisfactionDone] = useState(() => {
+    try { return localStorage.getItem("xsp_satisfaction_feedback_done") === "1"; } catch { return false; }
+  });
+  const [serverErrorCount, setServerErrorCount] = useState(0);
+  const [bugFeedbackDismissed, setBugFeedbackDismissed] = useState(false);
   const [xsltBeforeFormat, setXsltBeforeFormat] = useState(null);
   const [resultBeforeFormat, setResultBeforeFormat] = useState(null);
   const workspaceImportRef = useRef(null);
@@ -1524,6 +1529,7 @@ export default function App() {
           isRunning: false,
           secondaryResults: {},
         });
+        if (res.status >= 500) setServerErrorCount((count) => count + 1);
         return;
       }
       const data = await res.json();
@@ -1572,6 +1578,7 @@ export default function App() {
         isRunning: false,
         secondaryResults: {},
       });
+      setServerErrorCount((count) => count + 1);
     }
   }, 2000);
 
@@ -2577,6 +2584,20 @@ export default function App() {
                 Report this bug on GitHub
               </a>
             )}
+            {isServerError && serverErrorCount >= 2 && !bugFeedbackDismissed && (
+              <Suspense fallback={null}>
+                <FeedbackWidget
+                  kind="bug"
+                  reportUrl={buildBugReportUrl(activeTab?.version, error, activeTab?.xslt)}
+                  context={{
+                    error,
+                    version: activeTab?.version,
+                    repro_url: buildShareUrl(activeTab),
+                  }}
+                  onComplete={() => setBugFeedbackDismissed(true)}
+                />
+              </Suspense>
+            )}
           </div>
         )}
         {error && errorCollapsed && (
@@ -2630,6 +2651,15 @@ export default function App() {
                 )}
               </div>
             ) : null}
+            {widgetsReady && duration !== null && userHasTransformed && !satisfactionDone && (
+              <Suspense fallback={null}>
+                <FeedbackWidget
+                  kind="satisfaction"
+                  context={{ version: activeTab?.version }}
+                  onComplete={() => setSatisfactionDone(true)}
+                />
+              </Suspense>
+            )}
             <div className="result-actions">
               <button
                 type="button"
@@ -2856,7 +2886,6 @@ export default function App() {
       )}
       {widgetsReady && (
         <Suspense fallback={null}>
-          <FeedbackWidget />
           {!surveyDone && transformCount >= 3 && (
             <UsageSurvey
               onDismiss={() => {
