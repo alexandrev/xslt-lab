@@ -111,10 +111,10 @@ The editor runs in your browser, but the transformation itself executes on a Sax
 Both extensions are valid and interchangeable. `.xsl` is older and common in enterprise systems; `.xslt` is more explicit. Saxon and XSLT Playground accept either.
 
 **Can I validate an XSL stylesheet online?**
-Yes. If your stylesheet is malformed or has a runtime error, the [XSLT validator](https://blog.xsltplayground.com/posts/xslt-validator-online/) reports the exact line number and the original Saxon error message so you can fix it before deploying.
+Yes. If your stylesheet is malformed or has a runtime error, the [XSLT validator](/blog/posts/xslt-validator-online/) reports the exact line number and the original Saxon error message so you can fix it before deploying.
 
 ## Related guides
 
-- [XSLT online editor: how to test transformations without installing anything](https://blog.xsltplayground.com/posts/xslt-online-editor-guide/)
-- [XSLT for beginners: your first transformation](https://blog.xsltplayground.com/posts/xslt-for-beginners/)
-- [XSLT validator online: catch errors before running your transform](https://blog.xsltplayground.com/posts/xslt-validator-online/)
+- [Open the XSLT Playground editor](https://xsltplayground.com/) — run XSLT 1.0/2.0/3.0 online
+- [XSLT for beginners: your first transformation](/blog/posts/xslt-for-beginners/)
+- [XSLT validator online: catch errors before running your transform](/blog/posts/xslt-validator-online/)

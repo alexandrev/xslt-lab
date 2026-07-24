@@ -36,40 +36,17 @@ To validate a stylesheet quickly:
 3. Run with trace enabled
 4. Check the error panel for compile-time issues and the trace panel for runtime behaviour
 
-## Common XSLT errors and how to spot them
+## What a validator can't catch
 
-**Namespace mismatch**
-Your input uses `xmlns="http://example.com/ns"` but your stylesheet matches `element-name` without the namespace. The match never fires, output is empty.
+Validation confirms your stylesheet is *well-formed and internally consistent*. It cannot confirm the output is *correct*. A transform that compiles cleanly can still:
 
-Fix: declare the namespace in the stylesheet and use the prefix in match patterns:
-```xml
-<xsl:stylesheet version="2.0"
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  xmlns:ex="http://example.com/ns"
-  xpath-default-namespace="http://example.com/ns">
-```
+- Produce empty output because a namespace mismatch makes every template match miss.
+- Fire the wrong template because two patterns share a priority.
+- Serialise as XML when you meant HTML, emitting self-closing tags browsers reject.
 
-Using `xpath-default-namespace` (XSLT 2.0+) avoids having to prefix every element name in your XPath expressions.
+None of these are syntax errors, so no validator flags them — you catch them by running the transform against representative input and reading the output (and the trace). Validation narrows the search; it doesn't replace testing.
 
-**Undefined variable**
-You reference `$config` but it is only defined inside a conditional branch that did not execute for this input. Saxon reports: *Variable $config has not been assigned a value*.
-
-Fix: move variable declarations to the template root or provide a default:
-```xml
-<xsl:variable name="config" select="if (config) then config else 'default'"/>
-```
-
-**Wrong output method**
-You are generating HTML but the processor serialises as XML, adding self-closing tags that browsers reject. Declare the output method explicitly:
-```xml
-<xsl:output method="html" version="5" encoding="UTF-8" indent="yes"/>
-```
-
-**Template priority conflict**
-Two templates match the same node with equal priority. Saxon signals an error rather than silently picking one. Assign explicit `priority` attributes to resolve the conflict:
-```xml
-<xsl:template match="item[@type='special']" priority="1">
-```
+When a run *does* raise an error, it comes back as a Saxon code like `XPST0017` or `XPTY0004`. Each one has a specific, repeatable fix — see the [XSLT error messages reference](/posts/xslt-common-errors/) for the 17 most common Saxon errors and how to resolve each, and the [XSLT debugging patterns](/posts/xslt-debugging-patterns/) guide for isolating the ones that only show up at runtime.
 
 ## Validating before deploying to production
 

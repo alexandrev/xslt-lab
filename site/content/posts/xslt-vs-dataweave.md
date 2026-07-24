@@ -77,4 +77,4 @@ Yes, and mature integration estates do exactly that: DataWeave for Mule-internal
 
 ## Try the XSLT side in 30 seconds
 
-You don't need a platform install to evaluate XSLT: paste the grouping example above into [XSLT Playground](https://xsltplayground.com/) — a free online editor running real Saxon (XSLT 1.0/2.0/3.0), with multiple inputs, parameters and an execution trace. The [function reference](https://blog.xsltplayground.com/xslt/functions/) covers everything available in each version.
+You don't need a platform install to evaluate XSLT: paste the grouping example above into [XSLT Playground](https://xsltplayground.com/) — a free online editor running real Saxon (XSLT 1.0/2.0/3.0), with multiple inputs, parameters and an execution trace. The [function reference](/blog/xslt/functions/) covers everything available in each version.

@@ -6,7 +6,15 @@
   <meta name="google-adsense-account" content="ca-pub-1549720748100858">
   <title>{{ block "title" . }}{{ with .Title }}{{ . }} | {{ end }}{{ .Site.Title }}{{ end }}</title>
   <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.subtitle }}{{ end }}">
+  {{- if .Params.redirectTo -}}
+  {{- /* Soft 301 for retired/cannibalizing pages. GitHub Pages can't emit a real
+         301, so meta-refresh + noindex,follow lets Google drop the thin page and
+         pass its equity through. A real 301 will come from the NPM proxy later. */ -}}
+  <meta http-equiv="refresh" content="0; url={{ .Params.redirectTo }}">
+  <meta name="robots" content="noindex, follow">
+  {{- else -}}
   <link rel="canonical" href="{{ .Permalink }}">
+  {{- end }}
   <meta property="og:title" content="{{ with .Title }}{{ . }} | {{ end }}{{ .Site.Title }}">
   <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.subtitle }}{{ end }}">
   <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">

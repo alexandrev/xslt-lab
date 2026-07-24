@@ -1,4 +1,4 @@
-baseURL = "https://blog.xsltplayground.com/"
+baseURL = "https://xsltplayground.com/blog/"
 languageCode = "en-us"
 title = "XSLT Playground"
 
@@ -6,6 +6,22 @@ enableRobotsTXT = true
 
 [pagination]
 pagerSize = 10
+
+# Drives the "Related articles" box. Without this, related-posts.html fell back
+# to "first 4 posts", so 12/20 posts had zero inbound internal links.
+[related]
+  includeNewer = true
+  threshold = 20
+  toLower = true
+  [[related.indices]]
+    name = "tags"
+    weight = 100
+  [[related.indices]]
+    name = "keywords"
+    weight = 80
+  [[related.indices]]
+    name = "category"
+    weight = 40
 
 [params]
 subtitle = "Online XSLT editor built for real-world transformations."

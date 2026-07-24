@@ -1,4 +1,15 @@
-{{- $related := first 4 (where (where .Site.RegularPages "Section" "posts") "Permalink" "ne" .Permalink) -}}
+{{- /* Real topical relatedness via Hugo's [related] indices (tags/keywords/category).
+       Always surfaces blog posts (Section "posts") so reference pages funnel equity
+       into the articles. Falls back to recent posts only when nothing matches, so the
+       box is never empty. */ -}}
+{{- $posts := where .Site.RegularPages "Section" "posts" -}}
+{{- $related := where (.Site.RegularPages.Related .) "Section" "posts" -}}
+{{- $related = where $related "Permalink" "ne" .Permalink -}}
+{{- if lt (len $related) 4 -}}
+  {{- $fallback := where $posts "Permalink" "ne" .Permalink -}}
+  {{- $related = $related | append $fallback | uniq -}}
+{{- end -}}
+{{- $related = first 4 $related -}}
 {{- if $related -}}
 <aside class="related-posts">
   <h3>Related articles</h3>

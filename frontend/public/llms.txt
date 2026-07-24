@@ -25,10 +25,10 @@ The backend exposes custom extension functions under `xmlns:tib="http://www.tibc
 
 ## Blog
 
-Tutorials, guides, and release notes at blog.xsltplayground.com. Topics include XSLT 3.0 features, debugging patterns, integration architecture, performance tuning, and XML-to-JSON transformations.
+Tutorials, guides, and release notes at xsltplayground.com/blog. Topics include XSLT 3.0 features, debugging patterns, integration architecture, performance tuning, and XML-to-JSON transformations.
 
 ## Links
 
 - Tool: https://xsltplayground.com
-- Blog: https://blog.xsltplayground.com
+- Blog: https://xsltplayground.com/blog
 - Source: https://github.com/alexandrev/xslt-lab

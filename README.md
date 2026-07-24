@@ -1,6 +1,6 @@
 # XSLT Playground — free online XSLT 1.0/2.0/3.0 tester & editor (Saxon HE)
 
-**Live tool: [xsltplayground.com](https://xsltplayground.com)** · Blog: [blog.xsltplayground.com](https://blog.xsltplayground.com)
+**Live tool: [xsltplayground.com](https://xsltplayground.com)** · Blog: [xsltplayground.com/blog](https://xsltplayground.com/blog)
 
 XSLT Playground is a **free online XSLT editor, tester and validator** that runs XSLT
 1.0, 2.0 and **3.0** on a real **Saxon HE 12.5** backend — the same processor used in

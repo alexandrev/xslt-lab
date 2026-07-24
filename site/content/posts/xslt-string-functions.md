@@ -205,7 +205,7 @@ All of these work in [XSLT Playground](https://xsltplayground.com). Set the vers
 
 ## Related guides
 
-- [XSLT grouping with xsl:for-each-group](https://blog.xsltplayground.com/posts/xslt-grouping-for-each-group/) — group and aggregate string values
-- [Transforming XML to JSON and CSV with XSLT](https://blog.xsltplayground.com/posts/xslt-xml-to-json-csv/) — `string-join` and `tokenize` in practice
-- [XSLT template matching explained](https://blog.xsltplayground.com/posts/xslt-template-matching-explained/) — apply string logic inside template rules
+- [XSLT grouping with xsl:for-each-group](/blog/posts/xslt-grouping-for-each-group/) — group and aggregate string values
+- [Transforming XML to JSON and CSV with XSLT](/blog/posts/xslt-xml-to-json-csv/) — `string-join` and `tokenize` in practice
+- [XSLT template matching explained](/blog/posts/xslt-template-matching-explained/) — apply string logic inside template rules
 
