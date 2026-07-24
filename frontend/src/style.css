@@ -1852,6 +1852,25 @@ a:focus-visible {
   font-size: 0.85em;
 }
 
+.error-hint-switch {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: #b26a00;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.error-hint-switch:hover {
+  color: #8a5200;
+}
+
+:root[data-theme="dark"] .error-hint-switch {
+  color: #ffc95a;
+}
+
 :root[data-theme="dark"] .error-doc-hint {
   color: #f0d070;
   background: #2a2200;

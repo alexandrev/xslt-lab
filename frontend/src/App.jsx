@@ -10,6 +10,7 @@ import {
   addParams,
   extractParamNames,
   setStylesheetVersion,
+  detectVersionUpgradeHint,
 } from "./lib/workspaceUtils";
 
 /* global __APP_VERSION__, __GIT_COMMIT__ */
@@ -2531,6 +2532,41 @@ export default function App() {
                 Host your XML file online and use <code>doc("https://…")</code>.
               </p>
             )}
+            {(() => {
+              const vh = detectVersionUpgradeHint(error, activeTab?.version);
+              if (!vh) return null;
+              const label = vh.func.includes("/") ? vh.func : `${vh.func}()`;
+              return (
+                <p className="error-doc-hint">
+                  💡 <code>{label}</code> is an XSLT {vh.version} feature — it isn't
+                  available in XSLT {activeTab.version}.{" "}
+                  <button
+                    type="button"
+                    className="error-hint-switch"
+                    onClick={() => {
+                      setTabs((tabs) =>
+                        tabs.map((t) =>
+                          t.id === active
+                            ? {
+                                ...t,
+                                version: vh.version,
+                                xslt: setStylesheetVersion(t.xslt, vh.version),
+                              }
+                            : t,
+                        ),
+                      );
+                      window.gtag?.("event", "version_upgrade_hint", {
+                        event_category: "engagement",
+                        from_version: activeTab?.version,
+                        to_version: vh.version,
+                      });
+                    }}
+                  >
+                    Switch to XSLT {vh.version}
+                  </button>
+                </p>
+              );
+            })()}
             {isServerError && (
               <a
                 className="error-report-link"

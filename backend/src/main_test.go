@@ -204,3 +204,38 @@ func TestCorsMiddlewareHandlesOptionsRequests(t *testing.T) {
 		t.Fatalf("handler should not be called for OPTIONS requests")
 	}
 }
+
+func TestClassifyTransformError(t *testing.T) {
+	cases := []struct {
+		name      string
+		msg       string
+		wantClass string
+		wantCode  string
+	}{
+		// Saxon (XSLT 2.0/3.0)
+		{"saxon code", "XPST0017: function foo#1 is not defined", "stylesheet", "XPST0017"},
+		{"saxon prolog", "org.xml.sax.SAXParseException: Content is not allowed in prolog", "input_xml", "PARSE"},
+		{"saxon sxxp", "SXXP0003 error reported by XML parser", "input_xml", "SXXP0003"},
+		// XSLT 1.0 (JAXP/Xalan) — previously all fell into "other"
+		{"xalan premature eof", "javax.xml.transform.TransformerException: Premature end of file.", "input_xml", "PARSE"},
+		{"xalan unterminated tag", `The element type "a" must be terminated by the matching end-tag "</a>".`, "input_xml", "PARSE"},
+		{"xalan entity", `The reference to entity "f" must end with the ';' delimiter.`, "input_xml", "PARSE"},
+		{"xalan structures", "XML document structures must start and end within the same entity.", "input_xml", "PARSE"},
+		{"xalan otherwise", "line 208: <xsl:otherwise> can only be used within <xsl:choose>.", "stylesheet", "COMPILE"},
+		{"xalan missing attr", "line 145: Required attribute 'test' is missing.", "stylesheet", "COMPILE"},
+		{"xalan illegal attr", "line 242: Illegal attribute 'select'.", "stylesheet", "COMPILE"},
+		{"xalan 2.0 fn in 1.0", "Error checking type of the expression 'funcall(current-date, [])'.", "stylesheet", "COMPILE"},
+		{"truly unknown", "some unexpected failure", "other", "OTHER"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			code, class := classifyTransformError(c.msg)
+			if class != c.wantClass {
+				t.Errorf("class = %q, want %q", class, c.wantClass)
+			}
+			if code != c.wantCode {
+				t.Errorf("code = %q, want %q", code, c.wantCode)
+			}
+		})
+	}
+}

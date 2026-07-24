@@ -124,24 +124,45 @@ func b64url(s string) string {
 func classifyTransformError(msg string) (code, class string) {
 	code = saxonErrorCodeRe.FindString(msg)
 	lower := strings.ToLower(msg)
+
+	// XML well-formedness failures. Saxon raises SAXParseException; the JDK's
+	// JAXP/Xalan parser (used for XSLT 1.0) reports the same problems as prose.
+	xmlNotWellFormed := []string{
+		"saxparseexception",
+		"not allowed in prolog",
+		"entity name must immediately follow",
+		"following the root element",
+		"premature end of file",
+		"must be terminated by the matching end-tag",
+		"must start and end within the same entity",
+		"the reference to entity",
+		"the markup in the document",
+		"content of elements must consist",
+		"must be followed by either attribute",
+	}
+	// Stylesheet-authoring failures. Saxon reports many of these without a code
+	// prefix; Xalan/JAXP (XSLT 1.0) reports undefined functions, misplaced
+	// elements, illegal attributes and type errors as plain text.
+	stylesheetAuthoring := []string{
+		"compilation", "static error", "is not bound", "not a stylesheet",
+		"initial-template",
+		"can only be used within",
+		"required attribute", "illegal attribute",
+		"could not find function", "funcall(",
+		"cannot convert data-type",
+		"error checking type of the expression",
+		"transformerconfigurationexception",
+	}
+
 	switch {
-	case strings.Contains(msg, "SAXParseException") ||
-		strings.Contains(lower, "not allowed in prolog") ||
-		strings.Contains(lower, "entity name must immediately follow") ||
-		strings.Contains(lower, "following the root element") ||
-		code == "SXXP0003":
+	case code == "SXXP0003" || containsAny(lower, xmlNotWellFormed):
 		class = "input_xml"
 		if code == "" {
 			code = "PARSE"
 		}
 	case code != "":
 		class = "stylesheet"
-	case strings.Contains(lower, "compilation") ||
-		strings.Contains(lower, "static error") ||
-		strings.Contains(lower, "is not bound") ||
-		strings.Contains(lower, "not a stylesheet") ||
-		strings.Contains(lower, "initial-template"):
-		// Stylesheet-authoring failures that Saxon reports without a code prefix.
+	case containsAny(lower, stylesheetAuthoring):
 		class = "stylesheet"
 		if code == "" {
 			code = "COMPILE"
@@ -151,6 +172,15 @@ func classifyTransformError(msg string) (code, class string) {
 		code = "OTHER"
 	}
 	return code, class
+}
+
+func containsAny(s string, subs []string) bool {
+	for _, sub := range subs {
+		if strings.Contains(s, sub) {
+			return true
+		}
+	}
+	return false
 }
 
 func logTransformError(classOverride, version, errMsg string, req TransformRequest, sourceXML, sourceKey string) {
