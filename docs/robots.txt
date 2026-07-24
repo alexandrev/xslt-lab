@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://blog.xsltplayground.com/sitemap.xml
+Sitemap: https://xsltplayground.com/blog/sitemap.xml
