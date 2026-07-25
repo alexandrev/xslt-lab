@@ -494,3 +494,16 @@ code {
   .post-list li { flex-direction: column; align-items: flex-start; }
   .ref-index-list a { min-width: unset; }
 }
+
+/* Runnable example embedded on reference pages (loaded on click only). */
+.ref-try { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.button--ghost { background: transparent; border: 1px solid currentColor; }
+.ref-run[disabled] { opacity: 0.6; cursor: default; }
+.ref-embed { width: 100%; margin-top: 0.75rem; }
+.ref-embed-frame {
+  width: 100%;
+  height: 520px;
+  border: 1px solid #cfdcf4;
+  border-radius: 8px;
+  background: #fff;
+}

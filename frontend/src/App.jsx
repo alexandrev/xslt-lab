@@ -11,7 +11,11 @@ import {
   extractParamNames,
   setStylesheetVersion,
   detectVersionUpgradeHint,
+  findErrorReference,
 } from "./lib/workspaceUtils";
+import { templateToWorkspace, findTemplate } from "./lib/templates";
+import { diffLines } from "./lib/diffUtils";
+import { encodeCompact, decodeCompact, toSharePayload, fromSharePayload } from "./lib/shareLink";
 
 /* global __APP_VERSION__, __GIT_COMMIT__ */
 
@@ -182,6 +186,7 @@ function useEditorExtras(enabled) {
 }
 
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
+const TemplateGallery = lazy(() => import("./components/TemplateGallery"));
 
 function runWhenIdle(callback, timeout = 2000) {
   if (typeof window === "undefined") {
@@ -383,7 +388,7 @@ const adsenseSlot = env.VITE_ADSENSE_SLOT;
 const ethicalAdsPublisher = env.VITE_ETHICALADS_PUBLISHER || "xsltplaygroundcom";
 const defaultRepoUrl = "https://github.com/alexandrev/xslt-lab";
 const repoUrl = env.VITE_REPO_URL || defaultRepoUrl;
-const newsUrl = env.VITE_NEWS_URL || "https://blog.xsltplayground.com/";
+const newsUrl = env.VITE_NEWS_URL || "https://xsltplayground.com/blog/";
 const resolvedVersion =
   typeof __APP_VERSION__ !== "undefined" && __APP_VERSION__
     ? __APP_VERSION__
@@ -401,6 +406,7 @@ function defaultTab(overrides = {}) {
     xslt: `<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">\n<xsl:template match="/">\n<root/>\n</xsl:template>\n</xsl:stylesheet>`,
     version: "1.0",
     name: "",
+    expected: "",
   };
   const merged = { ...base, ...overrides };
   return {
@@ -410,8 +416,20 @@ function defaultTab(overrides = {}) {
     xslt: typeof merged.xslt === "string" ? merged.xslt : base.xslt,
     version: merged.version || base.version,
     name: typeof merged.name === "string" ? merged.name : base.name,
+    expected: typeof merged.expected === "string" ? merged.expected : base.expected,
   };
 }
+
+// Embedded mode (?embed=1): the app is rendered inside an iframe on the blog's
+// reference pages, so it drops the ads and workspace chrome and shows just the
+// editor plus a way out to the full app.
+const IS_EMBED = (() => {
+  try {
+    return new URLSearchParams(window.location.search).get("embed") === "1";
+  } catch {
+    return false;
+  }
+})();
 
 const MAX_WORKSPACES = 3;
 const WORKSPACE_EXPORT_VERSION = 1;
@@ -521,6 +539,20 @@ function buildShareUrl(tab) {
   return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
 }
 
+// Prefer the compressed ?c= form when it is actually shorter; fall back to the
+// plain link if compression is unavailable (older browsers) or doesn't help.
+async function buildShareUrlCompact(tab) {
+  const plain = buildShareUrl(tab);
+  try {
+    const encoded = await encodeCompact(toSharePayload(tab));
+    if (!encoded) return plain;
+    const compact = `${window.location.origin}${window.location.pathname}?c=${encoded}`;
+    return compact.length < plain.length ? compact : plain;
+  } catch {
+    return plain;
+  }
+}
+
 // ───────────────────────────────────────────────────────────────────────────
 
 function normalizeWorkspaceImport(payload) {
@@ -556,6 +588,7 @@ function normalizeWorkspaceImport(payload) {
       params,
       xslt: workspace.xslt,
       version: workspace.version || "1.0",
+      expected: typeof workspace.expected === "string" ? workspace.expected : "",
     },
     status,
   };
@@ -672,6 +705,16 @@ export default function App() {
       );
     }
   }
+  // ?template=<id> opens a starter workspace directly — this is what the
+  // /xpath-tester/ and /xml-to-json/ landing pages link to.
+  try {
+    const templateId = new URLSearchParams(window.location.search).get("template");
+    const template = templateId ? findTemplate(templateId) : null;
+    if (template) {
+      initialTabs = [defaultTab(templateToWorkspace(template))];
+    }
+  } catch {}
+
   let initialActive = initialTabs[0]?.id;
   try {
     const sAct = localStorage.getItem("active");
@@ -757,6 +800,8 @@ export default function App() {
   });
   const [serverErrorCount, setServerErrorCount] = useState(0);
   const [bugFeedbackDismissed, setBugFeedbackDismissed] = useState(false);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
   const [xsltBeforeFormat, setXsltBeforeFormat] = useState(null);
   const [resultBeforeFormat, setResultBeforeFormat] = useState(null);
   const workspaceImportRef = useRef(null);
@@ -817,6 +862,7 @@ export default function App() {
     typeof window !== "undefined" &&
     /^(localhost|127(?:\\.[0-9]+){3}|mac)$/i.test(window.location.hostname);
   const ethicalAdsEnabled =
+    !IS_EMBED &&
     Boolean(ethicalAdsPublisher) &&
     (!isLocalhost || env.VITE_ETHICALADS_DEV === "true");
   const ethicalAdVariant = "stickybox";
@@ -1424,6 +1470,53 @@ export default function App() {
     });
   }, [setActive, setWorkspaceStatus]);
 
+  const handlePickTemplate = useCallback(
+    (template) => {
+      setTemplatesOpen(false);
+      window.gtag?.("event", "template_opened", {
+        event_category: "engagement",
+        template_id: template.id,
+      });
+      setTabs((current) => {
+        const nextTab = defaultTab(templateToWorkspace(template));
+        setWorkspaceStatus((prev) => ({
+          ...prev,
+          [nextTab.id]: defaultWorkspaceStatus(),
+        }));
+        setActive(nextTab.id);
+        // At the workspace cap, replace the active one rather than refusing:
+        // picking a template is an explicit request to work on something else.
+        if (current.length >= MAX_WORKSPACES) {
+          return current.map((t) => (t.id === active ? nextTab : t));
+        }
+        return [...current, nextTab];
+      });
+    },
+    [active, setActive, setWorkspaceStatus],
+  );
+
+  // A compact ?c= link carries a gzipped workspace, which can only be read
+  // asynchronously — so unlike the legacy ?xslt= form it is applied after mount.
+  useEffect(() => {
+    let cancelled = false;
+    let encoded = null;
+    try {
+      encoded = new URLSearchParams(window.location.search).get("c");
+    } catch {}
+    if (!encoded) return undefined;
+    decodeCompact(encoded).then((payload) => {
+      const overrides = fromSharePayload(payload);
+      if (cancelled || !overrides) return;
+      const tab = defaultTab({ name: "Shared transform", ...overrides });
+      setWorkspaceStatus((prev) => ({ ...prev, [tab.id]: defaultWorkspaceStatus() }));
+      setTabs([tab]);
+      setActive(tab.id);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [setActive, setWorkspaceStatus]);
+
   const handleRemoveWorkspace = useCallback(
     (id) => {
       setTabs((current) => {
@@ -1727,6 +1820,7 @@ export default function App() {
           params: tab.params,
           xslt: tab.xslt,
           version: tab.version,
+          expected: tab.expected || "",
         },
         status: statusSnapshot,
       };
@@ -1873,7 +1967,7 @@ export default function App() {
 
 
   return (
-    <div className="app-container">
+    <div className={`app-container${IS_EMBED ? " app-container--embed" : ""}`}>
       <h1 className="sr-only">XSLT Playground - Online XSLT Editor and Tester</h1>
       {ethicalAdsEnabled && (
         <div
@@ -1886,6 +1980,19 @@ export default function App() {
           aria-label="Advertisement"
         />
       )}
+      {IS_EMBED && (
+        <div className="embed-bar">
+          <span>XSLT Playground</span>
+          <a
+            href={typeof window !== "undefined" ? buildShareUrl(activeTab) : "https://xsltplayground.com/"}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open in the full editor →
+          </a>
+        </div>
+      )}
+      {!IS_EMBED && (
       <div className="tabs">
         <TabsNav
           tabs={tabs}
@@ -1913,6 +2020,14 @@ export default function App() {
           </button>
           <button
             type="button"
+            className="tab-templates"
+            onClick={() => setTemplatesOpen(true)}
+            title="Start from a template"
+          >
+            Templates
+          </button>
+          <button
+            type="button"
             className="icon-button tab-import"
             onClick={() => workspaceImportRef.current?.click()}
             title="Import workspace"
@@ -1930,6 +2045,7 @@ export default function App() {
           />
         </div>
       </div>
+      )}
       <div className="main">
         {paramsCollapsed ? (
           <div className="params-collapsed">
@@ -2235,12 +2351,11 @@ export default function App() {
               className="icon-button"
               aria-label="Copy share link"
               title="Copy shareable link"
-              onClick={() => {
-                const url = buildShareUrl(activeTab);
-                navigator.clipboard.writeText(url).then(() => {
-                  setShareCopied(true);
-                  setTimeout(() => setShareCopied(false), 2000);
-                });
+              onClick={async () => {
+                const url = await buildShareUrlCompact(activeTab);
+                await navigator.clipboard.writeText(url);
+                setShareCopied(true);
+                setTimeout(() => setShareCopied(false), 2000);
               }}
             >
               <Icon name={shareCopied ? "check" : "share"} />
@@ -2462,8 +2577,8 @@ export default function App() {
                     type="button"
                     className={`share-transform-btn error-share${shareCopied ? " copied" : ""}`}
                     title="Copy a shareable link to this transformation"
-                    onClick={() => {
-                      const url = buildShareUrl(activeTab);
+                    onClick={async () => {
+                      const url = await buildShareUrlCompact(activeTab);
                       const text = `Check out my XSLT transformation! ✨\n${url}`;
                       navigator.clipboard.writeText(text).then(() => {
                         setShareCopied(true);
@@ -2529,6 +2644,19 @@ export default function App() {
                 +{(errorLines || []).length - MAX_ERROR_LINES} more…
               </div>
             )}
+            {(() => {
+              const ref = findErrorReference(error);
+              if (!ref) return null;
+              return (
+                <p className="error-doc-hint">
+                  📖 <a href={ref.url} target="_blank" rel="noopener noreferrer">
+                    {ref.code
+                      ? `What ${ref.code} means and how to fix it`
+                      : "What this error means and how to fix it"}
+                  </a>
+                </p>
+              );
+            })()}
             {/FODC0002|I\/O error|unable to open|Failed to read|UnmarshalException.*URI/i.test(error) && (
               <p className="error-doc-hint">
                 💡 <code>doc()</code> only supports HTTP/HTTPS URLs in this playground — local file paths are not available.
@@ -2629,8 +2757,8 @@ export default function App() {
                     type="button"
                     className={`share-transform-btn${shareCopied ? " copied" : ""}`}
                     title="Copy a shareable link to this transformation"
-                    onClick={() => {
-                      const url = buildShareUrl(activeTab);
+                    onClick={async () => {
+                      const url = await buildShareUrlCompact(activeTab);
                       const text = `Check out my XSLT transformation! ✨\n${url}`;
                       navigator.clipboard.writeText(text).then(() => {
                         setShareCopied(true);
@@ -2658,7 +2786,76 @@ export default function App() {
                 />
               </Suspense>
             )}
+            {compareOpen && (
+              <div className="compare-panel">
+                <label className="compare-label" htmlFor="expected-output">
+                  Expected output
+                </label>
+                <textarea
+                  id="expected-output"
+                  className="compare-expected"
+                  placeholder="Paste the output this transform should produce…"
+                  value={activeTab.expected || ""}
+                  onChange={(e) =>
+                    setTabs((tabs) =>
+                      tabs.map((t) =>
+                        t.id === active ? { ...t, expected: e.target.value } : t,
+                      ),
+                    )
+                  }
+                  rows={4}
+                  spellCheck={false}
+                />
+                {(activeTab.expected || "").trim() && result ? (
+                  (() => {
+                    const d = diffLines(result, activeTab.expected);
+                    return (
+                      <>
+                        <p className={`compare-verdict ${d.equal ? "match" : "differs"}`}>
+                          {d.equal
+                            ? "✓ Output matches the expected result"
+                            : `✗ ${d.changes} line${d.changes === 1 ? "" : "s"} differ`}
+                        </p>
+                        {!d.equal && (
+                          <div className="compare-diff">
+                            {d.rows
+                              .filter((r) => r.type !== "same")
+                              .slice(0, 60)
+                              .map((r, i) => (
+                                <div key={i} className={`diff-row diff-${r.type}`}>
+                                  <span className="diff-sign">
+                                    {r.type === "added" ? "+" : "−"}
+                                  </span>
+                                  <span className="diff-text">{r.text}</span>
+                                </div>
+                              ))}
+                            {d.truncated && <div className="diff-more">…diff truncated</div>}
+                          </div>
+                        )}
+                        <p className="compare-legend">
+                          <span className="diff-added">+</span> in the actual output ·{" "}
+                          <span className="diff-removed">−</span> expected but missing ·
+                          whitespace ignored
+                        </p>
+                      </>
+                    );
+                  })()
+                ) : (
+                  <p className="compare-legend">
+                    Run the transform and paste an expected result to compare them.
+                  </p>
+                )}
+              </div>
+            )}
             <div className="result-actions">
+              <button
+                type="button"
+                className={`compare-toggle${compareOpen ? " active" : ""}`}
+                onClick={() => setCompareOpen((v) => !v)}
+                title="Compare the output against an expected result"
+              >
+                Compare
+              </button>
               <button
                 type="button"
                 className={`icon-button result-copy-button${resultCopied ? " copied" : ""}`}
@@ -2816,15 +3013,15 @@ export default function App() {
             {" · "}
             <a href="/xslt-3-0/">XSLT 3.0</a>
             {" · "}
-            <a href="https://blog.xsltplayground.com/posts/xslt-for-beginners/" target="_blank" rel="noopener noreferrer">XSLT for Beginners</a>
+            <a href="https://xsltplayground.com/blog/posts/xslt-for-beginners/" target="_blank" rel="noopener noreferrer">XSLT for Beginners</a>
             {" · "}
-            <a href="https://blog.xsltplayground.com/posts/xslt-3-new-features/" target="_blank" rel="noopener noreferrer">XSLT 3.0</a>
+            <a href="https://xsltplayground.com/blog/posts/xslt-3-new-features/" target="_blank" rel="noopener noreferrer">XSLT 3.0</a>
             {" · "}
-            <a href="https://blog.xsltplayground.com/posts/xslt-string-functions/" target="_blank" rel="noopener noreferrer">String Functions</a>
+            <a href="https://xsltplayground.com/blog/posts/xslt-string-functions/" target="_blank" rel="noopener noreferrer">String Functions</a>
             {" · "}
-            <a href="https://blog.xsltplayground.com/posts/xslt-grouping-for-each-group/" target="_blank" rel="noopener noreferrer">Grouping</a>
+            <a href="https://xsltplayground.com/blog/posts/xslt-grouping-for-each-group/" target="_blank" rel="noopener noreferrer">Grouping</a>
             {" · "}
-            <a href="https://blog.xsltplayground.com/posts/xslt-template-matching-explained/" target="_blank" rel="noopener noreferrer">Template Matching</a>
+            <a href="https://xsltplayground.com/blog/posts/xslt-template-matching-explained/" target="_blank" rel="noopener noreferrer">Template Matching</a>
           </span>
           {gitCommit && (
             <a
@@ -2881,6 +3078,14 @@ export default function App() {
           </div>
           <pre>{traceHover.text}</pre>
         </div>
+      )}
+      {templatesOpen && (
+        <Suspense fallback={null}>
+          <TemplateGallery
+            onPick={handlePickTemplate}
+            onClose={() => setTemplatesOpen(false)}
+          />
+        </Suspense>
       )}
     </div>
   );

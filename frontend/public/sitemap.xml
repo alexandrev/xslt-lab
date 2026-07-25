@@ -18,4 +18,16 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://xsltplayground.com/xpath-tester/</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://xsltplayground.com/xml-to-json/</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>

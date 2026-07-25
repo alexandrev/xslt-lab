@@ -132,6 +132,40 @@ export function getParamBlockMarkers() {
   return { PARAM_START, PARAM_END };
 }
 
+const BLOG_ORIGIN = "https://xsltplayground.com/blog";
+
+// Saxon/XPath error codes that have a dedicated reference page on the blog.
+const DOCUMENTED_ERROR_CODES = new Set([
+  "FODC0002", "FORG0001", "FORX0002", "SXXP0003",
+  "XPDY0002", "XPST0008", "XPST0017", "XPST0081", "XPTY0004",
+  "XTDE1490", "XTMM9000", "XTRE0540", "XTSE0010", "XTSE0630",
+]);
+
+// Well-formedness failures Saxon reports as prose, which also have a page.
+const DOCUMENTED_ERROR_PHRASES = [
+  [/content is not allowed in prolog/i, "content-not-allowed-in-prolog"],
+  [/entity name must immediately follow/i, "entity-name-must-immediately-follow"],
+  [/markup in the document following the root element/i, "markup-following-root-element"],
+];
+
+// Find the first documented error in a Saxon message and return a link to its
+// reference page, so the error box can explain the failure instead of only
+// showing it. Returns { code, url } or null.
+export function findErrorReference(errorText) {
+  if (!errorText) return null;
+  const codeMatch = errorText.match(/\b[A-Z]{4}[0-9]{4}\b/);
+  if (codeMatch && DOCUMENTED_ERROR_CODES.has(codeMatch[0])) {
+    return {
+      code: codeMatch[0],
+      url: `${BLOG_ORIGIN}/xslt/errors/${codeMatch[0].toLowerCase()}/`,
+    };
+  }
+  for (const [re, slug] of DOCUMENTED_ERROR_PHRASES) {
+    if (re.test(errorText)) return { code: null, url: `${BLOG_ORIGIN}/xslt/errors/${slug}/` };
+  }
+  return null;
+}
+
 // Functions introduced in later XSLT/XPath versions. When a transform fails in a
 // lower version and the error mentions one of these being called, the user most
 // likely just needs to bump the version (the XSLT 1.0 engine has no such function).

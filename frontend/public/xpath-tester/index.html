@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XPath Tester Online — Free XPath Evaluator &amp; Expression Tester | XSLT Playground</title>
+  <meta name="description" content="Test XPath expressions online for free. Evaluate XPath 1.0, 2.0 and 3.1 against your own XML with the real Saxon processor — predicates, axes, functions. No install." />
+  <link rel="canonical" href="https://xsltplayground.com/xpath-tester/" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <meta property="og:title" content="XPath Tester Online — Free XPath Evaluator" />
+  <meta property="og:description" content="Evaluate XPath expressions online against your own XML. XPath 1.0, 2.0 and 3.1 via Saxon HE. Predicates, axes, functions. Free, no install." />
+  <meta property="og:url" content="https://xsltplayground.com/xpath-tester/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://xsltplayground.com/og-image.png" />
+  <script type="application/ld+json">
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": ["WebApplication", "SoftwareApplication"],
+      "name": "XPath Tester Online",
+      "url": "https://xsltplayground.com/xpath-tester/",
+      "description": "Free online XPath tester and evaluator powered by Saxon HE 12.5. Evaluate XPath 1.0, 2.0 and 3.1 expressions against your own XML, with predicates, axes and the full function library.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "XSLT Online", "item": "https://xsltplayground.com/" },
+        { "@type": "ListItem", "position": 2, "name": "XPath Tester Online", "item": "https://xsltplayground.com/xpath-tester/" }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I test an XPath expression online?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Open the XPath tester template in XSLT Playground, paste your XML into the input panel, and put the expression you want to evaluate in the 'expression' variable. The result panel lists every matching node together with a count, so you can see immediately whether the expression selects what you expect."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which XPath versions can I test?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "XPath 1.0, 2.0, 3.0 and 3.1. The XPath version is determined by the XSLT version you select: XSLT 1.0 gives XPath 1.0, XSLT 2.0 gives XPath 2.0, and XSLT 3.0 gives XPath 3.1 including maps, arrays and the arrow operator. Saxon HE 12.5 evaluates all of them."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does //book[1] return more than one node?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Because a positional predicate applies to each step, not to the whole result. //book[1] selects every book that is the first book among its own siblings, so a document with several parent elements returns several nodes. To take the first node of the entire result set, wrap the path in parentheses first: (//book)[1]."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I test XPath axes online?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. All thirteen XPath axes are supported, including ancestor, descendant, following-sibling, preceding-sibling, parent, self and attribute. Because the expression runs inside a real Saxon transformation, axis behaviour matches production exactly."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do browsers support XPath 2.0 or 3.1?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Browsers only implement XPath 1.0, so functions such as matches(), tokenize(), distinct-values() and format-date() are unavailable in the browser. XSLT Playground runs Saxon on the server, which is why it can evaluate XPath 2.0 and 3.1 expressions."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the online XPath tester free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, completely free with no installation and no account. Paste your XML, evaluate any expression, and share the workspace with a single link."
+          }
+        }
+      ]
+    }
+  ]
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; color: #21426c; background: #f5f7fb; }
+    a { color: #2563eb; }
+    header {
+      background: #21426c;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    header img { width: 28px; height: 28px; }
+    header a { color: #fff; text-decoration: none; font-weight: 700; font-size: 1rem; }
+    header nav { margin-left: auto; display: flex; gap: 1.25rem; font-size: 0.9rem; }
+    header nav a { color: #c8d8f0; font-weight: 400; }
+    .hero {
+      background: linear-gradient(135deg, #21426c 0%, #1e5fa8 100%);
+      color: #fff;
+      padding: 3.5rem 1.5rem 3rem;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2.2rem; margin: 0 0 1rem; }
+    .hero p { font-size: 1.15rem; opacity: 0.9; max-width: 640px; margin: 0 auto 2rem; }
+    .cta-btn {
+      display: inline-block;
+      background: #fff;
+      color: #21426c;
+      font-weight: 700;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1.05rem;
+      transition: background 0.2s;
+    }
+    .cta-btn:hover { background: #e8f0fe; }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 20px;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+    }
+    main { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    h2 { font-size: 1.4rem; margin: 2.5rem 0 0.6rem; color: #1a365d; }
+    p { line-height: 1.75; color: #374151; }
+    ul, ol { color: #374151; line-height: 1.75; padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+    code { background: #eef2ff; padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 1rem 1.25rem; border-radius: 8px; overflow-x: auto; line-height: 1.5; }
+    pre code { background: none; padding: 0; color: inherit; font-size: 0.86rem; }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .feature-card {
+      background: #fff;
+      border: 1px solid #dde6f5;
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem;
+    }
+    .feature-card h3 { margin: 0 0 0.4rem; font-size: 1rem; color: #21426c; }
+    .feature-card p { margin: 0; font-size: 0.92rem; }
+    dl dt { font-weight: 700; margin-top: 1.4rem; color: #21426c; }
+    dl dd { margin: 0.25rem 0 0; color: #374151; line-height: 1.7; }
+    .nav-versions { display: flex; gap: 1rem; margin: 2rem 0; flex-wrap: wrap; }
+    .nav-versions a {
+      padding: 0.5rem 1.2rem;
+      border: 2px solid #21426c;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #21426c;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+    .nav-versions a.active { background: #21426c; color: #fff; }
+    .callout {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.5rem 0;
+    }
+    .callout strong { color: #1d4ed8; }
+    .table-wrap { overflow-x: auto; margin: 1.5rem 0; }
+    table { border-collapse: collapse; width: 100%; background: #fff; font-size: 0.92rem; }
+    th, td { border: 1px solid #dde6f5; padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; }
+    th { background: #eef2ff; color: #21426c; }
+    td { color: #374151; line-height: 1.6; }
+    td code { white-space: nowrap; }
+    footer {
+      background: #21426c;
+      color: #c8d8f0;
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.88rem;
+    }
+    footer a { color: #93c5fd; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="/logo.svg" alt="XSLT Playground logo" />
+    <a href="/">XSLT Playground</a>
+    <nav>
+      <a href="/">Editor</a>
+      <a href="/xslt-2-0/">XSLT 2.0</a>
+      <a href="/xslt-3-0/">XSLT 3.0</a>
+      <a href="https://xsltplayground.com/blog/">Blog</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div class="badge">Powered by Saxon HE 12.5</div>
+    <h1>XPath Tester Online</h1>
+    <p>Evaluate XPath expressions against your own XML and see every match instantly. XPath 1.0, 2.0 and 3.1 on the real Saxon engine — completely free.</p>
+    <a class="cta-btn" href="https://xsltplayground.com/?template=xpath-tester">Open the XPath Tester →</a>
+  </div>
+
+  <main>
+    <div class="nav-versions">
+      <a href="/">Editor</a>
+      <a href="/xslt-2-0/">XSLT 2.0</a>
+      <a href="/xslt-3-0/">XSLT 3.0</a>
+      <a href="/xpath-tester/" class="active">XPath Tester</a>
+      <a href="/xml-to-json/">XML → JSON</a>
+    </div>
+
+    <h2>What is XPath?</h2>
+    <p>
+      XPath is the expression language used to address parts of an XML document. It is the addressing
+      layer underneath XSLT, XQuery, XML Schema and most XML tooling — every <code>select</code> and
+      <code>match</code> attribute in a stylesheet is an XPath expression. An XPath expression navigates
+      a document as a tree of nodes and returns a sequence of whatever it selects: elements, attributes,
+      text nodes, or atomic values such as numbers and strings.
+    </p>
+    <p>
+      Most XPath bugs are not syntax errors — they are expressions that parse cleanly and quietly select
+      the wrong nodes, or nothing at all. That is why evaluating an expression against a real document,
+      on a real processor, is the fastest way to debug it. XSLT Playground evaluates your expression with
+      Saxon HE 12.5, so what you see here is exactly what your production pipeline will do.
+    </p>
+
+    <h2>How to Test an XPath Expression Online</h2>
+    <ol>
+      <li>Open the <a href="https://xsltplayground.com/?template=xpath-tester">XPath tester template</a> — it loads with a working stylesheet and sample XML already in place.</li>
+      <li>Replace the sample XML in the Data Pipeline panel with your own document.</li>
+      <li>Put the expression you want to evaluate in the <code>expression</code> variable.</li>
+      <li>The result panel lists every matching node, numbered, with a total count at the top.</li>
+      <li>If the count is <code>0</code>, check namespaces first — an unprefixed name never matches a namespaced element.</li>
+    </ol>
+
+    <div class="callout">
+      <strong>The most common reason an expression returns nothing is namespaces.</strong>
+      In XPath, <code>//book</code> matches only elements with no namespace. If your document declares
+      <code>xmlns="http://example.com/books"</code>, you must bind that URI to a prefix in the stylesheet
+      and write <code>//b:book</code>, or use the wildcard form <code>//*[local-name() = 'book']</code>.
+    </div>
+
+    <h2>Common XPath Expressions</h2>
+    <p>
+      The expressions below are the ones that cover the overwhelming majority of real-world selection
+      work. Each is written against the sample library document used in the live example further down.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Expression</th><th>What it selects</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>//book</code></td><td>Every <code>book</code> element anywhere in the document.</td></tr>
+          <tr><td><code>/library/book</code></td><td>Only <code>book</code> children of the root <code>library</code> element — faster and safer than <code>//</code>.</td></tr>
+          <tr><td><code>//book[@lang = 'en']</code></td><td>Books whose <code>lang</code> attribute equals <code>en</code> — an attribute predicate.</td></tr>
+          <tr><td><code>//book/@year</code></td><td>The <code>year</code> attribute nodes themselves, not the elements.</td></tr>
+          <tr><td><code>count(//book)</code></td><td>The number of books, as a number rather than a node sequence.</td></tr>
+          <tr><td><code>//book[price &gt; 40]</code></td><td>Books whose <code>price</code> child compares numerically greater than 40.</td></tr>
+          <tr><td><code>//book[contains(author, 'Martin')]</code></td><td>Books whose author string contains a substring.</td></tr>
+          <tr><td><code>//book[starts-with(title, 'Clean')]</code></td><td>Books whose title begins with a given prefix.</td></tr>
+          <tr><td><code>//book[1]</code></td><td>Every book that is first among its own siblings — see the note below.</td></tr>
+          <tr><td><code>(//book)[1]</code></td><td>The first book in the whole document.</td></tr>
+          <tr><td><code>//book[last()]</code></td><td>The last book among each set of siblings.</td></tr>
+          <tr><td><code>//book[@lang = 'es']/following-sibling::book</code></td><td>Books that come after the Spanish one, using an axis.</td></tr>
+          <tr><td><code>//price/ancestor::book</code></td><td>Walks back up the tree from a price to its containing book.</td></tr>
+          <tr><td><code>//book[not(@lang)]</code></td><td>Books with no <code>lang</code> attribute at all.</td></tr>
+          <tr><td><code>distinct-values(//book/@lang)</code></td><td>The deduplicated set of languages (XPath 2.0 and later).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Predicates: the Positional Trap</h2>
+    <p>
+      A predicate in square brackets filters the node sequence produced by the step it is attached to —
+      not the final result of the whole path. This distinction catches almost everyone at least once.
+      Given a document where books are split across shelves:
+    </p>
+    <pre><code>&lt;library&gt;
+  &lt;shelf id="A"&gt;&lt;book&gt;A1&lt;/book&gt;&lt;book&gt;A2&lt;/book&gt;&lt;/shelf&gt;
+  &lt;shelf id="B"&gt;&lt;book&gt;B1&lt;/book&gt;&lt;book&gt;B2&lt;/book&gt;&lt;/shelf&gt;
+&lt;/library&gt;</code></pre>
+    <ul>
+      <li><code>//book[1]</code> returns <strong>two</strong> nodes — <code>A1</code> and <code>B1</code> — because each is the first book within its own shelf.</li>
+      <li><code>(//book)[1]</code> returns <strong>one</strong> node — <code>A1</code> — because the parentheses build the full sequence first, then take its first item.</li>
+    </ul>
+    <p>
+      The same rule explains why <code>//book[last()]</code> can return several nodes. When you mean
+      "the Nth thing overall", parenthesise the path.
+    </p>
+
+    <h2>XPath Axes</h2>
+    <p>
+      An axis says which direction to travel from the current node. <code>child::</code> is the default
+      and is almost always written implicitly, but the others become essential once you need to move
+      sideways or upwards.
+    </p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>child / descendant</h3>
+        <p><code>child::book</code> (usually just <code>book</code>) and <code>descendant::book</code>, abbreviated <code>.//book</code>, walk downwards.</p>
+      </div>
+      <div class="feature-card">
+        <h3>parent / ancestor</h3>
+        <p><code>parent::*</code> (abbreviated <code>..</code>) and <code>ancestor::book</code> walk back up towards the document node.</p>
+      </div>
+      <div class="feature-card">
+        <h3>following-sibling / preceding-sibling</h3>
+        <p>Move sideways among nodes sharing a parent — the basis of pattern-based grouping in XSLT 1.0.</p>
+      </div>
+      <div class="feature-card">
+        <h3>attribute / self</h3>
+        <p><code>attribute::lang</code> is abbreviated <code>@lang</code>; <code>self::book</code> (abbreviated <code>.</code>) tests the current node itself.</p>
+      </div>
+    </div>
+
+    <h2>Live XPath Example: Evaluate an Expression and List Every Match</h2>
+    <p>
+      This is the stylesheet behind the
+      <a href="https://xsltplayground.com/?template=xpath-tester">XPath tester template</a>. It wraps your
+      expression in a harness that reports the match count and copies out every selected node, so you can
+      see exactly what the expression returned rather than guessing from a single value.
+    </p>
+    <p><strong>XML input:</strong></p>
+    <pre><code>&lt;library&gt;
+  &lt;book lang="en" year="2001"&gt;
+    &lt;title&gt;Refactoring&lt;/title&gt;
+    &lt;author&gt;Martin Fowler&lt;/author&gt;
+    &lt;price&gt;38.50&lt;/price&gt;
+  &lt;/book&gt;
+  &lt;book lang="es" year="2005"&gt;
+    &lt;title&gt;El Quijote&lt;/title&gt;
+    &lt;author&gt;Cervantes&lt;/author&gt;
+    &lt;price&gt;12.00&lt;/price&gt;
+  &lt;/book&gt;
+  &lt;book lang="en" year="2018"&gt;
+    &lt;title&gt;Clean Architecture&lt;/title&gt;
+    &lt;author&gt;Robert C. Martin&lt;/author&gt;
+    &lt;price&gt;41.20&lt;/price&gt;
+  &lt;/book&gt;
+&lt;/library&gt;</code></pre>
+    <p><strong>Stylesheet:</strong></p>
+    <pre><code>&lt;xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;
+  &lt;xsl:output method="xml" indent="yes"/&gt;
+
+  &lt;!-- Put the expression you want to test here. --&gt;
+  &lt;xsl:variable name="expression" select="//book[@lang = 'en']"/&gt;
+
+  &lt;xsl:template match="/"&gt;
+    &lt;matches count="{count($expression)}"&gt;
+      &lt;xsl:for-each select="$expression"&gt;
+        &lt;match position="{position()}"&gt;
+          &lt;xsl:copy-of select="."/&gt;
+        &lt;/match&gt;
+      &lt;/xsl:for-each&gt;
+    &lt;/matches&gt;
+  &lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;</code></pre>
+    <p><strong>Output:</strong></p>
+    <pre><code>&lt;matches count="2"&gt;
+   &lt;match position="1"&gt;
+      &lt;book lang="en" year="2001"&gt;
+         &lt;title&gt;Refactoring&lt;/title&gt;
+         &lt;author&gt;Martin Fowler&lt;/author&gt;
+         &lt;price&gt;38.50&lt;/price&gt;
+      &lt;/book&gt;
+   &lt;/match&gt;
+   &lt;match position="2"&gt;
+      &lt;book lang="en" year="2018"&gt;
+         &lt;title&gt;Clean Architecture&lt;/title&gt;
+         &lt;author&gt;Robert C. Martin&lt;/author&gt;
+         &lt;price&gt;41.20&lt;/price&gt;
+      &lt;/book&gt;
+   &lt;/match&gt;
+&lt;/matches&gt;</code></pre>
+
+    <h2>Evaluating Several Expressions at Once</h2>
+    <p>
+      When you are comparing candidate expressions it is quicker to evaluate them side by side. This
+      stylesheet runs eight expressions against the same library document and labels each result.
+    </p>
+    <pre><code>&lt;xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;
+  &lt;xsl:output method="xml" indent="yes"/&gt;
+
+  &lt;xsl:template match="/"&gt;
+    &lt;results&gt;
+      &lt;r expr="count(//book)"&gt;
+        &lt;xsl:value-of select="count(//book)"/&gt;
+      &lt;/r&gt;
+      &lt;r expr="//book[@lang = 'en']/title"&gt;
+        &lt;xsl:value-of select="//book[@lang = 'en']/title" separator=", "/&gt;
+      &lt;/r&gt;
+      &lt;r expr="//book[price &amp;gt; 40]/title"&gt;
+        &lt;xsl:value-of select="//book[price &gt; 40]/title" separator=", "/&gt;
+      &lt;/r&gt;
+      &lt;r expr="//book[contains(author, 'Martin')]/title"&gt;
+        &lt;xsl:value-of select="//book[contains(author, 'Martin')]/title" separator=", "/&gt;
+      &lt;/r&gt;
+      &lt;r expr="//book[1]/title"&gt;
+        &lt;xsl:value-of select="//book[1]/title"/&gt;
+      &lt;/r&gt;
+      &lt;r expr="//book[last()]/@year"&gt;
+        &lt;xsl:value-of select="//book[last()]/@year"/&gt;
+      &lt;/r&gt;
+      &lt;r expr="//book[@lang = 'es']/following-sibling::book/title"&gt;
+        &lt;xsl:value-of select="//book[@lang = 'es']/following-sibling::book/title" separator=", "/&gt;
+      &lt;/r&gt;
+      &lt;r expr="//price[. &amp;gt; 40]/ancestor::book/@year"&gt;
+        &lt;xsl:value-of select="//price[. &gt; 40]/ancestor::book/@year"/&gt;
+      &lt;/r&gt;
+    &lt;/results&gt;
+  &lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;</code></pre>
+    <p><strong>Output:</strong></p>
+    <pre><code>&lt;results&gt;
+   &lt;r expr="count(//book)"&gt;3&lt;/r&gt;
+   &lt;r expr="//book[@lang = 'en']/title"&gt;Refactoring, Clean Architecture&lt;/r&gt;
+   &lt;r expr="//book[price &amp;gt; 40]/title"&gt;Clean Architecture&lt;/r&gt;
+   &lt;r expr="//book[contains(author, 'Martin')]/title"&gt;Refactoring, Clean Architecture&lt;/r&gt;
+   &lt;r expr="//book[1]/title"&gt;Refactoring&lt;/r&gt;
+   &lt;r expr="//book[last()]/@year"&gt;2018&lt;/r&gt;
+   &lt;r expr="//book[@lang = 'es']/following-sibling::book/title"&gt;Clean Architecture&lt;/r&gt;
+   &lt;r expr="//price[. &amp;gt; 40]/ancestor::book/@year"&gt;2018&lt;/r&gt;
+&lt;/results&gt;</code></pre>
+    <p>
+      Note that <code>//book[1]/title</code> returns a single title here only because all three books share
+      one parent. The <code>separator</code> attribute on <code>xsl:value-of</code> requires XSLT 2.0 or later.
+    </p>
+
+    <h2>XPath 1.0 vs 2.0 vs 3.1 — What Changed</h2>
+    <ul>
+      <li><strong>XPath 1.0 (1999):</strong> four types only — node-set, string, number, boolean. No sequences, no date types, no regular expressions. Comparing a node-set with <code>=</code> is existential, which is why <code>//book/@lang != 'en'</code> does not mean what most people expect. This is the version browsers implement.</li>
+      <li><strong>XPath 2.0 (2007):</strong> introduces sequences and the XML Schema type system (<code>xs:date</code>, <code>xs:integer</code>…), <code>for</code>/<code>if</code>/<code>some</code>/<code>every</code> expressions, regular expressions via <code>matches()</code>, <code>replace()</code> and <code>tokenize()</code>, the value comparison operators <code>eq</code>, <code>ne</code>, <code>lt</code>, and functions such as <code>distinct-values()</code> and <code>string-join()</code>.</li>
+      <li><strong>XPath 3.0 (2014):</strong> adds inline anonymous functions and higher-order functions, <code>let</code> expressions, the string concatenation operator <code>||</code>, the simple mapping operator <code>!</code>, and <code>analyze-string()</code>.</li>
+      <li><strong>XPath 3.1 (2017):</strong> adds maps and arrays as first-class types, the lookup operator <code>?</code>, the arrow operator <code>=&gt;</code>, and the JSON functions <code>parse-json()</code>, <code>json-doc()</code>, <code>xml-to-json()</code> and <code>json-to-xml()</code>.</li>
+    </ul>
+    <p>
+      In XSLT Playground the XPath version follows the XSLT version you select: XSLT 1.0 gives you XPath 1.0,
+      XSLT 2.0 gives XPath 2.0, and XSLT 3.0 gives the full XPath 3.1 surface.
+    </p>
+
+    <h2>Frequently Asked Questions</h2>
+    <dl>
+      <dt>How do I test an XPath expression online?</dt>
+      <dd>Open the <a href="https://xsltplayground.com/?template=xpath-tester">XPath tester template</a>, paste your XML into the input panel, and put your expression in the <code>expression</code> variable. The result panel lists every matching node with a total count.</dd>
+
+      <dt>Which XPath versions can I test?</dt>
+      <dd>XPath 1.0, 2.0, 3.0 and 3.1. The version follows the XSLT version you select, and Saxon HE 12.5 evaluates all of them — including maps, arrays and the arrow operator in XPath 3.1.</dd>
+
+      <dt>Why does <code>//book[1]</code> return more than one node?</dt>
+      <dd>A positional predicate applies to each step, not to the whole result. <code>//book[1]</code> selects every book that is first among its own siblings. To take the first node of the entire result, parenthesise the path: <code>(//book)[1]</code>.</dd>
+
+      <dt>Can I test XPath axes online?</dt>
+      <dd>Yes. All thirteen axes work, including <code>ancestor</code>, <code>descendant</code>, <code>following-sibling</code>, <code>preceding-sibling</code>, <code>parent</code>, <code>self</code> and <code>attribute</code>. The expression runs inside a real Saxon transformation, so behaviour matches production.</dd>
+
+      <dt>Do browsers support XPath 2.0 or 3.1?</dt>
+      <dd>No. Browsers implement XPath 1.0 only, so <code>matches()</code>, <code>tokenize()</code>, <code>distinct-values()</code> and <code>format-date()</code> are unavailable there. XSLT Playground runs Saxon on the server, which is why it can evaluate XPath 2.0 and 3.1.</dd>
+
+      <dt>Is the online XPath tester free?</dt>
+      <dd>Yes — completely free, no installation and no account. You can also share a workspace with a single link.</dd>
+    </dl>
+
+    <h2>XPath Function Reference</h2>
+    <p>
+      Every XPath function, documented with syntax and a runnable example: browse the
+      <a href="https://xsltplayground.com/blog/xslt/functions/">complete XSLT &amp; XPath function reference</a>.
+      The functions that show up most often inside predicates:
+    </p>
+    <ul>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-count/">count()</a> — how many nodes an expression selected</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-contains/">contains()</a> — substring test inside a predicate</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-starts-with/">starts-with()</a> — prefix matching</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-position/">position()</a> and <a href="https://xsltplayground.com/blog/xslt/functions/xpath-last/">last()</a> — positional predicates</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-local-name/">local-name()</a> — match elements regardless of namespace</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-normalize-space/">normalize-space()</a> — compare text without whitespace noise</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-matches/">matches()</a> — regular expression test (XPath 2.0+)</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-distinct-values/">distinct-values()</a> — deduplicate a sequence (XPath 2.0+)</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-exists/">exists()</a> and <a href="https://xsltplayground.com/blog/xslt/functions/xpath-empty/">empty()</a> — presence tests that read clearly</li>
+    </ul>
+
+    <h2>Learn More</h2>
+    <ul>
+      <li><a href="https://xsltplayground.com/blog/posts/xslt-string-functions/">XSLT string functions reference (substring, replace, tokenize)</a></li>
+      <li><a href="https://xsltplayground.com/blog/posts/xslt-grouping-for-each-group/">XSLT grouping with xsl:for-each-group — complete guide</a></li>
+      <li><a href="https://xsltplayground.com/blog/posts/xslt-xml-to-json-csv/">Transforming XML to JSON and CSV with XSLT</a></li>
+    </ul>
+
+    <h2>Also Available</h2>
+    <p>Need to turn that XML into JSON once you have selected it? <a href="/xml-to-json/">Try the XML to JSON converter →</a></p>
+    <p>Testing a full stylesheet rather than a single expression? Use the <a href="/xslt-2-0/">XSLT 2.0 Online Tester</a> or the <a href="/xslt-3-0/">XSLT 3.0 Online Tester</a>.</p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 <a href="https://xsltplayground.com/">XSLT Playground</a> — Free Online XSLT Editor, Tester &amp; Validator</p>
+  </footer>
+</body>
+</html>

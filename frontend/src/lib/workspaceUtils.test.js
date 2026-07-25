@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   addParams,
   detectVersionUpgradeHint,
+  findErrorReference,
   extractParamNames,
   injectParamBlock,
   parseErrorLines,
@@ -102,5 +103,24 @@ describe("detectVersionUpgradeHint", () => {
   it("returns null for empty input", () => {
     expect(detectVersionUpgradeHint("", "1.0")).toBeNull();
     expect(detectVersionUpgradeHint("tokenize(", "")).toBeNull();
+  });
+});
+
+describe("findErrorReference", () => {
+  it("links a documented Saxon code to its reference page", () => {
+    expect(findErrorReference("XPST0017: function foo#1 is not defined")).toEqual({
+      code: "XPST0017",
+      url: "https://xsltplayground.com/blog/xslt/errors/xpst0017/",
+    });
+  });
+  it("links prose well-formedness errors that have a page", () => {
+    const r = findErrorReference("Content is not allowed in prolog.");
+    expect(r.url).toBe("https://xsltplayground.com/blog/xslt/errors/content-not-allowed-in-prolog/");
+  });
+  it("returns null for codes without a page", () => {
+    expect(findErrorReference("XPST9999: made up")).toBeNull();
+  });
+  it("returns null for empty input", () => {
+    expect(findErrorReference("")).toBeNull();
   });
 });
