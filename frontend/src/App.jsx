@@ -182,7 +182,6 @@ function useEditorExtras(enabled) {
 }
 
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
-const UsageSurvey = lazy(() => import("./components/UsageSurvey"));
 
 function runWhenIdle(callback, timeout = 2000) {
   if (typeof window === "undefined") {
@@ -753,9 +752,6 @@ export default function App() {
   const [ethicalAdsReady, setEthicalAdsReady] = useState(false);
   const [transformCount, setTransformCount] = useState(0);
   const [userHasTransformed, setUserHasTransformed] = useState(false);
-  const [surveyDone, setSurveyDone] = useState(() => {
-    try { return localStorage.getItem("xsp_survey_done") === "1"; } catch { return false; }
-  });
   const [satisfactionDone, setSatisfactionDone] = useState(() => {
     try { return localStorage.getItem("xsp_satisfaction_feedback_done") === "1"; } catch { return false; }
   });
@@ -2651,7 +2647,9 @@ export default function App() {
                 )}
               </div>
             ) : null}
-            {widgetsReady && duration !== null && userHasTransformed && !satisfactionDone && (
+            {/* Ask only after the user has got value out of the tool twice — never
+                on the very first run, and never alongside a second prompt. */}
+            {widgetsReady && duration !== null && userHasTransformed && transformCount >= 2 && !satisfactionDone && (
               <Suspense fallback={null}>
                 <FeedbackWidget
                   kind="satisfaction"
@@ -2883,18 +2881,6 @@ export default function App() {
           </div>
           <pre>{traceHover.text}</pre>
         </div>
-      )}
-      {widgetsReady && (
-        <Suspense fallback={null}>
-          {!surveyDone && transformCount >= 3 && (
-            <UsageSurvey
-              onDismiss={() => {
-                setSurveyDone(true);
-                try { localStorage.setItem("xsp_survey_done", "1"); } catch {}
-              }}
-            />
-          )}
-        </Suspense>
       )}
     </div>
   );
