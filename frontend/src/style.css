@@ -2322,3 +2322,21 @@ a:focus-visible {
 :root[data-theme="dark"] .compare-toggle { background: #161c24; border-color: #2b3645; color: #e6edf3; }
 :root[data-theme="dark"] .diff-row.diff-added { background: #10301c; color: #7ee2a8; }
 :root[data-theme="dark"] .diff-row.diff-removed { background: #3a1512; color: #ffb4ab; }
+
+/* Stand-in shown while a deferred editor waits to be built. Mirrors the
+   editor's typography so swapping in CodeMirror doesn't move anything. */
+.editor-placeholder {
+  overflow: hidden;
+  background: inherit;
+}
+
+.editor-placeholder pre {
+  margin: 0;
+  padding: 4px 0 4px 4px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre;
+  overflow: hidden;
+  color: inherit;
+}

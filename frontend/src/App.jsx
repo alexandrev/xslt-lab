@@ -271,7 +271,6 @@ function Editor({
   wrapperProps,
   onFocus,
   onBlur,
-  // eslint-disable-next-line no-unused-vars
   eager,
   // eslint-disable-next-line no-unused-vars
   language,
@@ -280,6 +279,19 @@ function Editor({
 }) {
   const editable = !options.readOnly;
   const extras = useEditorExtras(editable);
+
+  // Building an EditorView is the single most expensive thing this component
+  // does, and the page mounts several at once — enough main-thread work during
+  // load to wreck INP for anyone who interacts early. Only the editor marked
+  // `eager` (the stylesheet, which the user goes straight to) is built up
+  // front; the rest are built when the browser goes idle, or immediately if
+  // the user reaches them first.
+  const [viewReady, setViewReady] = useState(Boolean(eager));
+  useEffect(() => {
+    if (viewReady) return undefined;
+    const cancel = runWhenIdle(() => setViewReady(true), 300);
+    return () => cancel?.();
+  }, [viewReady]);
 
   const containerRef = useRef(null);
   const viewRef = useRef(null);
@@ -299,6 +311,7 @@ function Editor({
 
   // Create the view once.
   useEffect(() => {
+    if (!viewReady) return undefined;
     const c = compartments.current;
     const state = EditorState.create({
       doc: value ?? "",
@@ -331,7 +344,7 @@ function Editor({
     };
     // Mount-only; live prop changes are handled by the reconfigure effects below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [viewReady]);
 
   // Sync the controlled value without stomping the cursor on our own edits.
   useEffect(() => {
@@ -370,6 +383,23 @@ function Editor({
   }, [extras, editable, xsltVersion]);
 
   const style = height ? { height, overflow: "hidden" } : undefined;
+  if (!viewReady) {
+    // Show the text meanwhile so nothing moves when the real editor takes over,
+    // and upgrade on the first sign the user is heading for this editor.
+    const upgrade = () => setViewReady(true);
+    return (
+      <div
+        style={style}
+        {...wrapperProps}
+        className="editor-placeholder"
+        onPointerDown={upgrade}
+        onFocus={upgrade}
+        tabIndex={-1}
+      >
+        <pre>{value ?? ""}</pre>
+      </div>
+    );
+  }
   return <div style={style} {...wrapperProps} ref={containerRef} />;
 }
 
