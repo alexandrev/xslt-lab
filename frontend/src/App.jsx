@@ -15,6 +15,7 @@ import {
 } from "./lib/workspaceUtils";
 import { templateToWorkspace, findTemplate } from "./lib/templates";
 import { diffLines } from "./lib/diffUtils";
+import { encodeCompact, decodeCompact, toSharePayload, fromSharePayload } from "./lib/shareLink";
 
 /* global __APP_VERSION__, __GIT_COMMIT__ */
 
@@ -536,6 +537,20 @@ function buildShareUrl(tab) {
   params.set("version", tab.version || "1.0");
   if (tab.name) params.set("title", b64Encode(tab.name));
   return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+}
+
+// Prefer the compressed ?c= form when it is actually shorter; fall back to the
+// plain link if compression is unavailable (older browsers) or doesn't help.
+async function buildShareUrlCompact(tab) {
+  const plain = buildShareUrl(tab);
+  try {
+    const encoded = await encodeCompact(toSharePayload(tab));
+    if (!encoded) return plain;
+    const compact = `${window.location.origin}${window.location.pathname}?c=${encoded}`;
+    return compact.length < plain.length ? compact : plain;
+  } catch {
+    return plain;
+  }
 }
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -1480,6 +1495,28 @@ export default function App() {
     [active, setActive, setWorkspaceStatus],
   );
 
+  // A compact ?c= link carries a gzipped workspace, which can only be read
+  // asynchronously — so unlike the legacy ?xslt= form it is applied after mount.
+  useEffect(() => {
+    let cancelled = false;
+    let encoded = null;
+    try {
+      encoded = new URLSearchParams(window.location.search).get("c");
+    } catch {}
+    if (!encoded) return undefined;
+    decodeCompact(encoded).then((payload) => {
+      const overrides = fromSharePayload(payload);
+      if (cancelled || !overrides) return;
+      const tab = defaultTab({ name: "Shared transform", ...overrides });
+      setWorkspaceStatus((prev) => ({ ...prev, [tab.id]: defaultWorkspaceStatus() }));
+      setTabs([tab]);
+      setActive(tab.id);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [setActive, setWorkspaceStatus]);
+
   const handleRemoveWorkspace = useCallback(
     (id) => {
       setTabs((current) => {
@@ -2314,12 +2351,11 @@ export default function App() {
               className="icon-button"
               aria-label="Copy share link"
               title="Copy shareable link"
-              onClick={() => {
-                const url = buildShareUrl(activeTab);
-                navigator.clipboard.writeText(url).then(() => {
-                  setShareCopied(true);
-                  setTimeout(() => setShareCopied(false), 2000);
-                });
+              onClick={async () => {
+                const url = await buildShareUrlCompact(activeTab);
+                await navigator.clipboard.writeText(url);
+                setShareCopied(true);
+                setTimeout(() => setShareCopied(false), 2000);
               }}
             >
               <Icon name={shareCopied ? "check" : "share"} />
@@ -2541,8 +2577,8 @@ export default function App() {
                     type="button"
                     className={`share-transform-btn error-share${shareCopied ? " copied" : ""}`}
                     title="Copy a shareable link to this transformation"
-                    onClick={() => {
-                      const url = buildShareUrl(activeTab);
+                    onClick={async () => {
+                      const url = await buildShareUrlCompact(activeTab);
                       const text = `Check out my XSLT transformation! ✨\n${url}`;
                       navigator.clipboard.writeText(text).then(() => {
                         setShareCopied(true);
@@ -2721,8 +2757,8 @@ export default function App() {
                     type="button"
                     className={`share-transform-btn${shareCopied ? " copied" : ""}`}
                     title="Copy a shareable link to this transformation"
-                    onClick={() => {
-                      const url = buildShareUrl(activeTab);
+                    onClick={async () => {
+                      const url = await buildShareUrlCompact(activeTab);
                       const text = `Check out my XSLT transformation! ✨\n${url}`;
                       navigator.clipboard.writeText(text).then(() => {
                         setShareCopied(true);
