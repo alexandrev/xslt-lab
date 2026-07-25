@@ -7,8 +7,12 @@ on:
   workflow_dispatch:
 
 concurrency:
+  # Both workflows publish to the same gh-pages branch, so they must not run at
+  # once — but they must not cancel each other either: they deploy different
+  # things (the Hugo site and the Helm chart index) and a push touching both
+  # used to silently drop one of the two deploys. Queue instead of cancelling.
   group: deploy-gh-pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: write
