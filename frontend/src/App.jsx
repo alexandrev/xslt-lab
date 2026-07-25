@@ -14,6 +14,7 @@ import {
   findErrorReference,
 } from "./lib/workspaceUtils";
 import { templateToWorkspace, findTemplate } from "./lib/templates";
+import { diffLines } from "./lib/diffUtils";
 
 /* global __APP_VERSION__, __GIT_COMMIT__ */
 
@@ -404,6 +405,7 @@ function defaultTab(overrides = {}) {
     xslt: `<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">\n<xsl:template match="/">\n<root/>\n</xsl:template>\n</xsl:stylesheet>`,
     version: "1.0",
     name: "",
+    expected: "",
   };
   const merged = { ...base, ...overrides };
   return {
@@ -413,6 +415,7 @@ function defaultTab(overrides = {}) {
     xslt: typeof merged.xslt === "string" ? merged.xslt : base.xslt,
     version: merged.version || base.version,
     name: typeof merged.name === "string" ? merged.name : base.name,
+    expected: typeof merged.expected === "string" ? merged.expected : base.expected,
   };
 }
 
@@ -570,6 +573,7 @@ function normalizeWorkspaceImport(payload) {
       params,
       xslt: workspace.xslt,
       version: workspace.version || "1.0",
+      expected: typeof workspace.expected === "string" ? workspace.expected : "",
     },
     status,
   };
@@ -782,6 +786,7 @@ export default function App() {
   const [serverErrorCount, setServerErrorCount] = useState(0);
   const [bugFeedbackDismissed, setBugFeedbackDismissed] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
   const [xsltBeforeFormat, setXsltBeforeFormat] = useState(null);
   const [resultBeforeFormat, setResultBeforeFormat] = useState(null);
   const workspaceImportRef = useRef(null);
@@ -1778,6 +1783,7 @@ export default function App() {
           params: tab.params,
           xslt: tab.xslt,
           version: tab.version,
+          expected: tab.expected || "",
         },
         status: statusSnapshot,
       };
@@ -2744,7 +2750,76 @@ export default function App() {
                 />
               </Suspense>
             )}
+            {compareOpen && (
+              <div className="compare-panel">
+                <label className="compare-label" htmlFor="expected-output">
+                  Expected output
+                </label>
+                <textarea
+                  id="expected-output"
+                  className="compare-expected"
+                  placeholder="Paste the output this transform should produce…"
+                  value={activeTab.expected || ""}
+                  onChange={(e) =>
+                    setTabs((tabs) =>
+                      tabs.map((t) =>
+                        t.id === active ? { ...t, expected: e.target.value } : t,
+                      ),
+                    )
+                  }
+                  rows={4}
+                  spellCheck={false}
+                />
+                {(activeTab.expected || "").trim() && result ? (
+                  (() => {
+                    const d = diffLines(result, activeTab.expected);
+                    return (
+                      <>
+                        <p className={`compare-verdict ${d.equal ? "match" : "differs"}`}>
+                          {d.equal
+                            ? "✓ Output matches the expected result"
+                            : `✗ ${d.changes} line${d.changes === 1 ? "" : "s"} differ`}
+                        </p>
+                        {!d.equal && (
+                          <div className="compare-diff">
+                            {d.rows
+                              .filter((r) => r.type !== "same")
+                              .slice(0, 60)
+                              .map((r, i) => (
+                                <div key={i} className={`diff-row diff-${r.type}`}>
+                                  <span className="diff-sign">
+                                    {r.type === "added" ? "+" : "−"}
+                                  </span>
+                                  <span className="diff-text">{r.text}</span>
+                                </div>
+                              ))}
+                            {d.truncated && <div className="diff-more">…diff truncated</div>}
+                          </div>
+                        )}
+                        <p className="compare-legend">
+                          <span className="diff-added">+</span> in the actual output ·{" "}
+                          <span className="diff-removed">−</span> expected but missing ·
+                          whitespace ignored
+                        </p>
+                      </>
+                    );
+                  })()
+                ) : (
+                  <p className="compare-legend">
+                    Run the transform and paste an expected result to compare them.
+                  </p>
+                )}
+              </div>
+            )}
             <div className="result-actions">
+              <button
+                type="button"
+                className={`compare-toggle${compareOpen ? " active" : ""}`}
+                onClick={() => setCompareOpen((v) => !v)}
+                title="Compare the output against an expected result"
+              >
+                Compare
+              </button>
               <button
                 type="button"
                 className={`icon-button result-copy-button${resultCopied ? " copied" : ""}`}
