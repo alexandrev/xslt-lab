@@ -9,6 +9,14 @@
   "templating": {
     "list": [
       {
+        "name": "prometheus",
+        "label": "Prometheus",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {},
+        "hide": 0
+      },
+      {
         "name": "loki",
         "label": "Loki",
         "type": "datasource",
@@ -23,12 +31,12 @@
       "id": 1,
       "type": "timeseries",
       "title": "Transform errors by code",
-      "datasource": { "type": "loki", "uid": "${loki}" },
+      "datasource": { "type": "prometheus", "uid": "${prometheus}" },
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (error_code) (count_over_time({namespace=\"xslt-lab\"} |= `\"event\":\"transform_error\"` | json | __error__=`` [$__interval]))",
+          "expr": "sum by (error_code) (increase(xslt_transform_errors_total[$__rate_interval]))",
           "legendFormat": "{{error_code}}"
         }
       ],
@@ -41,12 +49,12 @@
       "id": 2,
       "type": "timeseries",
       "title": "Transform errors by class (backend = likely bug)",
-      "datasource": { "type": "loki", "uid": "${loki}" },
+      "datasource": { "type": "prometheus", "uid": "${prometheus}" },
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (class) (count_over_time({namespace=\"xslt-lab\"} |= `\"event\":\"transform_error\"` | json | __error__=`` [$__interval]))",
+          "expr": "sum by (class) (increase(xslt_transform_errors_total[$__rate_interval]))",
           "legendFormat": "{{class}}"
         }
       ],

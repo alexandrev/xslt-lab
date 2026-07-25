@@ -116,31 +116,29 @@ describe("server error reporting", () => {
   });
 });
 
-describe("usage survey", () => {
-  it("does not show survey before 3 successful transforms", async () => {
+describe("contextual satisfaction feedback", () => {
+  it("does not ask for feedback on the first successful transform", async () => {
     render(<App />);
     fireEvent.pointerDown(window);
-    await waitFor(() => expect(fetch).toHaveBeenCalled(), { timeout: 3000 });
-    expect(screen.queryByText(/what are you using this for/i)).not.toBeInTheDocument();
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1), { timeout: 3000 });
+    expect(
+      screen.queryByText(/did this transformation help/i),
+    ).not.toBeInTheDocument();
   });
 
-  it("shows survey after 3 successful transforms", async () => {
+  it("asks after the second successful transform", async () => {
     render(<App />);
     fireEvent.pointerDown(window);
-    // 1st transform on mount
     await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1), { timeout: 3000 });
-    // Toggle trace twice to trigger 2 more transforms
     const traceCheckbox = screen.getByRole("checkbox", { name: /enable internal variables/i });
     await act(async () => { fireEvent.click(traceCheckbox); });
     await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2), { timeout: 3000 });
-    await act(async () => { fireEvent.click(traceCheckbox); });
-    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(3), { timeout: 3000 });
     await waitFor(() =>
-      expect(screen.getByText(/what are you using this for/i)).toBeInTheDocument(),
+      expect(screen.getByText(/did this transformation help/i)).toBeInTheDocument(),
     { timeout: 3000 });
   }, 15000);
 
-  it("dismisses survey when ✕ is clicked", async () => {
+  it("never shows a second, floating feedback prompt alongside it", async () => {
     render(<App />);
     fireEvent.pointerDown(window);
     await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1), { timeout: 3000 });
@@ -149,11 +147,9 @@ describe("usage survey", () => {
     await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2), { timeout: 3000 });
     await act(async () => { fireEvent.click(traceCheckbox); });
     await waitFor(() => expect(fetch).toHaveBeenCalledTimes(3), { timeout: 3000 });
-    await waitFor(() =>
-      expect(screen.getByText(/what are you using this for/i)).toBeInTheDocument(),
-    { timeout: 3000 });
-    fireEvent.click(screen.getByRole("button", { name: /dismiss survey/i }));
+    // The old always-on usage survey is gone: only the inline prompt may appear.
     expect(screen.queryByText(/what are you using this for/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/did this transformation help/i)).toHaveLength(1);
   }, 15000);
 });
 

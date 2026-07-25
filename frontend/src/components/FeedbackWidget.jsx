@@ -1,248 +1,142 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-
-const STORAGE_KEY = "feedbackPos2"; // v2: new default position top-right
-const MIN_MARGIN = 10;
-const DEFAULT_MARGIN = 24;
-const WIDGET_WIDTH = 220;
-const TOOLBAR_HEIGHT = 68; // approx height of the toolbar above the editor
+import { useState } from "react";
 
 function getWebhookUrl() {
-  return (window.env && window.env.VITE_FEEDBACK_WEBHOOK_URL) || "";
+  return (typeof window !== "undefined" && window.env?.VITE_FEEDBACK_WEBHOOK_URL) || "";
 }
 
-export default function FeedbackWidget() {
-  const [collapsed, setCollapsed] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem("feedbackCollapsed") || "false");
-    } catch {
-      return false;
-    }
+async function sendFeedback(payload) {
+  const webhookUrl = getWebhookUrl();
+  if (!webhookUrl) return false;
+  const response = await fetch(webhookUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...payload,
+      url: window.location.href,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString(),
+    }),
   });
-  const widgetRef = useRef(null);
-  const [viewportHeight, setViewportHeight] = useState(() =>
-    typeof window !== "undefined" ? window.innerHeight : 0,
-  );
-  const [viewportWidth, setViewportWidth] = useState(() =>
-    typeof window !== "undefined" ? window.innerWidth : 0,
-  );
-  const [position, setPosition] = useState(() => {
-    if (typeof window === "undefined") return null;
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (typeof parsed?.x === "number" && typeof parsed?.y === "number") {
-          return parsed;
-        }
-      }
-    } catch {}
-    return null;
-  });
-  const [dragging, setDragging] = useState(false);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [opensUp, setOpensUp] = useState(false);
+  if (!response.ok) throw new Error(`feedback webhook returned ${response.status}`);
+  return true;
+}
 
-  // Form state
+export default function FeedbackWidget({
+  kind = "satisfaction",
+  reportUrl = "",
+  context = {},
+  onComplete = () => {},
+}) {
+  const [expanded, setExpanded] = useState(kind === "bug");
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
-  const [type, setType] = useState("idea");
-  const [status, setStatus] = useState("idle"); // idle | sending | success | error
+  const [status, setStatus] = useState("idle");
 
-  const resolvedPosition = useMemo(() => {
-    if (position) return position;
-    const vw = viewportWidth || (typeof window !== "undefined" ? window.innerWidth : 800);
-    return {
-      x: Math.max(MIN_MARGIN, vw - WIDGET_WIDTH - DEFAULT_MARGIN),
-      y: TOOLBAR_HEIGHT,
-    };
-  }, [position, viewportWidth]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const handleResize = () => {
-      setViewportHeight(window.innerHeight);
-      setViewportWidth(window.innerWidth);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
+  const complete = () => {
     try {
-      localStorage.setItem("feedbackCollapsed", JSON.stringify(collapsed));
+      if (kind === "satisfaction") {
+        localStorage.setItem("xsp_satisfaction_feedback_done", "1");
+      }
     } catch {}
-  }, [collapsed]);
+    onComplete();
+  };
 
-  const clampWithinViewport = useCallback((pos) => {
-    if (!pos || typeof window === "undefined" || !widgetRef.current) return pos;
-    const rect = widgetRef.current.getBoundingClientRect();
-    const maxX = Math.max(MIN_MARGIN, window.innerWidth - rect.width - MIN_MARGIN);
-    const maxY = Math.max(MIN_MARGIN, window.innerHeight - rect.height - MIN_MARGIN);
-    return {
-      x: Math.min(Math.max(MIN_MARGIN, pos.x), maxX),
-      y: Math.min(Math.max(MIN_MARGIN, pos.y), maxY),
-    };
-  }, []);
-
-  useLayoutEffect(() => {
-    if (!position) return;
-    const next = clampWithinViewport(position);
-    if (!next) return;
-    if (next.x !== position.x || next.y !== position.y) setPosition(next);
-  }, [position, clampWithinViewport, viewportHeight, viewportWidth, collapsed]);
-
-  useEffect(() => {
-    if (!dragging) return;
-    const handleMove = (event) => {
-      event.preventDefault();
-      dragMovedRef.current = true;
-      const widget = widgetRef.current;
-      const widgetRect = widget?.getBoundingClientRect();
-      const maxX = Math.max(MIN_MARGIN, window.innerWidth - (widgetRect?.width ?? 0) - MIN_MARGIN);
-      const maxY = Math.max(MIN_MARGIN, window.innerHeight - (widgetRect?.height ?? 0) - MIN_MARGIN);
-      setPosition({
-        x: Math.min(Math.max(MIN_MARGIN, event.clientX - offset.x), maxX),
-        y: Math.min(Math.max(MIN_MARGIN, event.clientY - offset.y), maxY),
-      });
-    };
-    const stop = () => setDragging(false);
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseup", stop);
-    return () => {
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseup", stop);
-    };
-  }, [dragging, offset]);
-
-  useEffect(() => {
-    if (dragging || !position) return;
+  const handleRating = async (rating) => {
+    window.gtag?.("event", "contextual_feedback", { kind, rating });
+    if (rating === "not_quite") {
+      setExpanded(true);
+      return;
+    }
+    setStatus("sending");
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(position));
-    } catch {}
-  }, [dragging, position]);
+      await sendFeedback({ type: "satisfaction", message: "Helpful", rating, ...context });
+      setStatus("success");
+      complete();
+    } catch {
+      // Analytics still records the answer; do not trap the user if the optional
+      // webhook is unavailable.
+      complete();
+    }
+  };
 
-  useLayoutEffect(() => {
-    if (!widgetRef.current || !viewportHeight) return;
-    const rect = widgetRef.current.getBoundingClientRect();
-    setOpensUp(rect.top + rect.height / 2 > viewportHeight / 2);
-  }, [position, collapsed, viewportHeight]);
-
-  const dragMovedRef = useRef(false);
-
-  const startDrag = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    dragMovedRef.current = false;
-    const rect = event.currentTarget.getBoundingClientRect();
-    setOffset({ x: event.clientX - rect.left, y: event.clientY - rect.top });
-    setDragging(true);
-  };
-
-  const handleHeaderClick = () => {
-    if (!dragMovedRef.current) setCollapsed((prev) => !prev);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
     if (!message.trim()) return;
-    const webhookUrl = getWebhookUrl();
-    if (!webhookUrl) return;
     setStatus("sending");
     try {
       const payload = {
-        type,
+        type: kind === "bug" ? "bug" : "satisfaction",
         message: message.trim(),
-        url: window.location.href,
-        userAgent: navigator.userAgent,
-        timestamp: new Date().toISOString(),
+        ...context,
       };
       if (email.trim()) payload.mail = email.trim();
-      await fetch(webhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      await sendFeedback(payload);
+      window.gtag?.("event", "contextual_feedback", { kind, rating: "details" });
       setStatus("success");
-      setMessage("");
-      setEmail("");
+      complete();
     } catch {
       setStatus("error");
     }
   };
 
-  return (
-    <div
-      ref={widgetRef}
-      className={`feedback-widget ${collapsed ? "collapsed" : ""} ${opensUp ? "opens-up" : ""}`}
-      style={{ left: resolvedPosition.x, top: resolvedPosition.y }}
-    >
-      <div
-        className="feedback-header"
-        onMouseDown={startDrag}
-        onClick={handleHeaderClick}
-        style={{ cursor: "grab" }}
-      >
-        <span>Feedback</span>
-        <span aria-hidden="true">{collapsed ? "▲" : "▼"}</span>
+  if (status === "success") {
+    return (
+      <div className={`contextual-feedback ${kind}`} role="status">
+        Thanks — your feedback was sent.
       </div>
-      {!collapsed && (
-        <div className="feedback-body">
-          {status === "success" ? (
-            <div className="feedback-success">
-              <p>Thanks! Your feedback has been sent 🙏</p>
-              <button
-                type="button"
-                className="feedback-submit"
-                onClick={() => setStatus("idle")}
-              >
-                Send another
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              <select
-                className="feedback-type"
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-              >
-                <option value="idea">💡 Idea</option>
-                <option value="bug">🐞 Bug</option>
-                <option value="other">💬 Other</option>
-              </select>
-              <textarea
-                className="feedback-textarea"
-                placeholder="What's on your mind?"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows={3}
-                maxLength={1000}
-              />
-              <input
-                type="email"
-                className="feedback-email"
-                placeholder="Email (optional)"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              {status === "error" && (
-                <p className="feedback-error">Failed to send, try again.</p>
-              )}
-              <button
-                type="submit"
-                className="feedback-submit"
-                disabled={status === "sending" || !message.trim() || !getWebhookUrl()}
-              >
-                {status === "sending" ? "Sending…" : "Send feedback"}
-              </button>
-            </form>
-          )}
+    );
+  }
+
+  return (
+    <div className={`contextual-feedback ${kind}`} role="complementary">
+      <div className="contextual-feedback-heading">
+        <span>
+          {kind === "bug"
+            ? "This looks like a server problem. Want to report it?"
+            : "Did this transformation help?"}
+        </span>
+        <button
+          type="button"
+          className="contextual-feedback-dismiss"
+          onClick={complete}
+          aria-label="Dismiss feedback"
+        >
+          ×
+        </button>
+      </div>
+      {kind === "satisfaction" && !expanded && (
+        <div className="contextual-feedback-actions">
+          <button type="button" onClick={() => handleRating("helpful")}>Yes</button>
+          <button type="button" onClick={() => handleRating("not_quite")}>Not quite</button>
         </div>
+      )}
+      {expanded && (
+        <form onSubmit={handleSubmit}>
+          <textarea
+            className="feedback-textarea"
+            placeholder={kind === "bug" ? "What did you expect to happen?" : "What could be better?"}
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            rows={2}
+            maxLength={1000}
+          />
+          <input
+            type="email"
+            className="feedback-email"
+            placeholder="Email (optional)"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+          {status === "error" && <p className="feedback-error">Failed to send, try again.</p>}
+          <div className="contextual-feedback-actions">
+            <button type="submit" disabled={status === "sending" || !message.trim() || !getWebhookUrl()}>
+              {status === "sending" ? "Sending…" : "Send feedback"}
+            </button>
+            {kind === "bug" && reportUrl && (
+              <a href={reportUrl} target="_blank" rel="noopener noreferrer">Open GitHub issue</a>
+            )}
+          </div>
+        </form>
       )}
     </div>
   );

@@ -131,3 +131,54 @@ export function setStylesheetVersion(text, version) {
 export function getParamBlockMarkers() {
   return { PARAM_START, PARAM_END };
 }
+
+// Functions introduced in later XSLT/XPath versions. When a transform fails in a
+// lower version and the error mentions one of these being called, the user most
+// likely just needs to bump the version (the XSLT 1.0 engine has no such function).
+const FN_MIN_VERSION = {
+  // XPath / XSLT 2.0
+  "current-date": "2.0",
+  "current-time": "2.0",
+  "current-dateTime": "2.0",
+  tokenize: "2.0",
+  replace: "2.0",
+  matches: "2.0",
+  exists: "2.0",
+  empty: "2.0",
+  "distinct-values": "2.0",
+  "upper-case": "2.0",
+  "lower-case": "2.0",
+  "ends-with": "2.0",
+  "string-join": "2.0",
+  "index-of": "2.0",
+  avg: "2.0",
+  "format-date": "2.0",
+  "format-dateTime": "2.0",
+  // XPath / XSLT 3.0
+  "parse-json": "3.0",
+  "json-to-xml": "3.0",
+  "xml-to-json": "3.0",
+  "parse-xml": "3.0",
+  "fold-left": "3.0",
+  "fold-right": "3.0",
+};
+
+// Given an error message and the current version, detect whether the failure is
+// caused by calling a function from a newer XSLT version. Returns
+// { func, version } (the minimum version that supports it) or null.
+export function detectVersionUpgradeHint(errorText, currentVersion) {
+  if (!errorText || !currentVersion) return null;
+  const cur = parseFloat(currentVersion);
+  if (!Number.isFinite(cur)) return null;
+  // map:*/array:* constructors are XSLT 3.0 (require the call form to avoid noise).
+  if (cur < 3 && /\b(?:map|array):[a-z-]+\s*\(/i.test(errorText)) {
+    return { func: "map/array", version: "3.0" };
+  }
+  for (const [fn, minV] of Object.entries(FN_MIN_VERSION)) {
+    if (parseFloat(minV) <= cur) continue;
+    // Require a call shape (`fn(` / `funcall(fn` / `fn,`) so plain words don't match.
+    const re = new RegExp(`(?:funcall\\(\\s*)?\\b${fn}\\b\\s*[(,]`);
+    if (re.test(errorText)) return { func: fn, version: minV };
+  }
+  return null;
+}

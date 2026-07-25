@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   addParams,
+  detectVersionUpgradeHint,
   extractParamNames,
   injectParamBlock,
   parseErrorLines,
@@ -72,5 +73,34 @@ describe("workspace utils", () => {
     expect(setStylesheetVersion(SAMPLE_STYLESHEET, "3.0")).toContain(
       `version="3.0"`,
     );
+  });
+});
+
+describe("detectVersionUpgradeHint", () => {
+  it("flags a 2.0 function used in 1.0 (Xalan funcall form)", () => {
+    const err = "Error checking type of the expression 'funcall(current-date, [])'.";
+    expect(detectVersionUpgradeHint(err, "1.0")).toEqual({ func: "current-date", version: "2.0" });
+  });
+  it("flags tokenize() called in 1.0", () => {
+    expect(detectVersionUpgradeHint("Could not find function: tokenize(...)", "1.0")).toEqual({
+      func: "tokenize",
+      version: "2.0",
+    });
+  });
+  it("flags map:/array: (3.0) when in 2.0", () => {
+    expect(detectVersionUpgradeHint("XPST0017 map:merge(...) is not defined", "2.0")).toEqual({
+      func: "map/array",
+      version: "3.0",
+    });
+  });
+  it("returns null when the function is available in the current version", () => {
+    expect(detectVersionUpgradeHint("funcall(tokenize, [])", "2.0")).toBeNull();
+  });
+  it("does not false-positive on a plain word without a call shape", () => {
+    expect(detectVersionUpgradeHint("the file exists on disk but is empty", "1.0")).toBeNull();
+  });
+  it("returns null for empty input", () => {
+    expect(detectVersionUpgradeHint("", "1.0")).toBeNull();
+    expect(detectVersionUpgradeHint("tokenize(", "")).toBeNull();
   });
 });

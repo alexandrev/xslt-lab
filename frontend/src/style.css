@@ -1852,6 +1852,25 @@ a:focus-visible {
   font-size: 0.85em;
 }
 
+.error-hint-switch {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: #b26a00;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.error-hint-switch:hover {
+  color: #8a5200;
+}
+
+:root[data-theme="dark"] .error-hint-switch {
+  color: #ffc95a;
+}
+
 :root[data-theme="dark"] .error-doc-hint {
   color: #f0d070;
   background: #2a2200;
@@ -1880,98 +1899,93 @@ a:focus-visible {
   color: #fab1a0;
 }
 
-/* ── Usage survey banner ── */
-.usage-survey {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #fff;
+
+/* Contextual feedback replaces the persistent draggable widget. */
+.contextual-feedback {
+  margin: 6px 8px;
+  padding: 8px 10px;
   border: 1px solid #cfdcf4;
-  border-radius: 12px;
-  padding: 10px 14px;
-  box-shadow: 0 4px 16px rgba(33, 66, 108, 0.14);
-  z-index: 100;
-  flex-wrap: wrap;
-  max-width: 90vw;
-}
-
-.usage-survey-q {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #21426c;
-  white-space: nowrap;
-}
-
-.usage-survey-options {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.usage-survey-btn {
-  padding: 4px 10px;
-  border: 1px solid #cfdcf4;
-  border-radius: 20px;
-  background: #f0f5ff;
+  border-radius: 8px;
+  background: #f7faff;
   color: #21426c;
   font-size: 0.8rem;
-  cursor: pointer;
-  white-space: nowrap;
 }
 
-.usage-survey-btn:hover {
-  background: #007acc;
-  color: #fff;
+.contextual-feedback.bug {
+  border-color: #efb2ae;
+  background: #fff7f6;
+  color: #7b2d26;
+}
+
+.contextual-feedback-heading,
+.contextual-feedback-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contextual-feedback-heading {
+  justify-content: space-between;
+  font-weight: 600;
+}
+
+.contextual-feedback form {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.contextual-feedback-actions {
+  margin-top: 6px;
+}
+
+.contextual-feedback-actions button,
+.contextual-feedback-actions a {
+  padding: 4px 9px;
+  border: 1px solid #c4d4ff;
+  border-radius: 6px;
+  background: #fff;
+  color: #21426c;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.contextual-feedback-actions button:hover,
+.contextual-feedback-actions a:hover {
   border-color: #007acc;
 }
 
-.usage-survey-dismiss {
-  margin-left: 4px;
-  padding: 2px 6px;
-  border: none;
+.contextual-feedback-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.contextual-feedback-dismiss {
+  padding: 1px 5px;
+  border: 0;
   background: transparent;
-  color: #536084;
-  font-size: 0.85rem;
+  color: inherit;
   cursor: pointer;
-  border-radius: 4px;
 }
 
-.usage-survey-dismiss:hover {
-  background: #eef3ff;
-}
-
-:root[data-theme="dark"] .usage-survey {
-  background: #0f141b;
+:root[data-theme="dark"] .contextual-feedback {
   border-color: #2b3645;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-}
-
-:root[data-theme="dark"] .usage-survey-q {
+  background: #141b24;
   color: #e3e8ef;
 }
 
-:root[data-theme="dark"] .usage-survey-btn {
+:root[data-theme="dark"] .contextual-feedback.bug {
+  border-color: #6f3b38;
+  background: #281b1b;
+  color: #ffb4ae;
+}
+
+:root[data-theme="dark"] .contextual-feedback-actions button,
+:root[data-theme="dark"] .contextual-feedback-actions a {
+  border-color: #3d4b63;
   background: #1a2332;
-  color: #b0bfcf;
-  border-color: #2b3645;
-}
-
-:root[data-theme="dark"] .usage-survey-btn:hover {
-  background: #6bb6ff;
-  color: #0f141b;
-  border-color: #6bb6ff;
-}
-
-:root[data-theme="dark"] .usage-survey-dismiss {
-  color: #7a8fa8;
-}
-
-:root[data-theme="dark"] .usage-survey-dismiss:hover {
-  background: #1a2332;
+  color: #d8e5f5;
 }
 
 /* ── Secondary results (xsl:result-document) ──────────────────────────────── */

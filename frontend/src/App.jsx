@@ -10,6 +10,7 @@ import {
   addParams,
   extractParamNames,
   setStylesheetVersion,
+  detectVersionUpgradeHint,
 } from "./lib/workspaceUtils";
 
 /* global __APP_VERSION__, __GIT_COMMIT__ */
@@ -181,7 +182,6 @@ function useEditorExtras(enabled) {
 }
 
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
-const UsageSurvey = lazy(() => import("./components/UsageSurvey"));
 
 function runWhenIdle(callback, timeout = 2000) {
   if (typeof window === "undefined") {
@@ -752,9 +752,11 @@ export default function App() {
   const [ethicalAdsReady, setEthicalAdsReady] = useState(false);
   const [transformCount, setTransformCount] = useState(0);
   const [userHasTransformed, setUserHasTransformed] = useState(false);
-  const [surveyDone, setSurveyDone] = useState(() => {
-    try { return localStorage.getItem("xsp_survey_done") === "1"; } catch { return false; }
+  const [satisfactionDone, setSatisfactionDone] = useState(() => {
+    try { return localStorage.getItem("xsp_satisfaction_feedback_done") === "1"; } catch { return false; }
   });
+  const [serverErrorCount, setServerErrorCount] = useState(0);
+  const [bugFeedbackDismissed, setBugFeedbackDismissed] = useState(false);
   const [xsltBeforeFormat, setXsltBeforeFormat] = useState(null);
   const [resultBeforeFormat, setResultBeforeFormat] = useState(null);
   const workspaceImportRef = useRef(null);
@@ -1523,6 +1525,7 @@ export default function App() {
           isRunning: false,
           secondaryResults: {},
         });
+        if (res.status >= 500) setServerErrorCount((count) => count + 1);
         return;
       }
       const data = await res.json();
@@ -1571,6 +1574,7 @@ export default function App() {
         isRunning: false,
         secondaryResults: {},
       });
+      setServerErrorCount((count) => count + 1);
     }
   }, 2000);
 
@@ -2531,6 +2535,41 @@ export default function App() {
                 Host your XML file online and use <code>doc("https://…")</code>.
               </p>
             )}
+            {(() => {
+              const vh = detectVersionUpgradeHint(error, activeTab?.version);
+              if (!vh) return null;
+              const label = vh.func.includes("/") ? vh.func : `${vh.func}()`;
+              return (
+                <p className="error-doc-hint">
+                  💡 <code>{label}</code> is an XSLT {vh.version} feature — it isn't
+                  available in XSLT {activeTab.version}.{" "}
+                  <button
+                    type="button"
+                    className="error-hint-switch"
+                    onClick={() => {
+                      setTabs((tabs) =>
+                        tabs.map((t) =>
+                          t.id === active
+                            ? {
+                                ...t,
+                                version: vh.version,
+                                xslt: setStylesheetVersion(t.xslt, vh.version),
+                              }
+                            : t,
+                        ),
+                      );
+                      window.gtag?.("event", "version_upgrade_hint", {
+                        event_category: "engagement",
+                        from_version: activeTab?.version,
+                        to_version: vh.version,
+                      });
+                    }}
+                  >
+                    Switch to XSLT {vh.version}
+                  </button>
+                </p>
+              );
+            })()}
             {isServerError && (
               <a
                 className="error-report-link"
@@ -2540,6 +2579,20 @@ export default function App() {
               >
                 Report this bug on GitHub
               </a>
+            )}
+            {isServerError && serverErrorCount >= 2 && !bugFeedbackDismissed && (
+              <Suspense fallback={null}>
+                <FeedbackWidget
+                  kind="bug"
+                  reportUrl={buildBugReportUrl(activeTab?.version, error, activeTab?.xslt)}
+                  context={{
+                    error,
+                    version: activeTab?.version,
+                    repro_url: buildShareUrl(activeTab),
+                  }}
+                  onComplete={() => setBugFeedbackDismissed(true)}
+                />
+              </Suspense>
             )}
           </div>
         )}
@@ -2594,6 +2647,17 @@ export default function App() {
                 )}
               </div>
             ) : null}
+            {/* Ask only after the user has got value out of the tool twice — never
+                on the very first run, and never alongside a second prompt. */}
+            {widgetsReady && duration !== null && userHasTransformed && transformCount >= 2 && !satisfactionDone && (
+              <Suspense fallback={null}>
+                <FeedbackWidget
+                  kind="satisfaction"
+                  context={{ version: activeTab?.version }}
+                  onComplete={() => setSatisfactionDone(true)}
+                />
+              </Suspense>
+            )}
             <div className="result-actions">
               <button
                 type="button"
@@ -2817,19 +2881,6 @@ export default function App() {
           </div>
           <pre>{traceHover.text}</pre>
         </div>
-      )}
-      {widgetsReady && (
-        <Suspense fallback={null}>
-          <FeedbackWidget />
-          {!surveyDone && transformCount >= 3 && (
-            <UsageSurvey
-              onDismiss={() => {
-                setSurveyDone(true);
-                try { localStorage.setItem("xsp_survey_done", "1"); } catch {}
-              }}
-            />
-          )}
-        </Suspense>
       )}
     </div>
   );
