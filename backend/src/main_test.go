@@ -100,7 +100,9 @@ func TestPickSourceXMLFallsBackToAnyXML(t *testing.T) {
 	}
 }
 
-func TestPickSourceXMLReturnsDefaultWhenNoXML(t *testing.T) {
+// No source document is synthesised when the request carries no XML: since
+// 2bd3e94 the source is left empty so Saxon can invoke xsl:initial-template.
+func TestPickSourceXMLReturnsEmptyWhenNoXML(t *testing.T) {
 	params := map[string]string{
 		"mode": "fast",
 	}
@@ -108,8 +110,8 @@ func TestPickSourceXMLReturnsDefaultWhenNoXML(t *testing.T) {
 	if key != "" {
 		t.Fatalf("expected empty key, got %q", key)
 	}
-	if src != "<root/>" {
-		t.Fatalf("expected '<root/>', got %q", src)
+	if src != "" {
+		t.Fatalf("expected empty source, got %q", src)
 	}
 }
 
