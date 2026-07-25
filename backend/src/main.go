@@ -155,6 +155,11 @@ func classifyTransformError(msg string) (code, class string) {
 	}
 
 	switch {
+	// No source document supplied. Saxon phrases this with spaces ("an initial
+	// template"), so the hyphenated initial-template check below never caught it.
+	case strings.Contains(lower, "initial template or an initial function"):
+		class = "input_xml"
+		code = "NO_SOURCE"
 	case code == "SXXP0003" || containsAny(lower, xmlNotWellFormed):
 		class = "input_xml"
 		if code == "" {

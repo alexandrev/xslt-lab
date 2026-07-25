@@ -226,6 +226,7 @@ func TestClassifyTransformError(t *testing.T) {
 		{"xalan missing attr", "line 145: Required attribute 'test' is missing.", "stylesheet", "COMPILE"},
 		{"xalan illegal attr", "line 242: Illegal attribute 'select'.", "stylesheet", "COMPILE"},
 		{"xalan 2.0 fn in 1.0", "Error checking type of the expression 'funcall(current-date, [])'.", "stylesheet", "COMPILE"},
+		{"no source document", "Either a source document, an initial template or an initial function must be specified", "input_xml", "NO_SOURCE"},
 		{"truly unknown", "some unexpected failure", "other", "OTHER"},
 	}
 	for _, c := range cases {
