@@ -156,7 +156,34 @@ export const TEMPLATES = [
       { name: "country", value: "ES", open: true },
     ],
   },
+  {
+    id: "xpath-tester",
+    title: "XPath tester",
+    description: "Evaluate an XPath expression against XML and list every match.",
+    version: "3.0",
+    xslt: `<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!-- Put the expression you want to test here. -->
+  <xsl:variable name="expression" select="//order[@country = 'ES']"/>
+
+  <xsl:template match="/">
+    <matches count="{count($expression)}">
+      <xsl:for-each select="$expression">
+        <match position="{position()}">
+          <xsl:copy-of select="."/>
+        </match>
+      </xsl:for-each>
+    </matches>
+  </xsl:template>
+</xsl:stylesheet>`,
+    params: [{ name: "input", value: ORDERS_XML, open: true }],
+  },
 ];
+
+export function findTemplate(id) {
+  return TEMPLATES.find((t) => t.id === id) || null;
+}
 
 // Strip the presentation-only fields before handing a template to defaultTab().
 export function templateToWorkspace(template) {

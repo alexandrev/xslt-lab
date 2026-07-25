@@ -13,7 +13,7 @@ import {
   detectVersionUpgradeHint,
   findErrorReference,
 } from "./lib/workspaceUtils";
-import { templateToWorkspace } from "./lib/templates";
+import { templateToWorkspace, findTemplate } from "./lib/templates";
 
 /* global __APP_VERSION__, __GIT_COMMIT__ */
 
@@ -416,6 +416,17 @@ function defaultTab(overrides = {}) {
   };
 }
 
+// Embedded mode (?embed=1): the app is rendered inside an iframe on the blog's
+// reference pages, so it drops the ads and workspace chrome and shows just the
+// editor plus a way out to the full app.
+const IS_EMBED = (() => {
+  try {
+    return new URLSearchParams(window.location.search).get("embed") === "1";
+  } catch {
+    return false;
+  }
+})();
+
 const MAX_WORKSPACES = 3;
 const WORKSPACE_EXPORT_VERSION = 1;
 const RESULT_HEIGHT_KEY = "resultPaneHeight";
@@ -675,6 +686,16 @@ export default function App() {
       );
     }
   }
+  // ?template=<id> opens a starter workspace directly — this is what the
+  // /xpath-tester/ and /xml-to-json/ landing pages link to.
+  try {
+    const templateId = new URLSearchParams(window.location.search).get("template");
+    const template = templateId ? findTemplate(templateId) : null;
+    if (template) {
+      initialTabs = [defaultTab(templateToWorkspace(template))];
+    }
+  } catch {}
+
   let initialActive = initialTabs[0]?.id;
   try {
     const sAct = localStorage.getItem("active");
@@ -821,6 +842,7 @@ export default function App() {
     typeof window !== "undefined" &&
     /^(localhost|127(?:\\.[0-9]+){3}|mac)$/i.test(window.location.hostname);
   const ethicalAdsEnabled =
+    !IS_EMBED &&
     Boolean(ethicalAdsPublisher) &&
     (!isLocalhost || env.VITE_ETHICALADS_DEV === "true");
   const ethicalAdVariant = "stickybox";
@@ -1902,7 +1924,7 @@ export default function App() {
 
 
   return (
-    <div className="app-container">
+    <div className={`app-container${IS_EMBED ? " app-container--embed" : ""}`}>
       <h1 className="sr-only">XSLT Playground - Online XSLT Editor and Tester</h1>
       {ethicalAdsEnabled && (
         <div
@@ -1915,6 +1937,19 @@ export default function App() {
           aria-label="Advertisement"
         />
       )}
+      {IS_EMBED && (
+        <div className="embed-bar">
+          <span>XSLT Playground</span>
+          <a
+            href={typeof window !== "undefined" ? buildShareUrl(activeTab) : "https://xsltplayground.com/"}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open in the full editor →
+          </a>
+        </div>
+      )}
+      {!IS_EMBED && (
       <div className="tabs">
         <TabsNav
           tabs={tabs}
@@ -1967,6 +2002,7 @@ export default function App() {
           />
         </div>
       </div>
+      )}
       <div className="main">
         {paramsCollapsed ? (
           <div className="params-collapsed">

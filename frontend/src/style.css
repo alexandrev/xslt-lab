@@ -2205,3 +2205,36 @@ a:focus-visible {
   border-color: #2b3645;
   color: #e6edf3;
 }
+
+/* Embedded mode (?embed=1) — the app inside an iframe on the reference pages. */
+.app-container--embed {
+  padding: 0;
+}
+
+.embed-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  background: #f0f6ff;
+  border-bottom: 1px solid #cfdcf4;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #21426c;
+}
+
+.embed-bar a {
+  color: #007acc;
+  text-decoration: none;
+}
+
+.embed-bar a:hover {
+  text-decoration: underline;
+}
+
+:root[data-theme="dark"] .embed-bar {
+  background: #161c24;
+  border-color: #2b3645;
+  color: #e6edf3;
+}

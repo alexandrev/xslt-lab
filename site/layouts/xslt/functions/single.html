@@ -30,7 +30,12 @@
   {{- end }}
   <div class="ref-try">
     {{ if .Params.tryUrl }}
-    <a href="{{ .Params.tryUrl }}" class="button" target="_blank" rel="noopener noreferrer">Open live example in XSLT Playground →</a>
+    {{- /* The playground runs inline in an iframe, but only once the reader asks
+           for it: embedding it eagerly on 230 reference pages would load the
+           whole editor bundle on every page view and wreck the LCP work. */ -}}
+    <button type="button" class="button ref-run" data-run-url="{{ .Params.tryUrl }}">▶ Run this example here</button>
+    <a href="{{ .Params.tryUrl }}" class="button button--ghost" target="_blank" rel="noopener noreferrer">Open in the full editor →</a>
+    <div class="ref-embed" hidden></div>
     {{ else }}
     <a href="https://xsltplayground.com/" class="button" target="_blank" rel="noopener noreferrer">Try it in XSLT Playground →</a>
     {{ end }}
@@ -38,4 +43,27 @@
   <p class="muted back-link"><a href="{{ .CurrentSection.RelPermalink }}">← Back to XSLT Reference</a></p>
   {{ partial "related-posts.html" . }}
 </article>
+{{ end }}
+{{ define "scripts" }}
+<script>
+  // Lazily swap the button for an embedded playground running this page's example.
+  document.querySelectorAll(".ref-run").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var host = btn.parentElement.querySelector(".ref-embed");
+      if (!host || host.dataset.loaded) return;
+      var url = btn.dataset.runUrl;
+      url += (url.indexOf("?") === -1 ? "?" : "&") + "embed=1";
+      var frame = document.createElement("iframe");
+      frame.src = url;
+      frame.title = "XSLT Playground — live example";
+      frame.loading = "lazy";
+      frame.className = "ref-embed-frame";
+      host.appendChild(frame);
+      host.hidden = false;
+      host.dataset.loaded = "1";
+      btn.disabled = true;
+      btn.textContent = "▶ Running below";
+    });
+  });
+</script>
 {{ end }}
