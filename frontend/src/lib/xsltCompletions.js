@@ -2,7 +2,7 @@
  * XSLT/XPath completions data.
  * Each entry: { label, type, info, args, minVersion, blogSlug? }
  *   - minVersion: "1.0" | "2.0" | "3.0"
- *   - blogSlug: used to link to blog.xsltplayground.com/xslt/functions/<slug>
+ *   - blogSlug: used to link to xsltplayground.com/blog/xslt/functions/<slug>
  */
 
 // ─── XSL elements ────────────────────────────────────────────────────────────
@@ -299,7 +299,7 @@ export function getCompletions(xsltVersion = "1.0") {
         }
         if (e.blogSlug) {
           const a = document.createElement("a");
-          a.href = `https://blog.xsltplayground.com/xslt/functions/${e.blogSlug}`;
+          a.href = `https://xsltplayground.com/blog/xslt/functions/${e.blogSlug}`;
           a.target = "_blank";
           a.rel = "noopener noreferrer";
           a.style.display = "block";
@@ -327,7 +327,7 @@ export function getCompletions(xsltVersion = "1.0") {
         div.textContent = e.info;
         if (e.blogSlug) {
           const a = document.createElement("a");
-          a.href = `https://blog.xsltplayground.com/xslt/functions/${e.blogSlug}`;
+          a.href = `https://xsltplayground.com/blog/xslt/functions/${e.blogSlug}`;
           a.target = "_blank";
           a.rel = "noopener noreferrer";
           a.style.display = "block";
@@ -652,7 +652,7 @@ function buildTooltipDom(entry) {
   }
 
   if (entry.blogSlug) {
-    const url = `https://blog.xsltplayground.com/xslt/functions/${entry.blogSlug}`;
+    const url = `https://xsltplayground.com/blog/xslt/functions/${entry.blogSlug}`;
     const a = document.createElement("a");
     a.href = url;
     a.target = "_blank";

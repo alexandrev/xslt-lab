@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XML to JSON Online — Convert XML to JSON with XSLT 3.0 | XSLT Playground</title>
+  <meta name="description" content="Convert XML to JSON online for free. XSLT 3.0 gives you full control over the output shape with xml-to-json() and json-to-xml(), powered by Saxon HE. No install." />
+  <link rel="canonical" href="https://xsltplayground.com/xml-to-json/" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <meta property="og:title" content="XML to JSON Online — Convert XML to JSON with XSLT 3.0" />
+  <meta property="og:description" content="Convert XML to JSON with full control over the result. XSLT 3.0 maps, arrays, xml-to-json() and json-to-xml() on the real Saxon engine. Free, no install." />
+  <meta property="og:url" content="https://xsltplayground.com/xml-to-json/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://xsltplayground.com/og-image.png" />
+  <script type="application/ld+json">
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": ["WebApplication", "SoftwareApplication"],
+      "name": "XML to JSON Converter (XSLT 3.0)",
+      "url": "https://xsltplayground.com/xml-to-json/",
+      "description": "Free online XML to JSON converter built on XSLT 3.0 and Saxon HE 12.5. Control the exact shape of the JSON output using maps, arrays, xml-to-json() and json-to-xml().",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "XSLT Online", "item": "https://xsltplayground.com/" },
+        { "@type": "ListItem", "position": 2, "name": "XML to JSON Online", "item": "https://xsltplayground.com/xml-to-json/" }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I convert XML to JSON with XSLT 3.0?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "There are two approaches. You can build an XPath 3.1 map or array and serialise it with xsl:output method='json', or you can build nodes in the XPath functions namespace (map, array, string, number, boolean, null) and pass them to the xml-to-json() function. Both run in XSLT Playground on Saxon HE 12.5."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why use XSLT instead of a generic XML to JSON converter?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "There is no canonical mapping from XML to JSON, so a generic converter has to guess: whether an attribute becomes a field or a prefixed key, whether a single repeated element becomes an array or a lone object, and whether a numeric-looking string becomes a number. XSLT 3.0 lets you state each of those decisions explicitly, so the output matches the schema your consumer actually expects."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the difference between xml-to-json() and json-to-xml()?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "xml-to-json() takes nodes written in the XPath functions namespace vocabulary and returns a JSON string. json-to-xml() does the reverse: it parses a JSON string and returns an XML tree in that same vocabulary, which you can then process with ordinary XPath and templates. Together they let a single stylesheet convert in both directions."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why did 120.50 become 120.5 in the JSON output?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Because a JSON number has no concept of trailing zeros. Once a value is emitted as a number element it is serialised in canonical numeric form, so 120.50 becomes 120.5 and 200.00 becomes 200. If you need to preserve the exact formatting, emit the value as a string element instead, or format it with format-number() first."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I convert JSON back to XML online?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Use json-to-xml() to parse a JSON string into the XPath functions namespace vocabulary, or parse-json() to get a native map or array you can navigate with the lookup operator. Select XSLT 3.0 in the version dropdown and both are available."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the online XML to JSON converter free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, completely free with no installation and no account required. XSLT Playground is the only free online tool with full XSLT 3.0 support, which is what makes browser-based XML to JSON conversion with real control possible."
+          }
+        }
+      ]
+    }
+  ]
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; color: #21426c; background: #f5f7fb; }
+    a { color: #2563eb; }
+    header {
+      background: #21426c;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    header img { width: 28px; height: 28px; }
+    header a { color: #fff; text-decoration: none; font-weight: 700; font-size: 1rem; }
+    header nav { margin-left: auto; display: flex; gap: 1.25rem; font-size: 0.9rem; }
+    header nav a { color: #c8d8f0; font-weight: 400; }
+    .hero {
+      background: linear-gradient(135deg, #1a3a5c 0%, #0f5499 100%);
+      color: #fff;
+      padding: 3.5rem 1.5rem 3rem;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2.2rem; margin: 0 0 1rem; }
+    .hero p { font-size: 1.15rem; opacity: 0.9; max-width: 640px; margin: 0 auto 2rem; }
+    .cta-btn {
+      display: inline-block;
+      background: #fff;
+      color: #21426c;
+      font-weight: 700;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1.05rem;
+      transition: background 0.2s;
+    }
+    .cta-btn:hover { background: #e8f0fe; }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 20px;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+    }
+    main { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    h2 { font-size: 1.4rem; margin: 2.5rem 0 0.6rem; color: #1a365d; }
+    h3 { font-size: 1.05rem; margin: 1.8rem 0 0.4rem; color: #21426c; }
+    p { line-height: 1.75; color: #374151; }
+    ul, ol { color: #374151; line-height: 1.75; padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+    code { background: #eef2ff; padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 1rem 1.25rem; border-radius: 8px; overflow-x: auto; line-height: 1.5; }
+    pre code { background: none; padding: 0; color: inherit; font-size: 0.86rem; }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .feature-card {
+      background: #fff;
+      border: 1px solid #dde6f5;
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem;
+    }
+    .feature-card h3 { margin: 0 0 0.4rem; font-size: 1rem; color: #21426c; }
+    .feature-card p { margin: 0; font-size: 0.92rem; }
+    dl dt { font-weight: 700; margin-top: 1.4rem; color: #21426c; }
+    dl dd { margin: 0.25rem 0 0; color: #374151; line-height: 1.7; }
+    .nav-versions { display: flex; gap: 1rem; margin: 2rem 0; flex-wrap: wrap; }
+    .nav-versions a {
+      padding: 0.5rem 1.2rem;
+      border: 2px solid #21426c;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #21426c;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+    .nav-versions a.active { background: #21426c; color: #fff; }
+    .callout {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.5rem 0;
+    }
+    .callout strong { color: #1d4ed8; }
+    .table-wrap { overflow-x: auto; margin: 1.5rem 0; }
+    table { border-collapse: collapse; width: 100%; background: #fff; font-size: 0.92rem; }
+    th, td { border: 1px solid #dde6f5; padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; }
+    th { background: #eef2ff; color: #21426c; }
+    td { color: #374151; line-height: 1.6; }
+    footer {
+      background: #21426c;
+      color: #c8d8f0;
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.88rem;
+    }
+    footer a { color: #93c5fd; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="/logo.svg" alt="XSLT Playground logo" />
+    <a href="/">XSLT Playground</a>
+    <nav>
+      <a href="/">Editor</a>
+      <a href="/xslt-2-0/">XSLT 2.0</a>
+      <a href="/xslt-3-0/">XSLT 3.0</a>
+      <a href="https://xsltplayground.com/blog/">Blog</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div class="badge">Powered by Saxon HE 12.5</div>
+    <h1>XML to JSON Online</h1>
+    <p>Convert XML to JSON with XSLT 3.0 and decide the exact shape of the result — keys, nesting, arrays and types. Not a guess: a transformation you control.</p>
+    <a class="cta-btn" href="https://xsltplayground.com/?template=xml-to-json">Open the XML → JSON Converter →</a>
+  </div>
+
+  <main>
+    <div class="nav-versions">
+      <a href="/">Editor</a>
+      <a href="/xslt-2-0/">XSLT 2.0</a>
+      <a href="/xslt-3-0/">XSLT 3.0</a>
+      <a href="/xpath-tester/">XPath Tester</a>
+      <a href="/xml-to-json/" class="active">XML → JSON</a>
+    </div>
+
+    <div class="callout">
+      <strong>There is no canonical mapping from XML to JSON.</strong>
+      XML has attributes, element order, mixed content, namespaces and repeated siblings. JSON has objects,
+      arrays, strings, numbers, booleans and null. Any generic converter must invent a convention to bridge
+      the two — and its convention is rarely the one your API consumer expects. XSLT 3.0 lets you write the
+      mapping explicitly instead.
+    </div>
+
+    <h2>Why Convert XML to JSON with XSLT 3.0?</h2>
+    <p>
+      Generic online converters make three decisions on your behalf, silently, and all three are frequently wrong:
+    </p>
+    <ul>
+      <li><strong>Attributes vs elements.</strong> Does <code>&lt;order id="1"/&gt;</code> become <code>{"id": 1}</code>, <code>{"@id": "1"}</code>, or <code>{"$": {"id": "1"}}</code>? Every converter picks a different prefix convention.</li>
+      <li><strong>The single-element array problem.</strong> A list with one <code>&lt;order&gt;</code> looks identical to a single object. Generic converters emit an object when there is one child and an array when there are two, so the JSON shape changes depending on the data — which breaks strictly typed consumers.</li>
+      <li><strong>Types.</strong> XML text is untyped. <code>total="120.50"</code> could be a number or a string, and <code>active="true"</code> could be a boolean or a string. A converter has to guess; you do not.</li>
+    </ul>
+    <p>
+      With XSLT 3.0 you declare each of those choices. An array stays an array whether it holds one item
+      or a thousand, a numeric field is a number because you said so, and keys are named to match the
+      contract you are publishing rather than the element names you happened to receive. You also get
+      everything else XSLT offers along the way — grouping, sorting, filtering, aggregation and lookups
+      into secondary documents — in the same pass as the conversion.
+    </p>
+
+    <h2>The Two Ways to Produce JSON in XSLT 3.0</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>Maps and arrays + method="json"</h3>
+        <p>Build a native XPath 3.1 <code>map{}</code> or <code>array{}</code> and let the serialiser write it out with <code>xsl:output method="json"</code>. The most concise route for straightforward structures.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Node vocabulary + xml-to-json()</h3>
+        <p>Build elements in the XPath functions namespace and pass them to <code>xml-to-json()</code>. Because you are producing nodes, you can use templates, <code>xsl:for-each-group</code> and <code>xsl:sort</code> to assemble the structure.</p>
+      </div>
+    </div>
+
+    <h2>The JSON-XML Vocabulary</h2>
+    <p>
+      Both <code>xml-to-json()</code> and <code>json-to-xml()</code> speak a small XML vocabulary in the
+      namespace <code>http://www.w3.org/2005/xpath-functions</code>. Learning these six element names is
+      most of what the conversion requires:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Element</th><th>JSON produced</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>&lt;map&gt;</code></td><td>An object <code>{ … }</code>. Each child carries a <code>key</code> attribute.</td></tr>
+          <tr><td><code>&lt;array&gt;</code></td><td>An array <code>[ … ]</code>. Children have no <code>key</code> unless the array is itself a map member.</td></tr>
+          <tr><td><code>&lt;string&gt;</code></td><td>A quoted string; escaping is handled for you.</td></tr>
+          <tr><td><code>&lt;number&gt;</code></td><td>An unquoted JSON number.</td></tr>
+          <tr><td><code>&lt;boolean&gt;</code></td><td><code>true</code> or <code>false</code>.</td></tr>
+          <tr><td><code>&lt;null/&gt;</code></td><td><code>null</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      A member of a map needs <code>key="name"</code>; an item of an array does not. Getting a
+      <code>key</code> wrong is the single most common cause of an <code>FOJS0006</code> error from
+      <code>xml-to-json()</code>.
+    </p>
+
+    <h2>Example 1: Maps and Arrays with method="json"</h2>
+    <p>
+      The shortest path from XML to JSON. Build a map, let the serialiser do the rest. Every example on
+      this page runs on Saxon HE 12.5 — paste it into the
+      <a href="https://xsltplayground.com/?template=xml-to-json">editor</a> to reproduce the output exactly.
+    </p>
+    <p><strong>XML input:</strong></p>
+    <pre><code>&lt;orders&gt;
+  &lt;order id="1" country="ES" total="120.50"/&gt;
+  &lt;order id="2" country="FR" total="80.00"/&gt;
+  &lt;order id="3" country="ES" total="45.25"/&gt;
+  &lt;order id="4" country="DE" total="200.00"/&gt;
+&lt;/orders&gt;</code></pre>
+    <p><strong>Stylesheet:</strong></p>
+    <pre><code>&lt;xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;
+  &lt;xsl:output method="json" indent="yes"/&gt;
+
+  &lt;xsl:template match="/"&gt;
+    &lt;xsl:sequence select="map{
+      'orderCount': count(orders/order),
+      'countries': array{ distinct-values(orders/order/@country) },
+      'grandTotal': sum(orders/order/@total)
+    }"/&gt;
+  &lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;</code></pre>
+    <p><strong>Output:</strong></p>
+    <pre><code>{
+  "orderCount": 4,
+  "countries": [ "ES", "FR", "DE" ],
+  "grandTotal": 445.75
+}</code></pre>
+    <p>
+      Note <code>array{ … }</code> with curly braces: it builds one array from the whole sequence returned
+      by the expression. The square-bracket form <code>array[ … ]</code> would instead create one member
+      per argument.
+    </p>
+
+    <h2>Example 2: The Node Vocabulary with xml-to-json()</h2>
+    <p>
+      This is the stylesheet behind the
+      <a href="https://xsltplayground.com/?template=xml-to-json">XML → JSON template</a>. It converts each
+      <code>order</code> element into a JSON object inside an array, choosing per field whether the value
+      is a number or a string. The default namespace on <code>&lt;array&gt;</code> puts the whole
+      structure into the XPath functions namespace, so every descendant inherits it.
+    </p>
+    <p><strong>Stylesheet:</strong></p>
+    <pre><code>&lt;xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;
+  &lt;xsl:output method="text"/&gt;
+
+  &lt;xsl:template match="/"&gt;
+    &lt;xsl:variable name="data"&gt;
+      &lt;array xmlns="http://www.w3.org/2005/xpath-functions"&gt;
+        &lt;xsl:for-each select="orders/order"&gt;
+          &lt;map&gt;
+            &lt;number key="id"&gt;&lt;xsl:value-of select="@id"/&gt;&lt;/number&gt;
+            &lt;string key="country"&gt;&lt;xsl:value-of select="@country"/&gt;&lt;/string&gt;
+            &lt;number key="total"&gt;&lt;xsl:value-of select="@total"/&gt;&lt;/number&gt;
+          &lt;/map&gt;
+        &lt;/xsl:for-each&gt;
+      &lt;/array&gt;
+    &lt;/xsl:variable&gt;
+    &lt;xsl:value-of select="xml-to-json($data, map{'indent': true()})"/&gt;
+  &lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;</code></pre>
+    <p><strong>Output:</strong></p>
+    <pre><code> [
+  { "id" : 1,
+   "country" : "ES",
+   "total" : 120.5 },
+
+  { "id" : 2,
+   "country" : "FR",
+   "total" : 80 },
+
+  { "id" : 3,
+   "country" : "ES",
+   "total" : 45.25 },
+
+  { "id" : 4,
+   "country" : "DE",
+   "total" : 200 } ]</code></pre>
+    <p>
+      Two details worth noticing. First, the <code>indent</code> option is advisory — the JSON is correct
+      but the exact whitespace is processor-defined, so never diff serialised JSON against a golden file
+      character by character. Second, <code>120.50</code> came out as <code>120.5</code> and
+      <code>200.00</code> as <code>200</code>, because JSON numbers have no trailing zeros.
+    </p>
+
+    <div class="callout">
+      <strong>Need to keep the trailing zeros?</strong> Emit the field as
+      <code>&lt;string key="total"&gt;</code> instead of <code>&lt;number&gt;</code>, or format it first
+      with <code>format-number(@total, '0.00')</code>. This is exactly the kind of decision a generic
+      converter takes away from you.
+    </div>
+
+    <h2>Example 3: Reshaping — Grouping XML into Nested JSON</h2>
+    <p>
+      Here is what full control actually buys you. Instead of mirroring the input structure, this
+      stylesheet groups the orders by country, aggregates a total per group, sorts the groups, and emits a
+      nested document with a metadata header. No generic converter can produce this, because it is not a
+      mapping of the input — it is a transformation of it.
+    </p>
+    <p><strong>Stylesheet:</strong></p>
+    <pre><code>&lt;xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  exclude-result-prefixes="fn"&gt;
+  &lt;xsl:output method="text"/&gt;
+
+  &lt;xsl:template match="/"&gt;
+    &lt;xsl:variable name="json-xml"&gt;
+      &lt;fn:map&gt;
+        &lt;fn:string key="generated"&gt;2026-07-22&lt;/fn:string&gt;
+        &lt;fn:number key="orderCount"&gt;&lt;xsl:value-of select="count(orders/order)"/&gt;&lt;/fn:number&gt;
+        &lt;fn:array key="countries"&gt;
+          &lt;xsl:for-each-group select="orders/order" group-by="@country"&gt;
+            &lt;xsl:sort select="current-grouping-key()"/&gt;
+            &lt;fn:map&gt;
+              &lt;fn:string key="code"&gt;&lt;xsl:value-of select="current-grouping-key()"/&gt;&lt;/fn:string&gt;
+              &lt;fn:number key="total"&gt;&lt;xsl:value-of select="sum(current-group()/@total)"/&gt;&lt;/fn:number&gt;
+              &lt;fn:array key="orderIds"&gt;
+                &lt;xsl:for-each select="current-group()"&gt;
+                  &lt;fn:number&gt;&lt;xsl:value-of select="@id"/&gt;&lt;/fn:number&gt;
+                &lt;/xsl:for-each&gt;
+              &lt;/fn:array&gt;
+            &lt;/fn:map&gt;
+          &lt;/xsl:for-each-group&gt;
+        &lt;/fn:array&gt;
+      &lt;/fn:map&gt;
+    &lt;/xsl:variable&gt;
+    &lt;xsl:value-of select="xml-to-json($json-xml, map{'indent': true()})"/&gt;
+  &lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;</code></pre>
+    <p><strong>Output:</strong></p>
+    <pre><code> { "generated" : "2026-07-22",
+  "orderCount" : 4,
+  "countries" :
+  [
+   { "code" : "DE",
+    "total" : 200,
+    "orderIds" :
+    [ 4 ] },
+
+   { "code" : "ES",
+    "total" : 165.75,
+    "orderIds" :
+    [ 1,
+     3 ] },
+
+   { "code" : "FR",
+    "total" : 80,
+    "orderIds" :
+    [ 2 ] } ] }</code></pre>
+    <p>
+      Note that <code>orderIds</code> stays a JSON array even for <code>DE</code>, which has a single
+      order. That consistency is the whole point — a consumer can always index it without checking the type first.
+    </p>
+
+    <h2>Example 4: The Other Direction — json-to-xml()</h2>
+    <p>
+      The same stylesheet can go the other way. <code>json-to-xml()</code> parses a JSON string into the
+      same vocabulary, which you then navigate with ordinary XPath using the <code>fn:</code> prefix.
+      This example needs no source document at all — it runs from the XSLT 3.0 named entry point.
+    </p>
+    <p><strong>Stylesheet:</strong></p>
+    <pre><code>&lt;xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  exclude-result-prefixes="xs fn"&gt;
+  &lt;xsl:output method="xml" indent="yes"/&gt;
+
+  &lt;xsl:variable name="json" as="xs:string"&gt;{"users":[{"name":"Ada","active":true},{"name":"Linus","active":false}]}&lt;/xsl:variable&gt;
+
+  &lt;xsl:template name="xsl:initial-template"&gt;
+    &lt;users&gt;
+      &lt;xsl:for-each select="json-to-xml($json)/fn:map/fn:array[@key='users']/fn:map"&gt;
+        &lt;user name="{fn:string[@key='name']}" active="{fn:boolean[@key='active']}"/&gt;
+      &lt;/xsl:for-each&gt;
+    &lt;/users&gt;
+  &lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;</code></pre>
+    <p><strong>Output:</strong></p>
+    <pre><code>&lt;users&gt;
+   &lt;user name="Ada" active="true"/&gt;
+   &lt;user name="Linus" active="false"/&gt;
+&lt;/users&gt;</code></pre>
+    <p>
+      If you would rather work with native maps than nodes, <code>parse-json()</code> returns an XPath 3.1
+      map you can navigate with the lookup operator — <code>parse-json($json)?users?*?name</code> yields
+      <code>Ada Linus</code>. Use <code>json-doc()</code> instead when the JSON lives at a URI rather than
+      in a string.
+    </p>
+
+    <h2>Frequently Asked Questions</h2>
+    <dl>
+      <dt>How do I convert XML to JSON with XSLT 3.0?</dt>
+      <dd>Two ways: build an XPath 3.1 <code>map{}</code> or <code>array{}</code> and serialise it with <code>xsl:output method="json"</code>, or build nodes in the XPath functions namespace and pass them to <code>xml-to-json()</code>. Both are shown above and both run on Saxon HE 12.5.</dd>
+
+      <dt>Why use XSLT instead of a generic XML to JSON converter?</dt>
+      <dd>Because there is no canonical XML-to-JSON mapping, a generic converter has to guess how attributes are named, whether a single repeated element is an array, and which strings are really numbers. XSLT 3.0 lets you state each decision explicitly, so the JSON matches the contract your consumer expects.</dd>
+
+      <dt>What is the difference between <code>xml-to-json()</code> and <code>json-to-xml()</code>?</dt>
+      <dd><code>xml-to-json()</code> turns nodes in the XPath functions namespace into a JSON string. <code>json-to-xml()</code> parses a JSON string into that same vocabulary so you can process it with ordinary XPath and templates.</dd>
+
+      <dt>Why did <code>120.50</code> become <code>120.5</code>?</dt>
+      <dd>JSON numbers have no trailing zeros, so a <code>&lt;number&gt;</code> is serialised in canonical form. Emit the value as a <code>&lt;string&gt;</code>, or pre-format it with <code>format-number()</code>, if the exact digits matter.</dd>
+
+      <dt>Can I convert JSON back to XML online?</dt>
+      <dd>Yes. Use <code>json-to-xml()</code> for a node tree, or <code>parse-json()</code> for a native map you can navigate with the <code>?</code> lookup operator. Select XSLT 3.0 and both are available.</dd>
+
+      <dt>Is the online XML to JSON converter free?</dt>
+      <dd>Yes — free, no installation, no account. XSLT Playground is the only free online tool with full XSLT 3.0 support, which is what makes this level of control possible in a browser.</dd>
+    </dl>
+
+    <h2>Function Reference</h2>
+    <p>
+      Every XSLT and XPath function, documented with syntax and a runnable example: browse the
+      <a href="https://xsltplayground.com/blog/xslt/functions/">complete XSLT &amp; XPath function reference</a>.
+      The entries that matter most for JSON work:
+    </p>
+    <ul>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-xml-to-json/">xml-to-json()</a> — serialise the node vocabulary to a JSON string</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-json-to-xml/">json-to-xml()</a> — parse JSON into an XML tree</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-parse-json/">parse-json()</a> — parse JSON into a native map or array</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-serialize/">serialize()</a> — serialise a result to a string with explicit output parameters</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-map-merge/">map:merge()</a> — build and combine maps</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xsl-for-each-group/">xsl:for-each-group</a> — reshape flat XML into nested JSON</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-distinct-values/">distinct-values()</a> — deduplicate before building an array</li>
+      <li><a href="https://xsltplayground.com/blog/xslt/functions/xpath-sum/">sum()</a> — aggregate values into a JSON number</li>
+    </ul>
+
+    <h2>Learn More</h2>
+    <ul>
+      <li><a href="https://xsltplayground.com/blog/posts/xslt-xml-to-json-csv/">Transforming XML to JSON and CSV with XSLT</a></li>
+      <li><a href="https://xsltplayground.com/blog/posts/xslt-3-new-features/">XSLT 3.0 new features: what changed from 2.0</a></li>
+      <li><a href="https://xsltplayground.com/blog/posts/xslt-grouping-for-each-group/">XSLT grouping with xsl:for-each-group — complete guide</a></li>
+      <li><a href="https://xsltplayground.com/blog/posts/xslt-result-document/">Generating multiple output files with xsl:result-document</a></li>
+    </ul>
+
+    <h2>Also Available</h2>
+    <p>Still working out which nodes to select before you convert them? <a href="/xpath-tester/">Try the XPath Tester →</a></p>
+    <p>Everything here needs XSLT 3.0 — see the <a href="/xslt-3-0/">XSLT 3.0 Online Tester</a>. For grouping and regular expressions without the JSON layer, see the <a href="/xslt-2-0/">XSLT 2.0 Online Tester</a>.</p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 <a href="https://xsltplayground.com/">XSLT Playground</a> — Free Online XSLT Editor, Tester &amp; Validator</p>
+  </footer>
+</body>
+</html>

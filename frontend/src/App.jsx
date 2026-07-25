@@ -388,7 +388,7 @@ const adsenseSlot = env.VITE_ADSENSE_SLOT;
 const ethicalAdsPublisher = env.VITE_ETHICALADS_PUBLISHER || "xsltplaygroundcom";
 const defaultRepoUrl = "https://github.com/alexandrev/xslt-lab";
 const repoUrl = env.VITE_REPO_URL || defaultRepoUrl;
-const newsUrl = env.VITE_NEWS_URL || "https://blog.xsltplayground.com/";
+const newsUrl = env.VITE_NEWS_URL || "https://xsltplayground.com/blog/";
 const resolvedVersion =
   typeof __APP_VERSION__ !== "undefined" && __APP_VERSION__
     ? __APP_VERSION__
@@ -3013,15 +3013,15 @@ export default function App() {
             {" · "}
             <a href="/xslt-3-0/">XSLT 3.0</a>
             {" · "}
-            <a href="https://blog.xsltplayground.com/posts/xslt-for-beginners/" target="_blank" rel="noopener noreferrer">XSLT for Beginners</a>
+            <a href="https://xsltplayground.com/blog/posts/xslt-for-beginners/" target="_blank" rel="noopener noreferrer">XSLT for Beginners</a>
             {" · "}
-            <a href="https://blog.xsltplayground.com/posts/xslt-3-new-features/" target="_blank" rel="noopener noreferrer">XSLT 3.0</a>
+            <a href="https://xsltplayground.com/blog/posts/xslt-3-new-features/" target="_blank" rel="noopener noreferrer">XSLT 3.0</a>
             {" · "}
-            <a href="https://blog.xsltplayground.com/posts/xslt-string-functions/" target="_blank" rel="noopener noreferrer">String Functions</a>
+            <a href="https://xsltplayground.com/blog/posts/xslt-string-functions/" target="_blank" rel="noopener noreferrer">String Functions</a>
             {" · "}
-            <a href="https://blog.xsltplayground.com/posts/xslt-grouping-for-each-group/" target="_blank" rel="noopener noreferrer">Grouping</a>
+            <a href="https://xsltplayground.com/blog/posts/xslt-grouping-for-each-group/" target="_blank" rel="noopener noreferrer">Grouping</a>
             {" · "}
-            <a href="https://blog.xsltplayground.com/posts/xslt-template-matching-explained/" target="_blank" rel="noopener noreferrer">Template Matching</a>
+            <a href="https://xsltplayground.com/blog/posts/xslt-template-matching-explained/" target="_blank" rel="noopener noreferrer">Template Matching</a>
           </span>
           {gitCommit && (
             <a
