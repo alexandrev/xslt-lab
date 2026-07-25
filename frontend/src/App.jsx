@@ -11,7 +11,9 @@ import {
   extractParamNames,
   setStylesheetVersion,
   detectVersionUpgradeHint,
+  findErrorReference,
 } from "./lib/workspaceUtils";
+import { templateToWorkspace } from "./lib/templates";
 
 /* global __APP_VERSION__, __GIT_COMMIT__ */
 
@@ -182,6 +184,7 @@ function useEditorExtras(enabled) {
 }
 
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
+const TemplateGallery = lazy(() => import("./components/TemplateGallery"));
 
 function runWhenIdle(callback, timeout = 2000) {
   if (typeof window === "undefined") {
@@ -757,6 +760,7 @@ export default function App() {
   });
   const [serverErrorCount, setServerErrorCount] = useState(0);
   const [bugFeedbackDismissed, setBugFeedbackDismissed] = useState(false);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
   const [xsltBeforeFormat, setXsltBeforeFormat] = useState(null);
   const [resultBeforeFormat, setResultBeforeFormat] = useState(null);
   const workspaceImportRef = useRef(null);
@@ -1424,6 +1428,31 @@ export default function App() {
     });
   }, [setActive, setWorkspaceStatus]);
 
+  const handlePickTemplate = useCallback(
+    (template) => {
+      setTemplatesOpen(false);
+      window.gtag?.("event", "template_opened", {
+        event_category: "engagement",
+        template_id: template.id,
+      });
+      setTabs((current) => {
+        const nextTab = defaultTab(templateToWorkspace(template));
+        setWorkspaceStatus((prev) => ({
+          ...prev,
+          [nextTab.id]: defaultWorkspaceStatus(),
+        }));
+        setActive(nextTab.id);
+        // At the workspace cap, replace the active one rather than refusing:
+        // picking a template is an explicit request to work on something else.
+        if (current.length >= MAX_WORKSPACES) {
+          return current.map((t) => (t.id === active ? nextTab : t));
+        }
+        return [...current, nextTab];
+      });
+    },
+    [active, setActive, setWorkspaceStatus],
+  );
+
   const handleRemoveWorkspace = useCallback(
     (id) => {
       setTabs((current) => {
@@ -1910,6 +1939,14 @@ export default function App() {
             }
           >
             <Icon name="plus" />
+          </button>
+          <button
+            type="button"
+            className="tab-templates"
+            onClick={() => setTemplatesOpen(true)}
+            title="Start from a template"
+          >
+            Templates
           </button>
           <button
             type="button"
@@ -2529,6 +2566,19 @@ export default function App() {
                 +{(errorLines || []).length - MAX_ERROR_LINES} more…
               </div>
             )}
+            {(() => {
+              const ref = findErrorReference(error);
+              if (!ref) return null;
+              return (
+                <p className="error-doc-hint">
+                  📖 <a href={ref.url} target="_blank" rel="noopener noreferrer">
+                    {ref.code
+                      ? `What ${ref.code} means and how to fix it`
+                      : "What this error means and how to fix it"}
+                  </a>
+                </p>
+              );
+            })()}
             {/FODC0002|I\/O error|unable to open|Failed to read|UnmarshalException.*URI/i.test(error) && (
               <p className="error-doc-hint">
                 💡 <code>doc()</code> only supports HTTP/HTTPS URLs in this playground — local file paths are not available.
@@ -2881,6 +2931,14 @@ export default function App() {
           </div>
           <pre>{traceHover.text}</pre>
         </div>
+      )}
+      {templatesOpen && (
+        <Suspense fallback={null}>
+          <TemplateGallery
+            onPick={handlePickTemplate}
+            onClose={() => setTemplatesOpen(false)}
+          />
+        </Suspense>
       )}
     </div>
   );

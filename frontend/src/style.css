@@ -2069,3 +2069,139 @@ a:focus-visible {
 :root[data-theme="dark"] .secondary-result-body {
   border-top-color: #2b3645;
 }
+
+/* Template gallery — starter workspaces that already run. */
+.template-gallery-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 27, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.template-gallery {
+  background: #fff;
+  border-radius: 10px;
+  max-width: 640px;
+  width: 100%;
+  max-height: 85vh;
+  overflow: auto;
+  padding: 1rem 1.25rem 1.25rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+.template-gallery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.template-gallery-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #21426c;
+}
+
+.template-gallery-close {
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #536084;
+}
+
+.template-gallery-lead {
+  margin: 0.25rem 0 0.75rem;
+  font-size: 0.82rem;
+  color: #536084;
+}
+
+.template-gallery-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.template-gallery-list button {
+  width: 100%;
+  text-align: left;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #cfdcf4;
+  border-radius: 8px;
+  background: #f7faff;
+  cursor: pointer;
+  font: inherit;
+}
+
+.template-gallery-list button:hover {
+  border-color: #4a85ff;
+  background: #eef4ff;
+}
+
+.template-title {
+  font-weight: 600;
+  color: #21426c;
+  font-size: 0.9rem;
+}
+
+.template-version {
+  font-size: 0.72rem;
+  color: #007acc;
+  border: 1px solid #cfdcf4;
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  align-self: center;
+  white-space: nowrap;
+}
+
+.template-description {
+  grid-column: 1 / -1;
+  font-size: 0.78rem;
+  color: #536084;
+}
+
+.tab-templates {
+  border: 1px solid #cfdcf4;
+  border-radius: 6px;
+  background: #f0f6ff;
+  color: #21426c;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+}
+
+.tab-templates:hover {
+  border-color: #4a85ff;
+  background: #e6f0ff;
+}
+
+:root[data-theme="dark"] .template-gallery {
+  background: #0f141b;
+  color: #e6edf3;
+}
+
+:root[data-theme="dark"] .template-gallery-header h2,
+:root[data-theme="dark"] .template-title {
+  color: #e6edf3;
+}
+
+:root[data-theme="dark"] .template-gallery-list button {
+  background: #161c24;
+  border-color: #2b3645;
+}
+
+:root[data-theme="dark"] .tab-templates {
+  background: #161c24;
+  border-color: #2b3645;
+  color: #e6edf3;
+}
