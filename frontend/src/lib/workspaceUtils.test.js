@@ -3,6 +3,7 @@ import {
   addParams,
   detectVersionUpgradeHint,
   findErrorReference,
+  needsStylesheetReset,
   extractParamNames,
   injectParamBlock,
   parseErrorLines,
@@ -122,5 +123,22 @@ describe("findErrorReference", () => {
   });
   it("returns null for empty input", () => {
     expect(findErrorReference("")).toBeNull();
+  });
+});
+
+describe("needsStylesheetReset", () => {
+  it("is true for an emptied editor", () => {
+    expect(needsStylesheetReset("")).toBe(true);
+    expect(needsStylesheetReset("   \n ")).toBe(true);
+  });
+  it("is true for a half-deleted, malformed stylesheet", () => {
+    expect(needsStylesheetReset('<xsl:stylesheet version="1.0"')).toBe(true);
+  });
+  it("is false for a well-formed stylesheet", () => {
+    expect(
+      needsStylesheetReset(
+        '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:template match="/"/></xsl:stylesheet>',
+      ),
+    ).toBe(false);
   });
 });

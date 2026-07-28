@@ -216,3 +216,15 @@ export function detectVersionUpgradeHint(errorText, currentVersion) {
   }
   return null;
 }
+
+// True when the stylesheet can no longer be repaired by editing — it is empty
+// or not well-formed XML — so the UI can offer to restore the starter skeleton.
+export function needsStylesheetReset(xslt) {
+  if (!xslt || !xslt.trim()) return true;
+  try {
+    const doc = new DOMParser().parseFromString(xslt, "application/xml");
+    return Boolean(doc.querySelector("parsererror"));
+  } catch {
+    return false;
+  }
+}

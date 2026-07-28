@@ -10,6 +10,18 @@ function sheet(version, body) {
   return `${STYLESHEET_HEAD.replace("VERSION", version)}\n${body}\n</xsl:stylesheet>`;
 }
 
+// The skeleton a fresh workspace starts from. Exported so "restore" can put it
+// back: wiping the editor leaves an empty document, whose only feedback is
+// "Premature end of file" — by far the most common error in production — with
+// no obvious way back.
+export const STARTER_STYLESHEET = `<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="xml" indent="yes"/>
+
+  <xsl:template match="/">
+    <root/>
+  </xsl:template>
+</xsl:stylesheet>`;
+
 const ORDERS_XML = `<orders>
   <order id="1" country="ES" total="120.50"/>
   <order id="2" country="FR" total="80.00"/>

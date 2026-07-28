@@ -2340,3 +2340,40 @@ a:focus-visible {
   overflow: hidden;
   color: inherit;
 }
+
+/* Review findings — cross-checks proven against the stylesheet and the input. */
+.review-panel {
+  border-top: 1px solid #cfdcf4;
+  background: #fffdf5;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.review-finding + .review-finding {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #e3ebf7;
+}
+
+.review-title { margin: 0 0 0.2rem; font-weight: 600; color: #7a5800; }
+.review-high .review-title { color: #b3261e; }
+.review-detail { margin: 0 0 0.3rem; color: #4a5568; }
+.review-fix { margin: 0.3rem 0 0; color: #21426c; }
+.review-fix a { color: #007acc; }
+
+.review-examples {
+  margin: 0.2rem 0;
+  padding: 0.3rem 0.45rem;
+  background: #fff;
+  border: 1px solid #e3ebf7;
+  border-radius: 5px;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.72rem;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+:root[data-theme="dark"] .review-panel { background: #1b1710; border-color: #2b3645; }
+:root[data-theme="dark"] .review-detail { color: #c9d4e0; }
+:root[data-theme="dark"] .review-fix { color: #e6edf3; }
+:root[data-theme="dark"] .review-examples { background: #161c24; border-color: #2b3645; color: #e6edf3; }

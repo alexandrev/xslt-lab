@@ -12,8 +12,10 @@ import {
   setStylesheetVersion,
   detectVersionUpgradeHint,
   findErrorReference,
+  needsStylesheetReset,
 } from "./lib/workspaceUtils";
-import { templateToWorkspace, findTemplate } from "./lib/templates";
+import { templateToWorkspace, findTemplate, STARTER_STYLESHEET } from "./lib/templates";
+import { reviewWorkspace } from "./lib/reviewRules";
 import { diffLines } from "./lib/diffUtils";
 import { encodeCompact, decodeCompact, toSharePayload, fromSharePayload } from "./lib/shareLink";
 
@@ -433,7 +435,7 @@ function defaultTab(overrides = {}) {
   const base = {
     id: Date.now() + Math.random(),
     params: [{ name: "input1", value: "<root/>", open: true }],
-    xslt: `<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">\n<xsl:template match="/">\n<root/>\n</xsl:template>\n</xsl:stylesheet>`,
+    xslt: STARTER_STYLESHEET,
     version: "1.0",
     name: "",
     expected: "",
@@ -2674,6 +2676,30 @@ export default function App() {
                 +{(errorLines || []).length - MAX_ERROR_LINES} more…
               </div>
             )}
+            {needsStylesheetReset(activeTab.xslt) && (
+              <p className="error-doc-hint">
+                💡 The stylesheet is empty or incomplete, so there is nothing to
+                compile.{" "}
+                <button
+                  type="button"
+                  className="error-hint-switch"
+                  onClick={() => {
+                    setTabs((tabs) =>
+                      tabs.map((t) =>
+                        t.id === active
+                          ? { ...t, xslt: setStylesheetVersion(STARTER_STYLESHEET, t.version || "1.0") }
+                          : t,
+                      ),
+                    );
+                    window.gtag?.("event", "stylesheet_restored", {
+                      event_category: "engagement",
+                    });
+                  }}
+                >
+                  Restore the starter stylesheet
+                </button>
+              </p>
+            )}
             {(() => {
               const ref = findErrorReference(error);
               if (!ref) return null;
@@ -2816,6 +2842,35 @@ export default function App() {
                 />
               </Suspense>
             )}
+            {(() => {
+              const findings = reviewWorkspace({
+                xslt: activeTab.xslt,
+                inputXml: activeTab.params?.[0]?.value,
+                version: activeTab.version,
+              });
+              if (!findings.length) return null;
+              return (
+                <div className="review-panel">
+                  {findings.map((f) => (
+                    <div key={f.id} className={`review-finding review-${f.severity}`}>
+                      <p className="review-title">
+                        {f.severity === "high" ? "▲" : "●"} {f.title}
+                      </p>
+                      <p className="review-detail">{f.detail}</p>
+                      {f.examples?.length > 0 && (
+                        <pre className="review-examples">{f.examples.join("\n")}</pre>
+                      )}
+                      <p className="review-fix">
+                        <strong>Fix:</strong> {f.fix}{" "}
+                        <a href={f.docUrl} target="_blank" rel="noopener noreferrer">
+                          Learn more →
+                        </a>
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
             {compareOpen && (
               <div className="compare-panel">
                 <label className="compare-label" htmlFor="expected-output">
