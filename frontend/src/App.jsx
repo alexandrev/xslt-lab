@@ -488,6 +488,7 @@ function defaultWorkspaceStatus() {
     errorLines: [],
     isServerError: false,
     traceEntries: [],
+    hotspots: [],
     traceText: "",
     showRawTrace: false,
     resultView: "source",
@@ -1068,6 +1069,7 @@ export default function App() {
     errorLines,
     isServerError,
     traceEntries,
+    hotspots,
     traceText,
     showRawTrace,
     resultView,
@@ -1644,6 +1646,7 @@ export default function App() {
           duration: null,
           result: "",
           traceEntries: [],
+          hotspots: [],
           traceText: "",
           showRawTrace: false,
           resultView: "source",
@@ -1679,6 +1682,7 @@ export default function App() {
       updateWorkspaceStatus(tabId, (prev) => ({
         ...prev,
         traceEntries: newEntries,
+        hotspots: traceEnabled ? (data.hotspots || []) : [],
         traceText: traceEnabled ? (data.trace_text || "") : "",
       }));
       requestAnimationFrame(() => {
@@ -2509,6 +2513,23 @@ export default function App() {
                           </button>
                         )}
                       </div>
+                      {!traceCollapsed && hotspots?.length > 0 && (
+                        <div className="hotspots">
+                          <p className="hotspots-title">
+                            Hot spots — how often each construct actually ran
+                          </p>
+                          <ul>
+                            {hotspots.slice(0, 8).map((h, i) => (
+                              <li key={i}>
+                                <span className="hotspot-count">{h.count.toLocaleString()}×</span>
+                                <span className="hotspot-kind">{h.kind}</span>
+                                {h.label && <code className="hotspot-label">{h.label}</code>}
+                                {h.line > 0 && <span className="hotspot-line">line {h.line}</span>}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </>
                   )}
                 </div>

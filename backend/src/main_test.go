@@ -260,3 +260,26 @@ func TestLogTransformErrorIncrementsCounter(t *testing.T) {
 		t.Fatalf("backend counter delta = %v, want 1", got)
 	}
 }
+
+func TestParseHotspot(t *testing.T) {
+	h, ok := parseHotspot("TRACE_HOT|4312|xsl:template|match=\"item\"|12")
+	if !ok {
+		t.Fatalf("expected the line to parse")
+	}
+	if h.Count != 4312 || h.Kind != "xsl:template" || h.Label != `match="item"` || h.Line != 12 {
+		t.Fatalf("unexpected hotspot: %+v", h)
+	}
+	for _, bad := range []string{
+		"TRACE_HOT|not-a-number|xsl:template|x|1",
+		"TRACE_HOT|1|too|few",
+		"TRACE_HOT|0|xsl:template|x|1", // a zero count is not a hotspot
+	} {
+		if _, ok := parseHotspot(bad); ok {
+			t.Errorf("expected %q to be rejected", bad)
+		}
+	}
+	// A missing line number degrades instead of dropping the whole entry.
+	if h, ok := parseHotspot("TRACE_HOT|7|xsl:for-each|sel|?"); !ok || h.Line != -1 {
+		t.Errorf("expected an unparseable line number to become -1, got %+v", h)
+	}
+}

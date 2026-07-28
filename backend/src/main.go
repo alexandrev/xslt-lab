@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -31,10 +32,21 @@ type TransformRequest struct {
 	Trace      bool              `json:"trace"`
 }
 
+// Hotspot is one construct and how many times it executed, from the Saxon
+// trace. Only produced when tracing is on, since it needs the instrumented
+// compile.
+type Hotspot struct {
+	Count int    `json:"count"`
+	Kind  string `json:"kind"`
+	Label string `json:"label"`
+	Line  int    `json:"line"`
+}
+
 type TransformResponse struct {
 	Result           string            `json:"result"`
 	DurationMs       int64             `json:"duration_ms"`
 	Trace            []TraceEntry      `json:"trace,omitempty"`
+	Hotspots         []Hotspot         `json:"hotspots,omitempty"`
 	TraceText        string            `json:"trace_text,omitempty"`
 	SecondaryResults map[string]string `json:"secondary_results,omitempty"`
 }
@@ -186,6 +198,23 @@ func containsAny(s string, subs []string) bool {
 		}
 	}
 	return false
+}
+
+// parseHotspot reads "TRACE_HOT|<count>|<kind>|<label>|<line>".
+func parseHotspot(line string) (Hotspot, bool) {
+	parts := strings.SplitN(line, "|", 5)
+	if len(parts) != 5 {
+		return Hotspot{}, false
+	}
+	count, err := strconv.Atoi(parts[1])
+	if err != nil || count <= 0 {
+		return Hotspot{}, false
+	}
+	lineNo, err := strconv.Atoi(parts[4])
+	if err != nil {
+		lineNo = -1
+	}
+	return Hotspot{Count: count, Kind: parts[2], Label: parts[3], Line: lineNo}, true
 }
 
 func logTransformError(classOverride, version, errMsg string, req TransformRequest, sourceXML, sourceKey string) {
@@ -443,6 +472,7 @@ func main() {
 		log.Printf("transformation done in %dms", duration)
 
 		var traceEntries []TraceEntry
+		var hotspots []Hotspot
 		traceText := daemonResp.TraceText
 		if req.Trace && traceText != "" {
 			log.Printf("trace size=%d bytes", len(traceText))
@@ -453,6 +483,15 @@ func main() {
 			var buf []string
 			for _, l := range lines {
 				if strings.HasPrefix(l, "TRACE_DEBUG") {
+					continue
+				}
+				// Handled before anything else: while `capturing` is on every
+				// line is appended to a variable's value, so a profile line
+				// slipping through would end up inside it.
+				if strings.HasPrefix(l, "TRACE_HOT|") {
+					if h, ok := parseHotspot(l); ok {
+						hotspots = append(hotspots, h)
+					}
 					continue
 				}
 				filtered = append(filtered, l)
@@ -491,6 +530,7 @@ func main() {
 			Result:           daemonResp.Result,
 			DurationMs:       duration,
 			Trace:            traceEntries,
+			Hotspots:         hotspots,
 			TraceText:        traceText,
 			SecondaryResults: daemonResp.SecondaryResults,
 		})

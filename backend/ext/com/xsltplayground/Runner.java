@@ -299,22 +299,31 @@ public class Runner {
         }
     }
 
-    static void attachTraceListener(Processor processor, XsltTransformer transformer, PrintStream sink) {
+    /**
+     * Returns a Runnable that flushes the collected profile, or null when no
+     * listener could be attached. Saxon does not call TraceListener.close()
+     * before the daemon reads the trace buffer, so the caller has to flush
+     * explicitly once the transform is done — relying on close() silently lost
+     * every hot spot.
+     */
+    static Runnable attachTraceListener(Processor processor, XsltTransformer transformer, PrintStream sink) {
         try {
             Controller controller = transformer.getUnderlyingController();
             if (controller == null) {
-                return;
+                return null;
             }
             ClassLoader loader = controller.getClass().getClassLoader();
             Class<?> traceListenerClass = Class.forName("net.sf.saxon.lib.TraceListener", false, loader);
-            InvocationHandler handler = new VariableTraceListenerProxy(processor, transformer, sink);
+            VariableTraceListenerProxy handler = new VariableTraceListenerProxy(processor, transformer, sink);
             Object listener = Proxy.newProxyInstance(loader, new Class<?>[]{traceListenerClass}, handler);
 
             if (!invokeTraceHook(controller, "addTraceListener", traceListenerClass, listener)) {
                 invokeTraceHook(controller, "setTraceListener", traceListenerClass, listener);
             }
+            return handler::emitHotspots;
         } catch (Throwable ignored) {
             // If tracing cannot be attached we simply carry on without trace output.
+            return null;
         }
     }
 
@@ -335,6 +344,13 @@ public class Runner {
         private final XsltTransformer transformer;
         private final Deque<Frame> stack = new ArrayDeque<>();
         private int debugCounter = 0;
+        // Execution counts per construct. Deliberately kept apart from `stack`:
+        // that deque pairs enter/leave for variables and stays balanced only
+        // because both handlers filter on isVariable() identically. Counting
+        // must never push or pop it, or the variable values reported in the UI
+        // would be attributed to the wrong frame.
+        private final Map<String, int[]> hotspots = new LinkedHashMap<>();
+        private static final int MAX_HOTSPOTS = 500;
 
         VariableTraceListenerProxy(Processor processor, XsltTransformer transformer, PrintStream out) {
             this.processor = processor;
@@ -346,6 +362,7 @@ public class Runner {
         public Object invoke(Object proxy, Method method, Object[] args) {
             String name = method.getName();
             if ("close".equals(name)) {
+                emitHotspots();
                 stack.clear();
                 return null;
             }
@@ -354,6 +371,7 @@ public class Runner {
                 Object properties = args != null && args.length > 1 ? args[1] : null;
                 Object context = args != null && args.length > 2 ? args[2] : null;
                 debugEvent("enter", info);
+                countHotspot(info);
                 handleEnter(info, properties, context);
                 return null;
             }
@@ -369,6 +387,136 @@ public class Runner {
                 return null;
             }
             return null;
+        }
+
+        /**
+         * Record that a construct executed. Read-only with respect to every
+         * other piece of state here, and silent on any failure: profiling must
+         * never be able to disturb the variable reporting it sits alongside.
+         */
+        private void countHotspot(Object instructionInfo) {
+            try {
+                // Saxon 12 leaves getConstructType() null on these objects — the
+                // same reason isVariable() falls back to class names — so the
+                // construct has to be recognised from the implementation class.
+                String kind = classifyConstruct(instructionInfo);
+                if (kind == null) {
+                    return;
+                }
+                String label = describeInstruction(instructionInfo);
+                int line = getLineNumber(instructionInfo);
+                String key = kind + "\u0001" + (label == null ? "" : label) + "\u0001" + line;
+                int[] counter = hotspots.get(key);
+                if (counter == null) {
+                    if (hotspots.size() >= MAX_HOTSPOTS) {
+                        return;
+                    }
+                    counter = new int[1];
+                    hotspots.put(key, counter);
+                }
+                counter[0]++;
+            } catch (Throwable ignored) {
+                // Profiling is best-effort.
+            }
+        }
+
+        private String classifyConstruct(Object instructionInfo) {
+            if (instructionInfo == null) {
+                return null;
+            }
+            String className = instructionInfo.getClass().getName();
+            if (className == null) {
+                return null;
+            }
+            if (className.endsWith(".TemplateRule") || className.endsWith(".NamedTemplate")) {
+                return "xsl:template";
+            }
+            if (className.endsWith(".ApplyTemplates")) {
+                return "xsl:apply-templates";
+            }
+            if (className.endsWith(".ForEach")) {
+                return "xsl:for-each";
+            }
+            if (className.endsWith(".ForEachGroup")) {
+                return "xsl:for-each-group";
+            }
+            if (className.endsWith(".CallTemplate")) {
+                return "xsl:call-template";
+            }
+            if (className.endsWith(".UserFunction") || className.endsWith(".UserFunctionCall")) {
+                return "xsl:function";
+            }
+            return null;
+        }
+
+        private String describeInstruction(Object instructionInfo) {
+            Object match = invokeQuietly(instructionInfo, "getMatchPattern");
+            if (match != null) {
+                String text = String.valueOf(match);
+                if (!text.isEmpty()) {
+                    return text;
+                }
+            }
+            Object objectName = invokeQuietly(instructionInfo, "getObjectName");
+            if (objectName instanceof StructuredQName) {
+                return ((StructuredQName) objectName).getDisplayName();
+            }
+            if (objectName != null) {
+                return String.valueOf(objectName);
+            }
+            return null;
+        }
+
+        private int getLineNumber(Object instructionInfo) {
+            Object value = invokeQuietly(instructionInfo, "getLineNumber");
+            return value instanceof Number ? ((Number) value).intValue() : -1;
+        }
+
+        private Object invokeQuietly(Object target, String methodName) {
+            if (target == null) {
+                return null;
+            }
+            try {
+                Method m = target.getClass().getMethod(methodName);
+                m.setAccessible(true);
+                return m.invoke(target);
+            } catch (Throwable ignored) {
+                return null;
+            }
+        }
+
+        /**
+         * Emitted once, after the transform, so these lines can never land
+         * between a TRACE_VAR_START/TRACE_VAR_END pair and corrupt a value.
+         */
+        private void emitHotspots() {
+            try {
+                if (hotspots.isEmpty()) {
+                    return;
+                }
+                List<Map.Entry<String, int[]>> entries = new ArrayList<>(hotspots.entrySet());
+                entries.sort((a, b) -> Integer.compare(b.getValue()[0], a.getValue()[0]));
+                int limit = Math.min(entries.size(), 25);
+                for (int i = 0; i < limit; i++) {
+                    Map.Entry<String, int[]> e = entries.get(i);
+                    String[] parts = e.getKey().split("\u0001", -1);
+                    String kind = parts.length > 0 ? parts[0] : "";
+                    String label = parts.length > 1 ? parts[1] : "";
+                    String line = parts.length > 2 ? parts[2] : "-1";
+                    out.println("TRACE_HOT|" + e.getValue()[0] + "|" + kind + "|"
+                            + sanitizeField(label) + "|" + line);
+                }
+                hotspots.clear();
+            } catch (Throwable ignored) {
+                // Never let profiling break the run.
+            }
+        }
+
+        private String sanitizeField(String value) {
+            if (value == null) {
+                return "";
+            }
+            return value.replace("\r", " ").replace("\n", " ").replace("|", "/");
         }
 
         private void handleEnter(Object instructionInfo, Object properties, Object context) {

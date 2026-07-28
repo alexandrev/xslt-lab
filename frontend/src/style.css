@@ -2377,3 +2377,27 @@ a:focus-visible {
 :root[data-theme="dark"] .review-detail { color: #c9d4e0; }
 :root[data-theme="dark"] .review-fix { color: #e6edf3; }
 :root[data-theme="dark"] .review-examples { background: #161c24; border-color: #2b3645; color: #e6edf3; }
+
+/* Hot spots — execution counts from the Saxon trace. Facts, not heuristics. */
+.hotspots {
+  border-top: 1px solid #cfdcf4;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.hotspots-title { margin: 0 0 0.3rem; font-weight: 600; color: #21426c; }
+.hotspots ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.2rem; }
+.hotspots li { display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap; }
+.hotspot-count { font-weight: 700; color: #b26a00; min-width: 4.5ch; text-align: right; }
+.hotspot-kind { color: #007acc; }
+.hotspot-label {
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.72rem;
+  color: #4a5568;
+  overflow-wrap: anywhere;
+}
+.hotspot-line { color: #8a94a6; font-size: 0.7rem; }
+
+:root[data-theme="dark"] .hotspots { border-color: #2b3645; }
+:root[data-theme="dark"] .hotspots-title { color: #e6edf3; }
+:root[data-theme="dark"] .hotspot-label { color: #c9d4e0; }

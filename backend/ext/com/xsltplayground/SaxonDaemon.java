@@ -144,8 +144,9 @@ public class SaxonDaemon {
 
                 XsltTransformer transformer = exec.load();
 
+                Runnable flushProfile = null;
                 if (trace) {
-                    Runner.attachTraceListener(proc, transformer, traceSink);
+                    flushProfile = Runner.attachTraceListener(proc, transformer, traceSink);
                 }
 
                 // Source document — omit when empty so Saxon can invoke xsl:initial-template
@@ -186,6 +187,9 @@ public class SaxonDaemon {
                 transformer.setDestination(ser);
                 transformer.transform();
 
+                if (flushProfile != null) {
+                    flushProfile.run();
+                }
                 traceSink.flush();
                 response.addProperty("result", resultWriter.toString());
                 response.addProperty("traceText", trace ? traceBuf.toString(StandardCharsets.UTF_8) : "");
