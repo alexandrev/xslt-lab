@@ -2721,6 +2721,15 @@ export default function App() {
                 </button>
               </p>
             )}
+            {/Cannot find external method|Could not find function.*:[a-zA-Z]|external function/i.test(error) && (
+              <p className="error-doc-hint">
+                💡 This stylesheet calls a Java extension method. The playground runs
+                stock Saxon HE, so classes from your own project (or your ESB's
+                runtime) are not on its classpath. Replace the call with standard
+                XPath, or stub the value out with an <code>xsl:param</code> to test
+                the rest of the transform here.
+              </p>
+            )}
             {(() => {
               const ref = findErrorReference(error);
               if (!ref) return null;

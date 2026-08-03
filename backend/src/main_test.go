@@ -229,6 +229,14 @@ func TestClassifyTransformError(t *testing.T) {
 		{"xalan illegal attr", "line 242: Illegal attribute 'select'.", "stylesheet", "COMPILE"},
 		{"xalan 2.0 fn in 1.0", "Error checking type of the expression 'funcall(current-date, [])'.", "stylesheet", "COMPILE"},
 		{"no source document", "Either a source document, an initial template or an initial function must be specified", "input_xml", "NO_SOURCE"},
+		// Previously all of these fell into "other"; taken from production logs.
+		{"multiply defined variable", "line 11: Variable 'DestinationCode' is multiply defined in the same scope.", "stylesheet", "COMPILE"},
+		{"undefined variable", "line 42: Variable or parameter 'OriginCode' is undefined.", "stylesheet", "COMPILE"},
+		{"format-number picture", "format-number picture: Passive character must not appear between active characters in a sub-picture", "stylesheet", "COMPILE"},
+		{"missing java extension", "Cannot find external method 'com.example.util.DateUtil.now' (must be public).", "stylesheet", "COMPILE"},
+		{"stray xml declaration", `The processing instruction target matching "[xX][mM][lL]" is not allowed.`, "input_xml", "PARSE"},
+		// A limit the service imposes — a bug candidate, not the user's mistake.
+		{"xpath operator limit", "JAXP0801002: the compiler encountered an XPath expression containing '101' operators that exceeds the '100' limit set by 'FEATURE_SECURE_PROCESSING'.", "backend", "XPATH_OP_LIMIT"},
 		{"truly unknown", "some unexpected failure", "other", "OTHER"},
 	}
 	for _, c := range cases {

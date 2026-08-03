@@ -151,6 +151,8 @@ func classifyTransformError(msg string) (code, class string) {
 		"the markup in the document",
 		"content of elements must consist",
 		"must be followed by either attribute",
+		// An <?xml ...?> declaration anywhere but the very start of the document.
+		"processing instruction target matching",
 	}
 	// Stylesheet-authoring failures. Saxon reports many of these without a code
 	// prefix; Xalan/JAXP (XSLT 1.0) reports undefined functions, misplaced
@@ -164,9 +166,21 @@ func classifyTransformError(msg string) (code, class string) {
 		"cannot convert data-type",
 		"error checking type of the expression",
 		"transformerconfigurationexception",
+		// Seen in production sitting in "other": all of them are the author's
+		// stylesheet, not the input document.
+		"is multiply defined",
+		"is undefined",
+		"format-number picture",
+		"cannot find external method",
 	}
 
 	switch {
+	// A platform limit we impose, not a mistake in the user's stylesheet, so it
+	// must not be filed under "stylesheet" where it would look like user error.
+	case strings.Contains(lower, "jaxp0801002") ||
+		strings.Contains(lower, "feature_secure_processing"):
+		class = "backend"
+		code = "XPATH_OP_LIMIT"
 	// No source document supplied. Saxon phrases this with spaces ("an initial
 	// template"), so the hyphenated initial-template check below never caught it.
 	case strings.Contains(lower, "initial template or an initial function"):

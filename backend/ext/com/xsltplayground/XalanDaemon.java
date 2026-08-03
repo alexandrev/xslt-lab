@@ -25,6 +25,17 @@ public class XalanDaemon {
         System.setProperty("javax.xml.transform.TransformerFactory",
                 "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
 
+        // Secure processing caps an XPath expression at 100 operators, and real
+        // enterprise stylesheets go past it — users were getting JAXP0801002
+        // ("exceeds the '100' limit set by FEATURE_SECURE_PROCESSING") on
+        // stylesheets that are perfectly valid. Raise the limits rather than
+        // turning secure processing off, which also guards external entity
+        // access; runaway expressions are already bounded by the 10s transform
+        // timeout. 0 would mean no limit at all, so keep a generous ceiling.
+        setIfAbsent("jdk.xml.xpathExprOpLimit", "10000");
+        setIfAbsent("jdk.xml.xpathExprGrpLimit", "1000");
+        setIfAbsent("jdk.xml.xpathTotalOpLimit", "1000000");
+
         // Warm up
         try {
             TransformerFactory.newInstance().newTemplates(new StreamSource(new StringReader(
@@ -34,6 +45,13 @@ public class XalanDaemon {
             System.err.println("XalanDaemon warm-up warning: " + e.getMessage());
         }
         System.out.println("XalanDaemon: warm-up complete.");
+    }
+
+    /** Leaves any value supplied on the command line (-D...) untouched. */
+    private static void setIfAbsent(String key, String value) {
+        if (System.getProperty(key) == null) {
+            System.setProperty(key, value);
+        }
     }
 
     public static void main(String[] args) throws Exception {
