@@ -13,6 +13,7 @@ import {
   detectVersionUpgradeHint,
   findErrorReference,
   needsStylesheetReset,
+  checkWellFormed,
 } from "./lib/workspaceUtils";
 import { templateToWorkspace, findTemplate, STARTER_STYLESHEET } from "./lib/templates";
 import { reviewWorkspace } from "./lib/reviewRules";
@@ -487,6 +488,7 @@ function defaultWorkspaceStatus() {
     error: "",
     errorLines: [],
     isServerError: false,
+    notWellFormed: false,
     traceEntries: [],
     hotspots: [],
     traceText: "",
@@ -834,6 +836,10 @@ export default function App() {
   const [serverErrorCount, setServerErrorCount] = useState(0);
   const [bugFeedbackDismissed, setBugFeedbackDismissed] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
+  // "Run anyway" records the exact text it forced, so the gate steps aside for
+  // that document only: the next edit changes the text and the gate is back.
+  const forcedTextRef = useRef(null);
+  const [forceRun, setForceRun] = useState(0);
   const [compareOpen, setCompareOpen] = useState(false);
   const [xsltBeforeFormat, setXsltBeforeFormat] = useState(null);
   const [resultBeforeFormat, setResultBeforeFormat] = useState(null);
@@ -1068,6 +1074,7 @@ export default function App() {
     error,
     errorLines,
     isServerError,
+    notWellFormed,
     traceEntries,
     hotspots,
     traceText,
@@ -1709,13 +1716,43 @@ export default function App() {
 
   useEffect(() => {
     if (!activeTab || !autoRunReady) return;
-    runTransform(
-      injectParamBlock(activeTab.xslt, activeTab.params),
-      activeTab.version,
-      activeTab.params,
-      activeTab.id,
-    );
-  }, [activeTab, traceEnabled, autoRunReady]);
+    const xsltText = injectParamBlock(activeTab.xslt, activeTab.params);
+
+    // Don't spend a round-trip on a document that is merely half-written. The
+    // editor re-runs as the user types, so without this roughly half of all
+    // transforms are documents caught mid-keystroke: they come back as errors,
+    // inflate the metrics and flash failures at someone who is still typing.
+    // The parse error we can produce locally is the same information, sooner.
+    if (forcedTextRef.current !== xsltText) {
+      const badXslt = checkWellFormed(xsltText);
+      const badInput = badXslt
+        ? null
+        : (activeTab.params || [])
+            .filter((p) => p?.value && p.value.trim().startsWith("<"))
+            .map((p) => {
+              const problem = checkWellFormed(p.value);
+              return problem ? { ...problem, param: p.name } : null;
+            })
+            .find(Boolean);
+      const problem = badXslt || badInput;
+      if (problem) {
+        const where = badXslt ? "stylesheet" : `input "${badInput.param}"`;
+        const text = `Not well-formed XML in the ${where}: ${problem.message}`;
+        updateWorkspaceStatus(activeTab.id, (prev) => ({
+          ...prev,
+          error: text,
+          errorLines: parseErrorLines(text),
+          isServerError: false,
+          notWellFormed: true,
+          isRunning: false,
+        }));
+        return undefined;
+      }
+    }
+
+    runTransform(xsltText, activeTab.version, activeTab.params, activeTab.id);
+    return undefined;
+  }, [activeTab, traceEnabled, autoRunReady, forceRun]);
 
   useEffect(() => {
     syncParams();
@@ -2696,6 +2733,25 @@ export default function App() {
               <div className="error-more">
                 +{(errorLines || []).length - MAX_ERROR_LINES} more…
               </div>
+            )}
+            {notWellFormed && (
+              <p className="error-doc-hint">
+                💡 Checked here in the browser, so nothing was sent to the server.
+                It usually just means you are mid-edit.{" "}
+                <button
+                  type="button"
+                  className="error-hint-switch"
+                  onClick={() => {
+                    forcedTextRef.current = injectParamBlock(
+                      activeTab.xslt,
+                      activeTab.params,
+                    );
+                    setForceRun((n) => n + 1);
+                  }}
+                >
+                  Run it anyway
+                </button>
+              </p>
             )}
             {needsStylesheetReset(activeTab.xslt) && (
               <p className="error-doc-hint">

@@ -228,3 +228,28 @@ export function needsStylesheetReset(xslt) {
     return false;
   }
 }
+
+// Well-formedness check used to decide whether a document is worth sending to
+// the backend at all. The editor re-runs on a debounce while the user types, so
+// without this the app spends roughly half its requests transforming documents
+// that are simply half-written — inflating the error metrics, burning backend
+// capacity and flashing errors at someone who is still typing.
+//
+// Returns null when the text parses, otherwise { message, line }.
+export function checkWellFormed(text) {
+  if (!text || !text.trim()) return null; // nothing to judge yet
+  let doc;
+  try {
+    doc = new DOMParser().parseFromString(text, "application/xml");
+  } catch {
+    return null; // no parser available: let the backend decide
+  }
+  const err = doc.querySelector("parsererror");
+  if (!err) return null;
+  const raw = (err.textContent || "XML is not well-formed").trim();
+  const lineMatch = raw.match(/[Ll]ine[:\s]+(\d+)/);
+  return {
+    message: raw.replace(/Below is a rendering.*$/s, "").trim(),
+    line: lineMatch ? parseInt(lineMatch[1], 10) : null,
+  };
+}

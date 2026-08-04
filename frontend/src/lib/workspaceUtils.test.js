@@ -4,6 +4,7 @@ import {
   detectVersionUpgradeHint,
   findErrorReference,
   needsStylesheetReset,
+  checkWellFormed,
   extractParamNames,
   injectParamBlock,
   parseErrorLines,
@@ -140,5 +141,23 @@ describe("needsStylesheetReset", () => {
         '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:template match="/"/></xsl:stylesheet>',
       ),
     ).toBe(false);
+  });
+});
+
+describe("checkWellFormed", () => {
+  it("accepts a well-formed document", () => {
+    expect(checkWellFormed("<root><a/></root>")).toBeNull();
+  });
+  it("reports a truncated document — the half-typed case", () => {
+    const r = checkWellFormed("<root><a>");
+    expect(r).not.toBeNull();
+    expect(typeof r.message).toBe("string");
+  });
+  it("reports an unterminated attribute — literally mid-keystroke", () => {
+    expect(checkWellFormed('<xsl:template match="/')).not.toBeNull();
+  });
+  it("stays silent on empty input, which is legitimate", () => {
+    expect(checkWellFormed("")).toBeNull();
+    expect(checkWellFormed("   ")).toBeNull();
   });
 });

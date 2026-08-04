@@ -176,3 +176,47 @@ describe("version selector", () => {
     expect(select.value).toBe("3.0");
   });
 });
+
+describe("well-formedness gate", () => {
+  const seedWorkspace = (xslt) => {
+    localStorage.setItem(
+      "tabs",
+      JSON.stringify([
+        { id: 1, name: "t", version: "1.0", xslt, params: [{ name: "input", value: "<r/>", open: true }] },
+      ]),
+    );
+    localStorage.setItem("active", "1");
+  };
+
+  const WELL_FORMED =
+    '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:template match="/"><o/></xsl:template></xsl:stylesheet>';
+
+  it("does not call the backend for a half-written stylesheet", async () => {
+    seedWorkspace('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:template match="/');
+    render(<App />);
+    fireEvent.pointerDown(window);
+    await waitFor(() => expect(screen.getByText(/not well-formed xml/i)).toBeInTheDocument(), {
+      timeout: 3000,
+    });
+    expect(fetch).not.toHaveBeenCalled();
+  }, 10000);
+
+  it("still calls the backend when the document parses", async () => {
+    seedWorkspace(WELL_FORMED);
+    render(<App />);
+    fireEvent.pointerDown(window);
+    await waitFor(() => expect(fetch).toHaveBeenCalled(), { timeout: 3000 });
+  }, 10000);
+
+  it("offers a way to run it anyway", async () => {
+    seedWorkspace('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:template match="/');
+    render(<App />);
+    fireEvent.pointerDown(window);
+    const button = await screen.findByRole("button", { name: /run it anyway/i }, { timeout: 3000 });
+    // A debounced run queued by an earlier test can land here, so compare
+    // against the count at click time rather than assuming it is zero.
+    const before = fetch.mock.calls.length;
+    await act(async () => { fireEvent.click(button); });
+    await waitFor(() => expect(fetch.mock.calls.length).toBeGreaterThan(before), { timeout: 4000 });
+  }, 12000);
+});
