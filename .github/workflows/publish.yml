@@ -35,12 +35,17 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
+      # The built-in GITHUB_TOKEN has no write access to these packages, so every
+      # push since 1773a0c failed with "denied: permission_denied: write_package"
+      # and the images silently stopped being rebuilt. Use a PAT with
+      # write:packages until the packages grant this repo write access, at which
+      # point GITHUB_TOKEN can come back.
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_PAT }}
 
       - name: Build and push backend image
         uses: docker/build-push-action@v5
