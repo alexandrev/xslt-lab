@@ -176,7 +176,13 @@
       font-size: 0.88rem;
     }
     footer a { color: #93c5fd; }
+    .ea-slot {
+      margin: 0 0 1.5rem;
+      min-height: 90px;
+    }
+    .ea-slot .ethical-ad { max-width: 100%; }
   </style>
+  <script async src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
 </head>
 <body>
   <header>
@@ -202,6 +208,13 @@
       <a href="/">XSLT 1.0</a>
       <a href="/xslt-2-0/">XSLT 2.0</a>
       <a href="/xslt-3-0/" class="active">XSLT 3.0</a>
+    </div>
+
+    <!-- One EthicalAds unit: their policy allows a single ad per page, above or
+         below the main content but never inside it. Sits above the fold, after
+         the nav and before the first section. -->
+    <div class="ea-slot">
+      <div class="ethical-ad" data-ea-publisher="xsltplaygroundcom" data-ea-type="image"></div>
     </div>
 
     <div class="callout">
