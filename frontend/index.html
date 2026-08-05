@@ -284,7 +284,10 @@
         window.addEventListener("load", scheduleAdsense, { once: true });
       }
     </script>
-  </head>
+    <!-- Umami: self-hosted, cookieless. The landing pages had no analytics at
+       all, so their traffic was invisible outside Search Console. -->
+  <script defer src="https://umami.alexandre-vazquez.cloud/script.js" data-website-id="043e327b-723e-4efd-9ac9-46589219c706"></script>
+</head>
   <body>
     <div id="root">
       <div class="app-shell" role="status" aria-live="polite">
