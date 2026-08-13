@@ -1,5 +1,6 @@
 ---
 title: "tokenize()"
+seoTitle: "tokenize() — split a string by a delimiter in XSLT 2.0+"
 description: "Splits a string into a sequence of substrings using a regular expression as the delimiter pattern."
 date: 2026-04-18T00:00:00Z
 version: "2.0"

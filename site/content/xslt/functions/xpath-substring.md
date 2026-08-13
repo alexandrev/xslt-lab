@@ -1,5 +1,6 @@
 ---
 title: "substring()"
+seoTitle: "substring() in XSLT — extract part of a string by position"
 description: "Extracts a portion of a string by start position and optional length, returning the resulting substring."
 date: 2026-04-18T00:00:00Z
 version: "1.0"

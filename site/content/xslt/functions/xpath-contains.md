@@ -1,5 +1,6 @@
 ---
 title: "contains()"
+seoTitle: "contains() in XSLT — test whether a string contains another"
 description: "Returns true if the first string contains the second string as a substring, otherwise returns false."
 date: 2026-04-18T00:00:00Z
 version: "1.0"

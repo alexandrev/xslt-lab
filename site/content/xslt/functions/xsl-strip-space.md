@@ -1,5 +1,6 @@
 ---
 title: "xsl:strip-space"
+seoTitle: "xsl:strip-space — trim whitespace between elements in XSLT"
 description: "Removes whitespace-only text nodes from the specified source elements before the transformation begins processing them."
 date: 2026-04-18T00:00:00Z
 version: "1.0"

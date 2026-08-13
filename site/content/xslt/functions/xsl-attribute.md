@@ -1,5 +1,6 @@
 ---
 title: "xsl:attribute"
+seoTitle: "xsl:attribute — set attributes dynamically in XSLT"
 description: "Creates an attribute on the nearest ancestor result element, with a name and value computed at transformation time."
 date: 2026-04-18T00:00:00Z
 version: "1.0"

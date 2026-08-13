@@ -1,5 +1,6 @@
 ---
 title: "local-name()"
+seoTitle: "local-name() — element names without the namespace prefix"
 description: "Returns the local part of the expanded name of a node, stripping any namespace prefix."
 date: 2026-04-18T00:00:00Z
 version: "1.0"

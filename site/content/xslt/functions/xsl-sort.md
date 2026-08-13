@@ -1,5 +1,6 @@
 ---
 title: "xsl:sort"
+seoTitle: "xsl:sort — sort alphabetically or numerically in XSLT"
 description: "Specifies a sort key for xsl:apply-templates or xsl:for-each, controlling the order in which nodes are processed."
 date: 2026-04-18T00:00:00Z
 version: "1.0"

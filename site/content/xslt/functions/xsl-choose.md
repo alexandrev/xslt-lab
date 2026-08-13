@@ -1,5 +1,6 @@
 ---
 title: "xsl:choose"
+seoTitle: "xsl:choose — if / else-if / else logic in XSLT"
 description: "Multi-branch conditional that evaluates xsl:when conditions in order and optionally falls back to xsl:otherwise."
 date: 2026-04-18T00:00:00Z
 version: "1.0"

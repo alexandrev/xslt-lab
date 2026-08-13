@@ -1,5 +1,6 @@
 ---
 title: "xsl:if"
+seoTitle: "xsl:if — conditional output in XSLT (and when xsl:choose is better)"
 description: "Conditionally outputs content when a boolean XPath expression evaluates to true; has no else branch."
 date: 2026-04-18T00:00:00Z
 version: "1.0"
