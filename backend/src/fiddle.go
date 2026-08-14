@@ -76,8 +76,22 @@ func registerFiddleRoutes(r *gin.Engine, db *gorm.DB) {
 		return
 	}
 
-	if err := db.AutoMigrate(&Fiddle{}); err != nil {
-		log.Fatalf("fiddle migrate: %v", err)
+	// Explicit, idempotent DDL instead of GORM's AutoMigrate: the migrator
+	// chokes on this composite primary key when the table already exists
+	// ("insufficient arguments" on its introspection query), which crashlooped
+	// the first deployment. CREATE IF NOT EXISTS has no such moods.
+	if err := db.Exec(`CREATE TABLE IF NOT EXISTS fiddles (
+		id varchar(12) NOT NULL,
+		revision integer NOT NULL,
+		payload text NOT NULL,
+		created_at timestamptz NOT NULL DEFAULT now(),
+		PRIMARY KEY (id, revision)
+	)`).Error; err != nil {
+		// Same degradation contract as a failed connection: fiddles off,
+		// transforms unaffected.
+		log.Printf("fiddle table create failed, fiddle storage disabled: %v", err)
+		registerFiddleRoutes(r, nil)
+		return
 	}
 
 	r.POST("/fiddle", func(c *gin.Context) {
