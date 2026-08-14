@@ -2401,3 +2401,39 @@ a:focus-visible {
 :root[data-theme="dark"] .hotspots { border-color: #2b3645; }
 :root[data-theme="dark"] .hotspots-title { color: #e6edf3; }
 :root[data-theme="dark"] .hotspot-label { color: #c9d4e0; }
+
+.trace-engine-note {
+  margin: 4px 8px;
+  font-size: 0.72rem;
+  color: #7a5800;
+  background: #fffbea;
+  border-left: 3px solid #f0c040;
+  padding: 3px 8px;
+}
+
+:root[data-theme="dark"] .trace-engine-note {
+  color: #f0d070;
+  background: #2a2200;
+  border-left-color: #a07800;
+}
+
+/* Saved fiddles */
+.fiddle-save-btn {
+  border: 1px solid #cfdcf4;
+  border-radius: 6px;
+  background: #f0f6ff;
+  color: #21426c;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+}
+
+.fiddle-save-btn:hover { border-color: #4a85ff; background: #e6f0ff; }
+.fiddle-save-btn[disabled] { opacity: 0.6; cursor: default; }
+
+:root[data-theme="dark"] .fiddle-save-btn {
+  background: #161c24;
+  border-color: #2b3645;
+  color: #e6edf3;
+}

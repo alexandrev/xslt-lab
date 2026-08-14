@@ -19,7 +19,7 @@
       "@type": ["WebApplication", "SoftwareApplication"],
       "name": "XPath Tester Online",
       "url": "https://xsltplayground.com/xpath-tester/",
-      "description": "Free online XPath tester and evaluator powered by Saxon HE 12.5. Evaluate XPath 1.0, 2.0 and 3.1 expressions against your own XML, with predicates, axes and the full function library.",
+      "description": "Free online XPath tester and evaluator powered by Saxon HE 12.9. Evaluate XPath 1.0, 2.0 and 3.1 expressions against your own XML, with predicates, axes and the full function library.",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Any",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
@@ -49,7 +49,7 @@
           "name": "Which XPath versions can I test?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "XPath 1.0, 2.0, 3.0 and 3.1. The XPath version is determined by the XSLT version you select: XSLT 1.0 gives XPath 1.0, XSLT 2.0 gives XPath 2.0, and XSLT 3.0 gives XPath 3.1 including maps, arrays and the arrow operator. Saxon HE 12.5 evaluates all of them."
+            "text": "XPath 1.0, 2.0, 3.0 and 3.1. The XPath version is determined by the XSLT version you select: XSLT 1.0 gives XPath 1.0, XSLT 2.0 gives XPath 2.0, and XSLT 3.0 gives XPath 3.1 including maps, arrays and the arrow operator. Saxon HE 12.9 evaluates all of them."
           }
         },
         {
@@ -214,7 +214,7 @@
   </header>
 
   <div class="hero">
-    <div class="badge">Powered by Saxon HE 12.5</div>
+    <div class="badge">Powered by Saxon HE 12.9</div>
     <h1>XPath Tester Online</h1>
     <p>Evaluate XPath expressions against your own XML and see every match instantly. XPath 1.0, 2.0 and 3.1 on the real Saxon engine — completely free.</p>
     <a class="cta-btn" href="https://xsltplayground.com/?template=xpath-tester">Open the XPath Tester →</a>
@@ -248,7 +248,7 @@
       Most XPath bugs are not syntax errors — they are expressions that parse cleanly and quietly select
       the wrong nodes, or nothing at all. That is why evaluating an expression against a real document,
       on a real processor, is the fastest way to debug it. XSLT Playground evaluates your expression with
-      Saxon HE 12.5, so what you see here is exactly what your production pipeline will do.
+      Saxon HE 12.9, so what you see here is exactly what your production pipeline will do.
     </p>
 
     <h2>How to Test an XPath Expression Online</h2>
@@ -472,7 +472,7 @@
       <dd>Open the <a href="https://xsltplayground.com/?template=xpath-tester">XPath tester template</a>, paste your XML into the input panel, and put your expression in the <code>expression</code> variable. The result panel lists every matching node with a total count.</dd>
 
       <dt>Which XPath versions can I test?</dt>
-      <dd>XPath 1.0, 2.0, 3.0 and 3.1. The version follows the XSLT version you select, and Saxon HE 12.5 evaluates all of them — including maps, arrays and the arrow operator in XPath 3.1.</dd>
+      <dd>XPath 1.0, 2.0, 3.0 and 3.1. The version follows the XSLT version you select, and Saxon HE 12.9 evaluates all of them — including maps, arrays and the arrow operator in XPath 3.1.</dd>
 
       <dt>Why does <code>//book[1]</code> return more than one node?</dt>
       <dd>A positional predicate applies to each step, not to the whole result. <code>//book[1]</code> selects every book that is first among its own siblings. To take the first node of the entire result, parenthesise the path: <code>(//book)[1]</code>.</dd>

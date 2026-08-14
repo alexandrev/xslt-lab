@@ -66,3 +66,30 @@ describe.runIf(supportsCompactLinks())("compact encoding", () => {
     expect(await decodeCompact("")).toBeNull();
   });
 });
+
+describe("fiddles", () => {
+  it("round-trips a workspace payload including the expected output", async () => {
+    const calls = [];
+    global.fetch = async (url, opts) => {
+      calls.push({ url, opts });
+      if (opts?.method === "POST") {
+        return { ok: true, json: async () => ({ id: "AbCdEfG", revision: 1 }) };
+      }
+      const body = JSON.parse(calls[0].opts.body).payload;
+      return { ok: true, json: async () => ({ id: "AbCdEfG", revision: 1, revisions: 1, payload: body }) };
+    };
+    const { saveFiddle, loadFiddle } = await import("./shareLink");
+    const tab = { xslt: "<x/>", version: "2.0", name: "t", params: [{ name: "input", value: "<r/>", open: true }], expected: "<out/>" };
+    const saved = await saveFiddle("http://b", tab);
+    expect(saved).toEqual({ id: "AbCdEfG", revision: 1 });
+    const loaded = await loadFiddle("http://b", "AbCdEfG");
+    expect(loaded.overrides.xslt).toBe("<x/>");
+    expect(loaded.overrides.expected).toBe("<out/>");
+  });
+
+  it("returns null on a missing fiddle instead of throwing", async () => {
+    global.fetch = async () => ({ ok: false, status: 404 });
+    const { loadFiddle } = await import("./shareLink");
+    expect(await loadFiddle("http://b", "zzzzzzz")).toBeNull();
+  });
+});

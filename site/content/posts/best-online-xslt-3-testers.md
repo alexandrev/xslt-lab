@@ -15,7 +15,7 @@ If you want full XSLT 3.0 in the browser with no install, the two free tools tha
 
 | Tool | XSLT 3.0 | Engine | Multiple inputs / params | Validation & errors | Signup |
 |------|:--------:|--------|:------------------------:|---------------------|:------:|
-| [XSLT Playground](https://xsltplayground.com) | ✅ full | Saxon HE 12.5 (server) | ✅ named params + multiple XML | Line-number Saxon errors | No |
+| [XSLT Playground](https://xsltplayground.com) | ✅ full | Saxon HE 12.9 (server) | ✅ named params + multiple XML | Line-number Saxon errors | No |
 | XSLT Fiddle | ✅ | Saxon-JS 2 / Saxon 12 HE | Limited | Basic | No |
 | LinangData XSLT Tester | ✅ | Saxon-JS (browser) | No | Basic | No |
 | FreeFormatter XSL Transformer | ❌ 1.0/2.0 | Server | No | Basic | No |
@@ -34,7 +34,7 @@ If your goal is to reproduce what your **production** stylesheet will do, a tool
 ## The tools, one by one
 
 ### XSLT Playground
-Runs XSLT 1.0, 2.0 and 3.0 on a real **Saxon HE 12.5** backend. Its main strengths are aimed at real integration work: you can pass **multiple XML inputs as named parameters**, inspect an **execution trace** to debug step by step, and get **exact line-number error messages** straight from Saxon. It keeps up to three independent workspaces and lets you export/import them as JSON to share a setup. No account, no signup. Best for: testing or debugging stylesheets the way they will run in production (SAP, MuleSoft, Tibco, IBM-style middleware). → [xsltplayground.com](https://xsltplayground.com)
+Runs XSLT 1.0, 2.0 and 3.0 on a real **Saxon HE 12.9** backend. Its main strengths are aimed at real integration work: you can pass **multiple XML inputs as named parameters**, inspect an **execution trace** to debug step by step, and get **exact line-number error messages** straight from Saxon. It keeps up to three independent workspaces and lets you export/import them as JSON to share a setup. No account, no signup. Best for: testing or debugging stylesheets the way they will run in production (SAP, MuleSoft, Tibco, IBM-style middleware). → [xsltplayground.com](https://xsltplayground.com)
 
 ### XSLT Fiddle
 A capable, developer-focused fiddle that supports XSLT 3.0 and lets you **choose the engine** (Saxon-JS 2, or Saxon 12 HE Java). Great when you specifically want to test against a particular Saxon build or share a minimal reproduction. The interface is deliberately bare-bones.

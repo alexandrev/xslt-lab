@@ -46,6 +46,7 @@ type TransformResponse struct {
 	Result           string            `json:"result"`
 	DurationMs       int64             `json:"duration_ms"`
 	Trace            []TraceEntry      `json:"trace,omitempty"`
+	TraceEngine      string            `json:"trace_engine,omitempty"`
 	Hotspots         []Hotspot         `json:"hotspots,omitempty"`
 	TraceText        string            `json:"trace_text,omitempty"`
 	SecondaryResults map[string]string `json:"secondary_results,omitempty"`
@@ -334,6 +335,21 @@ func main() {
 		db         *gorm.DB
 	)
 
+	// The database used to be a Pro-only concern; saved fiddles need it too,
+	// and unlike /history they are unauthenticated. Open it whenever a URL is
+	// configured, and keep Firebase/history strictly behind goPro.
+	if config.DatabaseURL != "" && os.Getenv("DISABLE_DATABASE") != "true" {
+		var err error
+		db, err = gorm.Open(postgres.Open(config.DatabaseURL), &gorm.Config{})
+		if err != nil {
+			// Not fatal outside Pro mode: the chart has shipped a placeholder
+			// databaseUrl for a long time, so an unreachable database must
+			// degrade to "fiddles off", not crashloop the whole backend.
+			log.Printf("db connect failed, fiddle storage disabled: %v", err)
+			db = nil
+		}
+	}
+
 	if goPro {
 		ctx := context.Background()
 		var fbOpt option.ClientOption
@@ -349,9 +365,8 @@ func main() {
 			log.Fatalf("auth client: %v", err)
 		}
 
-		db, err = gorm.Open(postgres.Open(config.DatabaseURL), &gorm.Config{})
-		if err != nil {
-			log.Fatalf("db connect: %v", err)
+		if db == nil {
+			log.Fatalf("pro mode requires DATABASE_URL")
 		}
 		if err := db.AutoMigrate(&Transformation{}); err != nil {
 			log.Fatalf("auto migrate: %v", err)
@@ -367,6 +382,8 @@ func main() {
 	r := gin.Default()
 	r.Use(metricsMiddleware())
 	r.Use(corsMiddleware())
+
+	registerFiddleRoutes(r, db)
 
 	r.POST("/transform", func(c *gin.Context) {
 		var req TransformRequest
@@ -428,11 +445,27 @@ func main() {
 		}
 
 		daemonPort := "8081" // Saxon 12 — XSLT 3.0 (default)
+		traceEngine := ""
 		switch req.Version {
 		case "1.0":
 			daemonPort = "8082" // XSLTC (JDK) — true XSLT 1.0
+			if req.Trace {
+				// XSLTC has no TraceListener hook; be explicit instead of
+				// silently returning an empty trace (which is what happened
+				// for every non-3.0 version until now).
+				traceEngine = "unavailable"
+			}
 		case "2.0":
 			daemonPort = "8083" // Saxon 9 — true XSLT 2.0
+			if req.Trace {
+				// The trace instrumentation lives in Runner, which needs
+				// Saxon 10+ APIs and cannot load inside the Saxon 9 daemon.
+				// Rather than returning an empty trace, run the traced request
+				// on Saxon 12 in 2.0 backwards-compatible mode: a real trace
+				// with a small, documented semantic difference.
+				daemonPort = "8081"
+				traceEngine = "saxon12-compat"
+			}
 		}
 
 		start := time.Now()
@@ -544,6 +577,7 @@ func main() {
 			Result:           daemonResp.Result,
 			DurationMs:       duration,
 			Trace:            traceEntries,
+			TraceEngine:      traceEngine,
 			Hotspots:         hotspots,
 			TraceText:        traceText,
 			SecondaryResults: daemonResp.SecondaryResults,

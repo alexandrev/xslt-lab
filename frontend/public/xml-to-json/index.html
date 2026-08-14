@@ -19,7 +19,7 @@
       "@type": ["WebApplication", "SoftwareApplication"],
       "name": "XML to JSON Converter (XSLT 3.0)",
       "url": "https://xsltplayground.com/xml-to-json/",
-      "description": "Free online XML to JSON converter built on XSLT 3.0 and Saxon HE 12.5. Control the exact shape of the JSON output using maps, arrays, xml-to-json() and json-to-xml().",
+      "description": "Free online XML to JSON converter built on XSLT 3.0 and Saxon HE 12.9. Control the exact shape of the JSON output using maps, arrays, xml-to-json() and json-to-xml().",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Any",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
@@ -41,7 +41,7 @@
           "name": "How do I convert XML to JSON with XSLT 3.0?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "There are two approaches. You can build an XPath 3.1 map or array and serialise it with xsl:output method='json', or you can build nodes in the XPath functions namespace (map, array, string, number, boolean, null) and pass them to the xml-to-json() function. Both run in XSLT Playground on Saxon HE 12.5."
+            "text": "There are two approaches. You can build an XPath 3.1 map or array and serialise it with xsl:output method='json', or you can build nodes in the XPath functions namespace (map, array, string, number, boolean, null) and pass them to the xml-to-json() function. Both run in XSLT Playground on Saxon HE 12.9."
           }
         },
         {
@@ -214,7 +214,7 @@
   </header>
 
   <div class="hero">
-    <div class="badge">Powered by Saxon HE 12.5</div>
+    <div class="badge">Powered by Saxon HE 12.9</div>
     <h1>XML to JSON Online</h1>
     <p>Convert XML to JSON with XSLT 3.0 and decide the exact shape of the result — keys, nesting, arrays and types. Not a guess: a transformation you control.</p>
     <a class="cta-btn" href="https://xsltplayground.com/?template=xml-to-json">Open the XML → JSON Converter →</a>
@@ -303,7 +303,7 @@
     <h2>Example 1: Maps and Arrays with method="json"</h2>
     <p>
       The shortest path from XML to JSON. Build a map, let the serialiser do the rest. Every example on
-      this page runs on Saxon HE 12.5 — paste it into the
+      this page runs on Saxon HE 12.9 — paste it into the
       <a href="https://xsltplayground.com/?template=xml-to-json">editor</a> to reproduce the output exactly.
     </p>
     <p><strong>XML input:</strong></p>
@@ -497,7 +497,7 @@
     <h2>Frequently Asked Questions</h2>
     <dl>
       <dt>How do I convert XML to JSON with XSLT 3.0?</dt>
-      <dd>Two ways: build an XPath 3.1 <code>map{}</code> or <code>array{}</code> and serialise it with <code>xsl:output method="json"</code>, or build nodes in the XPath functions namespace and pass them to <code>xml-to-json()</code>. Both are shown above and both run on Saxon HE 12.5.</dd>
+      <dd>Two ways: build an XPath 3.1 <code>map{}</code> or <code>array{}</code> and serialise it with <code>xsl:output method="json"</code>, or build nodes in the XPath functions namespace and pass them to <code>xml-to-json()</code>. Both are shown above and both run on Saxon HE 12.9.</dd>
 
       <dt>Why use XSLT instead of a generic XML to JSON converter?</dt>
       <dd>Because there is no canonical XML-to-JSON mapping, a generic converter has to guess how attributes are named, whether a single repeated element is an array, and which strings are really numbers. XSLT 3.0 lets you state each decision explicitly, so the JSON matches the contract your consumer expects.</dd>

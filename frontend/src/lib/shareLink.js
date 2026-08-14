@@ -108,3 +108,38 @@ export function fromSharePayload(payload) {
     ...(params.length ? { params } : {}),
   };
 }
+
+// ── Saved fiddles ───────────────────────────────────────────────────────────
+// A fiddle is the share payload persisted server-side under a short id with an
+// append-only revision history — the link stays short no matter how big the
+// workspace is, and re-saving the same fiddle records a new revision.
+
+export async function saveFiddle(backendBase, tab, existingId) {
+  const payload = JSON.stringify({
+    ...toSharePayload(tab),
+    ...(tab.expected ? { e: tab.expected } : {}),
+  });
+  const res = await fetch(`${backendBase}/fiddle`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...(existingId ? { id: existingId } : {}), payload }),
+  });
+  if (!res.ok) throw new Error(`fiddle save failed: ${res.status}`);
+  return res.json(); // { id, revision }
+}
+
+export async function loadFiddle(backendBase, id, revision) {
+  const path = revision ? `/fiddle/${id}/${revision}` : `/fiddle/${id}`;
+  const res = await fetch(`${backendBase}${path}`);
+  if (!res.ok) return null;
+  const data = await res.json();
+  try {
+    const parsed = JSON.parse(data.payload);
+    const overrides = fromSharePayload(parsed);
+    if (!overrides) return null;
+    if (typeof parsed.e === "string") overrides.expected = parsed.e;
+    return { overrides, id: data.id, revision: data.revision, revisions: data.revisions };
+  } catch {
+    return null;
+  }
+}

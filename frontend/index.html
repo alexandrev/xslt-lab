@@ -59,7 +59,7 @@
           },
           "featureList": [
             "XSLT 1.0, 2.0 and 3.0 support",
-            "Saxon HE 12.5 processor",
+            "Three real engines: XSLTC (1.0), Saxon 9 (2.0), Saxon HE 12.9 (3.0)",
             "Real-time XML transformation",
             "XSLT validator with detailed error messages",
             "Multiple XML inputs and parameters",
@@ -89,7 +89,7 @@
               "name": "Does this XSLT tester support XSLT 3.0?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Yes. XSLT Playground is one of the very few free online tools that fully supports XSLT 3.0 via Saxon HE 12.5. You can use maps, arrays, xsl:merge, xsl:on-empty, higher-order functions, and all other XSLT 3.0 features."
+                "text": "Yes. XSLT Playground is one of the very few free online tools that fully supports XSLT 3.0 via Saxon HE 12.9. You can use maps, arrays, xsl:merge, xsl:on-empty, higher-order functions, and all other XSLT 3.0 features."
               }
             },
             {
@@ -97,7 +97,7 @@
               "name": "What XSLT processor does XSLT Playground use?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "The backend uses Saxon HE 12.5, the open-source edition of Saxonica's Saxon processor — the industry standard for XSLT 2.0 and 3.0 processing, used in enterprise applications worldwide."
+                "text": "The backend uses Saxon HE 12.9, the open-source edition of Saxonica's Saxon processor — the industry standard for XSLT 2.0 and 3.0 processing, used in enterprise applications worldwide."
               }
             },
             {
@@ -332,7 +332,7 @@
       <p>
         <strong>XSLT Playground</strong> is the most powerful free online XSLT tool available — an
         editor, tester, viewer and validator in one. Unlike every other online XSLT tester, it supports
-        <strong>XSLT 1.0, XSLT 2.0, and XSLT 3.0</strong> via <strong>Saxon HE 12.5</strong> — the same
+        <strong>XSLT 1.0, XSLT 2.0, and XSLT 3.0</strong> via <strong>Saxon HE 12.9</strong> — the same
         enterprise-grade processor used in production applications worldwide. Run any XSLT transformation
         online and see the result instantly. No installation, no account, no limits.
       </p>
@@ -385,7 +385,7 @@
       <ul>
         <li><strong>XSLT 3.0 support</strong> — maps, arrays, streaming, higher-order functions, JSON output. No other free online tool offers this.</li>
         <li><strong>XSLT 2.0 support</strong> — grouping (<code>xsl:for-each-group</code>), regular expressions, multiple output documents, XPath 2.0.</li>
-        <li><strong>Real Saxon processor</strong> — Saxon HE 12.5 on the server, not a simplified browser implementation. Results match production exactly.</li>
+        <li><strong>Real processors, one per version</strong> — each XSLT version runs on the engine that actually defines it: XSLT 1.0 on the JDK's XSLTC (Xalan lineage), XSLT 2.0 on Saxon 9 (the last true 2.0 processor), and XSLT 3.0 on Saxon HE 12.9. Not a simplified browser implementation — results match production exactly, per version.</li>
         <li><strong>Built-in XSLT validator &amp; viewer</strong> — validate stylesheets with exact line-number errors and view formatted output with a live HTML render preview.</li>
         <li><strong>Multiple XML inputs</strong> — pass multiple documents as named parameters, just like in production pipelines.</li>
         <li><strong>Execution trace</strong> — debug your stylesheet step by step, inspect variable values at runtime.</li>
@@ -396,10 +396,10 @@
       <h2>XSLT Online — Frequently Asked Questions</h2>
       <dl>
         <dt>Does this XSLT tester support XSLT 3.0?</dt>
-        <dd>Yes. XSLT Playground is one of the very few free online tools that fully supports XSLT 3.0 via Saxon HE 12.5. You can use maps, arrays, <code>xsl:merge</code>, <code>xsl:on-empty</code>, higher-order functions, and all XSLT 3.0 features.</dd>
+        <dd>Yes. XSLT Playground is one of the very few free online tools that fully supports XSLT 3.0 via Saxon HE 12.9. You can use maps, arrays, <code>xsl:merge</code>, <code>xsl:on-empty</code>, higher-order functions, and all XSLT 3.0 features.</dd>
 
         <dt>What XSLT processor does it use?</dt>
-        <dd>The backend uses <strong>Saxon HE 12.5</strong>, the open-source edition of Saxonica's Saxon processor — the industry standard for XSLT 2.0 and 3.0 processing, trusted by enterprises globally.</dd>
+        <dd>The backend uses <strong>Saxon HE 12.9</strong>, the open-source edition of Saxonica's Saxon processor — the industry standard for XSLT 2.0 and 3.0 processing, trusted by enterprises globally.</dd>
 
         <dt>Can I transform XML to HTML online?</dt>
         <dd>Yes. Write an XSLT stylesheet with <code>method="html"</code> and XSLT Playground shows a live rendered HTML preview alongside the source output.</dd>

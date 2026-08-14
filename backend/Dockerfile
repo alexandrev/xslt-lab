@@ -15,7 +15,7 @@ COPY ext/ .
 # Download JARs for Saxon 12 (XSLT 3.0)
 RUN mkdir -p /tmp/saxon12 && \
     curl -L -o /tmp/saxon12/saxon-he.jar \
-        https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/12.5/Saxon-HE-12.5.jar && \
+        https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/12.9/Saxon-HE-12.9.jar && \
     curl -L -o /tmp/saxon12/gson.jar \
         https://repo1.maven.org/maven2/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar
 
@@ -70,7 +70,7 @@ RUN chmod +x start.sh
 # Saxon 12 (XSLT 3.0) — port 8081
 RUN mkdir -p /opt/saxon12 && \
     curl -L -o /opt/saxon12/saxon-he.jar \
-        https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/12.5/Saxon-HE-12.5.jar && \
+        https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/12.9/Saxon-HE-12.9.jar && \
     curl -L -o /opt/saxon12/xmlresolver.jar \
         https://repo1.maven.org/maven2/org/xmlresolver/xmlresolver/4.5.0/xmlresolver-4.5.0.jar && \
     curl -L -o /opt/saxon12/gson.jar \

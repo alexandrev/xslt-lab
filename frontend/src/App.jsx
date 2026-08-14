@@ -18,7 +18,7 @@ import {
 import { templateToWorkspace, findTemplate, STARTER_STYLESHEET } from "./lib/templates";
 import { reviewWorkspace } from "./lib/reviewRules";
 import { diffLines } from "./lib/diffUtils";
-import { encodeCompact, decodeCompact, toSharePayload, fromSharePayload } from "./lib/shareLink";
+import { encodeCompact, decodeCompact, toSharePayload, fromSharePayload, saveFiddle, loadFiddle } from "./lib/shareLink";
 
 /* global __APP_VERSION__, __GIT_COMMIT__ */
 
@@ -490,6 +490,7 @@ function defaultWorkspaceStatus() {
     isServerError: false,
     notWellFormed: false,
     traceEntries: [],
+    traceEngine: "",
     hotspots: [],
     traceText: "",
     showRawTrace: false,
@@ -841,6 +842,8 @@ export default function App() {
   const forcedTextRef = useRef(null);
   const [forceRun, setForceRun] = useState(0);
   const [compareOpen, setCompareOpen] = useState(false);
+  const [fiddleState, setFiddleState] = useState(null); // { id, revision } de la pestaña activa
+  const [fiddleSaving, setFiddleSaving] = useState(false);
   const [xsltBeforeFormat, setXsltBeforeFormat] = useState(null);
   const [resultBeforeFormat, setResultBeforeFormat] = useState(null);
   const workspaceImportRef = useRef(null);
@@ -1076,6 +1079,7 @@ export default function App() {
     isServerError,
     notWellFormed,
     traceEntries,
+    traceEngine,
     hotspots,
     traceText,
     showRawTrace,
@@ -1536,6 +1540,29 @@ export default function App() {
     [active, setActive, setWorkspaceStatus],
   );
 
+  // ?f=ID loads a saved fiddle from the backend (with optional &r=revision).
+  useEffect(() => {
+    let cancelled = false;
+    let fid = null, frev = null;
+    try {
+      const p = new URLSearchParams(window.location.search);
+      fid = p.get("f");
+      frev = p.get("r");
+    } catch {}
+    if (!fid) return undefined;
+    loadFiddle(backendBase, fid, frev ? parseInt(frev, 10) : 0).then((res) => {
+      if (cancelled || !res) return;
+      const tab = defaultTab({ name: "Fiddle " + res.id, ...res.overrides });
+      setWorkspaceStatus((prev) => ({ ...prev, [tab.id]: defaultWorkspaceStatus() }));
+      setTabs([tab]);
+      setActive(tab.id);
+      setFiddleState({ id: res.id, revision: res.revision });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [setActive, setWorkspaceStatus]);
+
   // A compact ?c= link carries a gzipped workspace, which can only be read
   // asynchronously — so unlike the legacy ?xslt= form it is applied after mount.
   useEffect(() => {
@@ -1689,6 +1716,7 @@ export default function App() {
       updateWorkspaceStatus(tabId, (prev) => ({
         ...prev,
         traceEntries: newEntries,
+        traceEngine: traceEnabled ? (data.trace_engine || "") : "",
         hotspots: traceEnabled ? (data.hotspots || []) : [],
         traceText: traceEnabled ? (data.trace_text || "") : "",
       }));
@@ -2421,6 +2449,42 @@ export default function App() {
               </button>
             )}
             <button
+              type="button"
+              className="fiddle-save-btn"
+              disabled={fiddleSaving}
+              title={
+                fiddleState
+                  ? `Save a new revision of fiddle ${fiddleState.id}`
+                  : "Save this workspace as a short permanent link"
+              }
+              onClick={async () => {
+                if (!activeTab || fiddleSaving) return;
+                setFiddleSaving(true);
+                try {
+                  const res = await saveFiddle(backendBase, activeTab, fiddleState?.id);
+                  setFiddleState({ id: res.id, revision: res.revision });
+                  const url = `${window.location.origin}/?f=${res.id}`;
+                  await navigator.clipboard.writeText(url);
+                  setShareCopied(true);
+                  setTimeout(() => setShareCopied(false), 2500);
+                  window.gtag?.("event", "fiddle_saved", {
+                    event_category: "engagement",
+                    revision: res.revision,
+                  });
+                } catch {
+                  window.alert("Could not save the fiddle — the server may not have storage enabled.");
+                } finally {
+                  setFiddleSaving(false);
+                }
+              }}
+            >
+              {fiddleSaving
+                ? "Saving…"
+                : fiddleState
+                  ? `Save rev ${fiddleState.revision + 1}`
+                  : "Save"}
+            </button>
+            <button
               className="icon-button"
               aria-label="Copy share link"
               title="Copy shareable link"
@@ -2550,6 +2614,18 @@ export default function App() {
                           </button>
                         )}
                       </div>
+                      {!traceCollapsed && traceEngine === "unavailable" && (
+                        <p className="trace-engine-note">
+                          Trace isn't available for XSLT 1.0: the JDK's XSLTC
+                          engine has no tracing hook. Switch to 2.0/3.0 to trace.
+                        </p>
+                      )}
+                      {!traceCollapsed && traceEngine === "saxon12-compat" && (
+                        <p className="trace-engine-note">
+                          Traced runs of XSLT 2.0 execute on Saxon 12 in
+                          2.0-compatibility mode; untraced runs use Saxon 9.
+                        </p>
+                      )}
                       {!traceCollapsed && hotspots?.length > 0 && (
                         <div className="hotspots">
                           <p className="hotspots-title">
