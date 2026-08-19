@@ -93,30 +93,62 @@ const TRAILING_WORDS = [
   "else",
 ];
 
+// Characters that cannot be the last thing before a closing bracket: the
+// expression inside was still being written when the bracket went in.
+const CANNOT_PRECEDE_CLOSE = new Set([
+  "/",
+  ",",
+  "@",
+  "$",
+  "=",
+  "<",
+  ">",
+  "+",
+  "-",
+  "|",
+  "!",
+  ":",
+  "[",
+]);
+
 // Walks the value once, tracking string literals so brackets inside a quoted
-// string are not mistaken for structure.
+// string are not mistaken for structure. Also reports the first closing bracket
+// that arrives too early — `[@id = ]`, `[@id = current()/]` — which is the same
+// unfinished edit as a trailing operator, just with the predicate typed around
+// it before the expression inside was done.
 function scan(value) {
   let quote = null;
   let round = 0;
   let square = 0;
+  let danglingBefore = null;
+  let prev = ""; // last significant character, whitespace skipped
   for (const ch of value) {
     if (quote) {
       if (ch === quote) quote = null;
+      prev = quote ? "" : "'";
       continue;
     }
     if (ch === "'" || ch === '"') {
       quote = ch;
-    } else if (ch === "(") {
-      round += 1;
-    } else if (ch === ")") {
-      round -= 1;
-    } else if (ch === "[") {
-      square += 1;
-    } else if (ch === "]") {
-      square -= 1;
+      continue;
     }
+    if (/\s/.test(ch)) continue;
+    if (ch === ")" || ch === "]") {
+      // Empty parentheses are a function call — node(), true(), count() — but
+      // an empty predicate is not a thing, and neither is an operator left
+      // hanging in front of the close.
+      const emptyPair = prev === "(" || prev === "[";
+      if ((emptyPair && ch === "]") || (!emptyPair && CANNOT_PRECEDE_CLOSE.has(prev))) {
+        danglingBefore = danglingBefore ?? (prev === "[" ? ch : prev);
+      }
+    }
+    if (ch === "(") round += 1;
+    else if (ch === ")") round -= 1;
+    else if (ch === "[") square += 1;
+    else if (ch === "]") square -= 1;
+    prev = ch;
   }
-  return { openQuote: Boolean(quote), round, square };
+  return { openQuote: Boolean(quote), round, square, danglingBefore };
 }
 
 // Returns a short reason when the expression is provably incomplete, else null.
@@ -124,10 +156,15 @@ export function describeUnfinished(value) {
   const text = (value || "").trim();
   if (!text) return "is empty";
 
-  const { openQuote, round, square } = scan(text);
+  const { openQuote, round, square, danglingBefore } = scan(text);
   if (openQuote) return "has a quote that is still open";
   if (round > 0) return "has a ( that is never closed";
   if (square > 0) return "has a [ that is never closed";
+  if (danglingBefore) {
+    return danglingBefore === "]"
+      ? "has an empty predicate"
+      : `stops at "${danglingBefore}" inside a bracket`;
+  }
   // Unbalanced the other way is a mistake, not an unfinished edit: let the
   // processor report it properly.
   if (round < 0 || square < 0) return null;

@@ -28,6 +28,13 @@ describe("describeUnfinished — expressions that are still being typed", () => 
     ["item[@id = $", 'has a [ that is never closed'],
     ["1 to", 'stops at "to"'],
     ["@a and", 'stops at "and"'],
+    // The predicate was typed around an expression that is not written yet.
+    ["/Shop/Category[@CategoryId =]", 'stops at "=" inside a bracket'],
+    ["/Shop/Category[@CategoryId = ]", 'stops at "=" inside a bracket'],
+    ["/Shop/Category[@CategoryId = current()/]", 'stops at "/" inside a bracket'],
+    ["/Shop/Category[@Id = current()/@]/@Name", 'stops at "@" inside a bracket'],
+    ["item[]", "has an empty predicate"],
+    ["concat(@a,)", 'stops at "," inside a bracket'],
   ])("flags %j", (value, reason) => {
     expect(describeUnfinished(value)).toBe(reason);
   });
@@ -69,6 +76,17 @@ describe("describeUnfinished — expressions it must leave alone", () => {
     "item[1]/name",
     "xs:date('2026-01-01')",
     "map{'a': 1}",
+    // Empty parentheses are a function call, not an unfinished edit.
+    "count()",
+    "node()",
+    "true()",
+    "position() > 1",
+    "item[position() = last()]",
+    "translate(@a, '-', '')",
+    "item[not(@b)]",
+    "substring(@a, 1, -1)",
+    "key('k', @id)[1]",
+    "a[@b = 'x'][2]",
   ])("stays quiet on %j", (value) => {
     expect(describeUnfinished(value)).toBeNull();
   });
