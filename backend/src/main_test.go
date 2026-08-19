@@ -235,6 +235,12 @@ func TestClassifyTransformError(t *testing.T) {
 		{"format-number picture", "format-number picture: Passive character must not appear between active characters in a sub-picture", "stylesheet", "COMPILE"},
 		{"missing java extension", "Cannot find external method 'com.example.util.DateUtil.now' (must be public).", "stylesheet", "COMPILE"},
 		{"stray xml declaration", `The processing instruction target matching "[xX][mM][lL]" is not allowed.`, "input_xml", "PARSE"},
+		// Second pass over "other", from the 2026-08-19 log review.
+		{"xalan xpath syntax", `Syntax error in 'current()/..[@Name = 'Programming''.`, "stylesheet", "COMPILE"},
+		{"not a stylesheet", "The supplied file does not appear to be a stylesheet", "stylesheet", "COMPILE"},
+		{"misplaced xsl:import", "The xsl:import element children must precede all other element children of an xsl:stylesheet element, including any xsl:include element children.", "stylesheet", "COMPILE"},
+		{"undeclared key", "Key 'person-key' has not been defined", "stylesheet", "COMPILE"},
+		{"sequence where one item expected", `A sequence of more than one item is not allowed as the first argument of substring() ("a", "b", ...)`, "stylesheet", "COMPILE"},
 		// A limit the service imposes — a bug candidate, not the user's mistake.
 		{"xpath operator limit", "JAXP0801002: the compiler encountered an XPath expression containing '101' operators that exceeds the '100' limit set by 'FEATURE_SECURE_PROCESSING'.", "backend", "XPATH_OP_LIMIT"},
 		{"truly unknown", "some unexpected failure", "other", "OTHER"},

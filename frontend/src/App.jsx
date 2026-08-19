@@ -16,6 +16,7 @@ import {
   checkWellFormed,
 } from "./lib/workspaceUtils";
 import { templateToWorkspace, findTemplate, STARTER_STYLESHEET } from "./lib/templates";
+import { findUnfinishedExpression } from "./lib/unfinishedExpression";
 import { reviewWorkspace } from "./lib/reviewRules";
 import { diffLines } from "./lib/diffUtils";
 import { encodeCompact, decodeCompact, toSharePayload, fromSharePayload, saveFiddle, loadFiddle } from "./lib/shareLink";
@@ -1766,6 +1767,25 @@ export default function App() {
       if (problem) {
         const where = badXslt ? "stylesheet" : `input "${badInput.param}"`;
         const text = `Not well-formed XML in the ${where}: ${problem.message}`;
+        updateWorkspaceStatus(activeTab.id, (prev) => ({
+          ...prev,
+          error: text,
+          errorLines: parseErrorLines(text),
+          isServerError: false,
+          notWellFormed: true,
+          isRunning: false,
+        }));
+        return undefined;
+      }
+
+      // Well-formed XML is not the same as a finished expression. A stylesheet
+      // whose select= is still being typed parses fine and fails to compile, so
+      // it used to go to the backend anyway — most of what survived the check
+      // above is exactly that. Same deal: reported here, nothing sent, and the
+      // explicit run always wins.
+      const unfinished = findUnfinishedExpression(xsltText);
+      if (unfinished) {
+        const text = `Still being typed? ${unfinished.message}.`;
         updateWorkspaceStatus(activeTab.id, (prev) => ({
           ...prev,
           error: text,

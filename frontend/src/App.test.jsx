@@ -208,6 +208,20 @@ describe("well-formedness gate", () => {
     await waitFor(() => expect(fetch).toHaveBeenCalled(), { timeout: 3000 });
   }, 10000);
 
+  it("does not call the backend while an expression is still being typed", async () => {
+    // Well-formed XML, unfinished XPath: this is what used to get through.
+    seedWorkspace(
+      '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:template match="/"><xsl:value-of select="/Shop/Category/"/></xsl:template></xsl:stylesheet>',
+    );
+    render(<App />);
+    fireEvent.pointerDown(window);
+    await waitFor(
+      () => expect(screen.getByText(/still being typed/i)).toBeInTheDocument(),
+      { timeout: 3000 },
+    );
+    expect(fetch).not.toHaveBeenCalled();
+  }, 10000);
+
   it("offers a way to run it anyway", async () => {
     seedWorkspace('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:template match="/');
     render(<App />);

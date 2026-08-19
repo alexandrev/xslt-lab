@@ -173,6 +173,14 @@ func classifyTransformError(msg string) (code, class string) {
 		"is undefined",
 		"format-number picture",
 		"cannot find external method",
+		// Second pass over what was still sitting in "other" (2026-08-19). The
+		// XPath ones dominate: Xalan reports a bad path expression as "Syntax
+		// error in '<expr>'", which is the stylesheet's XPath, not the input.
+		"syntax error in '",
+		"does not appear to be a stylesheet",
+		"must precede all other element children",
+		"has not been defined",
+		"a sequence of more than one item is not allowed",
 	}
 
 	switch {

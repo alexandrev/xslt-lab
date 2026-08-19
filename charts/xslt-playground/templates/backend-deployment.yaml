@@ -42,6 +42,7 @@ spec:
               mountPath: {{ .Values.firebase.credentialsMountPath }}
               readOnly: true
 {{- end }}
+          resources: {{- toYaml .Values.resources.backend | nindent 12 }}
           ports:
             - containerPort: {{ .Values.service.backend.port }}
               name: http
