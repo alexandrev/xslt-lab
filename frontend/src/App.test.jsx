@@ -211,7 +211,7 @@ describe("well-formedness gate", () => {
   it("does not call the backend while an expression is still being typed", async () => {
     // Well-formed XML, unfinished XPath: this is what used to get through.
     seedWorkspace(
-      '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:template match="/"><xsl:value-of select="/Shop/Category/"/></xsl:template></xsl:stylesheet>',
+      '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:template match="/"><xsl:value-of select="/UnfinishedProbe/"/></xsl:template></xsl:stylesheet>',
     );
     render(<App />);
     fireEvent.pointerDown(window);
@@ -219,7 +219,10 @@ describe("well-formedness gate", () => {
       () => expect(screen.getByText(/still being typed/i)).toBeInTheDocument(),
       { timeout: 3000 },
     );
-    expect(fetch).not.toHaveBeenCalled();
+    // Assert on what was sent, not on the call count: a debounced run queued by
+    // an earlier test lands on this test's fetch stub and made this flaky on CI.
+    const sent = fetch.mock.calls.map((c) => String(c[1]?.body ?? ""));
+    expect(sent.some((body) => body.includes("UnfinishedProbe"))).toBe(false);
   }, 10000);
 
   it("offers a way to run it anyway", async () => {
