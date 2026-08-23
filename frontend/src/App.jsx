@@ -16,7 +16,7 @@ import {
   checkWellFormed,
 } from "./lib/workspaceUtils";
 import { templateToWorkspace, findTemplate, STARTER_STYLESHEET } from "./lib/templates";
-import { findUnfinishedExpression } from "./lib/unfinishedExpression";
+import { findUnfinishedExpression, findNotAStylesheet } from "./lib/autoRunGate";
 import { reviewWorkspace } from "./lib/reviewRules";
 import { diffLines } from "./lib/diffUtils";
 import { encodeCompact, decodeCompact, toSharePayload, fromSharePayload, saveFiddle, loadFiddle } from "./lib/shareLink";
@@ -1778,6 +1778,23 @@ export default function App() {
         return undefined;
       }
 
+      // Well-formed XML that is not a stylesheet at all — an input document
+      // pasted into this pane — parses fine and cannot compile either. It was
+      // the most common error in production, once per keystroke.
+      const notStylesheet = findNotAStylesheet(xsltText);
+      if (notStylesheet) {
+        const text = `${notStylesheet.message}.`;
+        updateWorkspaceStatus(activeTab.id, (prev) => ({
+          ...prev,
+          error: text,
+          errorLines: parseErrorLines(text),
+          isServerError: false,
+          notWellFormed: true,
+          isRunning: false,
+        }));
+        return undefined;
+      }
+
       // Well-formed XML is not the same as a finished expression. A stylesheet
       // whose select= is still being typed parses fine and fails to compile, so
       // it used to go to the backend anyway — most of what survived the check
@@ -2851,8 +2868,8 @@ export default function App() {
             )}
             {needsStylesheetReset(activeTab.xslt) && (
               <p className="error-doc-hint">
-                💡 The stylesheet is empty or incomplete, so there is nothing to
-                compile.{" "}
+                💡 The stylesheet is empty, incomplete, or not a stylesheet at
+                all, so there is nothing to compile.{" "}
                 <button
                   type="button"
                   className="error-hint-switch"
@@ -2902,9 +2919,14 @@ export default function App() {
               </p>
             )}
             {(() => {
-              const vh = detectVersionUpgradeHint(error, activeTab?.version);
+              const vh = detectVersionUpgradeHint(
+                error,
+                activeTab?.version,
+                activeTab?.xslt,
+              );
               if (!vh) return null;
-              const label = vh.func.includes("/") ? vh.func : `${vh.func}()`;
+              const label =
+                vh.label ?? (vh.func.includes("/") ? vh.func : `${vh.func}()`);
               return (
                 <p className="error-doc-hint">
                   💡 <code>{label}</code> is an XSLT {vh.version} feature — it isn't

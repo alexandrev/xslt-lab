@@ -2,7 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   describeUnfinished,
   findUnfinishedExpression,
-} from "./unfinishedExpression";
+  findNotAStylesheet,
+} from "./autoRunGate";
 import { TEMPLATES, STARTER_STYLESHEET } from "./templates";
 
 const wrap = (body, version = "2.0") =>
@@ -91,11 +92,15 @@ describe("describeUnfinished — expressions it must leave alone", () => {
     expect(describeUnfinished(value)).toBeNull();
   });
 
-  it("leaves a genuinely wrong expression to the processor", () => {
-    // Closing more than was opened is a mistake, not a half-finished edit: the
-    // real error message is more useful than us guessing.
-    expect(describeUnfinished("item)")).toBeNull();
-    expect(describeUnfinished("item]")).toBeNull();
+  it("flags a close with nothing open", () => {
+    // Saxon: "Unexpected token \"]\" beyond end of expression" — seven times in
+    // one sitting in production, someone who deleted the opening bracket.
+    expect(describeUnfinished("item]")).toBe("has a ] with nothing open");
+    expect(describeUnfinished("item)")).toBe("has a ) with nothing open");
+    // Balanced overall but still wrong on the way through.
+    expect(describeUnfinished("a]b[")).toBe("has a ] with nothing open");
+    // …and a bracket inside a string is still just text.
+    expect(describeUnfinished("concat(']', @a)")).toBeNull();
   });
 });
 
@@ -174,5 +179,36 @@ describe("cost", () => {
     );
     expect(big.length).toBeGreaterThan(64 * 1024);
     expect(findUnfinishedExpression(big)).toBeNull();
+  });
+});
+
+describe("findNotAStylesheet", () => {
+  it("stops an input document pasted into the stylesheet pane", () => {
+    // The most common error in production: "The input document is not a
+    // stylesheet", once per keystroke.
+    const found = findNotAStylesheet("<root><item a='1'/></root>");
+    expect(found.message).toContain("<root> is not a stylesheet");
+    expect(found.message).toContain("does not declare the XSLT namespace");
+  });
+
+  it.each([
+    // Every legal shape of a stylesheet has to pass.
+    '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"/>',
+    '<xsl:transform version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"/>',
+    // Any prefix, not just "xsl".
+    '<x:stylesheet version="1.0" xmlns:x="http://www.w3.org/1999/XSL/Transform"/>',
+    // The XSLT namespace as the default one.
+    '<stylesheet version="1.0" xmlns="http://www.w3.org/1999/XSL/Transform"/>',
+    // Simplified stylesheet: a literal result element carrying xsl:version.
+    '<html xsl:version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><p/></html>',
+  ])("lets %j through", (xslt) => {
+    expect(findNotAStylesheet(xslt)).toBeNull();
+  });
+
+  it("says nothing when there is nothing to judge", () => {
+    expect(findNotAStylesheet("")).toBeNull();
+    expect(findNotAStylesheet("   ")).toBeNull();
+    // Not well-formed: the other gate reports that, and reports it better.
+    expect(findNotAStylesheet("<root><item")).toBeNull();
   });
 });

@@ -225,6 +225,19 @@ describe("well-formedness gate", () => {
     expect(sent.some((body) => body.includes("UnfinishedProbe"))).toBe(false);
   }, 10000);
 
+  it("does not call the backend for a document that is not a stylesheet", async () => {
+    // Input XML pasted into the stylesheet pane: well-formed, and hopeless.
+    seedWorkspace("<NotAStylesheetProbe><item/></NotAStylesheetProbe>");
+    render(<App />);
+    fireEvent.pointerDown(window);
+    await waitFor(
+      () => expect(screen.getByText(/is not a stylesheet/i)).toBeInTheDocument(),
+      { timeout: 3000 },
+    );
+    const sent = fetch.mock.calls.map((c) => String(c[1]?.body ?? ""));
+    expect(sent.some((body) => body.includes("NotAStylesheetProbe"))).toBe(false);
+  }, 10000);
+
   it("offers a way to run it anyway", async () => {
     seedWorkspace('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:template match="/');
     render(<App />);

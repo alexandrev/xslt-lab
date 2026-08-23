@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   addParams,
   detectVersionUpgradeHint,
+  detectTooNewSyntax,
   findErrorReference,
   needsStylesheetReset,
   checkWellFormed,
@@ -79,6 +80,12 @@ describe("workspace utils", () => {
   });
 });
 
+const STYLESHEET_WITH_IF =
+  '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">' +
+  '<xsl:template match="/">' +
+  `<xsl:element name="{local-name()}" namespace="{if (namespace-uri() != '') then $ns else ''}"/>` +
+  "</xsl:template></xsl:stylesheet>";
+
 describe("detectVersionUpgradeHint", () => {
   it("flags a 2.0 function used in 1.0 (Xalan funcall form)", () => {
     const err = "Error checking type of the expression 'funcall(current-date, [])'.";
@@ -105,6 +112,65 @@ describe("detectVersionUpgradeHint", () => {
   it("returns null for empty input", () => {
     expect(detectVersionUpgradeHint("", "1.0")).toBeNull();
     expect(detectVersionUpgradeHint("tokenize(", "")).toBeNull();
+  });
+  it("falls back to the stylesheet when the error names nothing", () => {
+    // The real case: one person, 29 attempts, and all the processor said was
+    // "Error parsing XPath expression 'null'".
+    const xslt = STYLESHEET_WITH_IF;
+    expect(
+      detectVersionUpgradeHint("line 12: Error parsing XPath expression 'null'.", "1.0", xslt),
+    ).toEqual({ func: "if … then … else", label: "if … then … else", version: "2.0" });
+  });
+});
+
+describe("detectTooNewSyntax", () => {
+  it("finds 2.0 syntax inside an attribute value template", () => {
+    expect(detectTooNewSyntax(STYLESHEET_WITH_IF, "1.0")).toEqual({
+      func: "if … then … else",
+      label: "if … then … else",
+      version: "2.0",
+    });
+  });
+
+  it.each([
+    ['<xsl:value-of select="for $i in item return $i"/>', "for $x in … return", "2.0"],
+    ['<xsl:if test="some $i in item satisfies $i > 1"/>', "some/every … satisfies", "2.0"],
+    ['<xsl:value-of select="@a instance of xs:date"/>', "instance of", "2.0"],
+    ['<xsl:value-of select="@a castable as xs:date"/>', "castable as", "2.0"],
+    ['<xsl:value-of select="@a => upper-case()"/>', "=> (arrow operator)", "3.0"],
+  ])("flags %s", (body, label, version) => {
+    const xslt =
+      '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">' +
+      `<xsl:template match="/">${body}</xsl:template></xsl:stylesheet>`;
+    expect(detectTooNewSyntax(xslt, "1.0")).toMatchObject({ label, version });
+  });
+
+  it("stays quiet when the syntax is available in the running version", () => {
+    expect(detectTooNewSyntax(STYLESHEET_WITH_IF, "2.0")).toBeNull();
+    expect(detectTooNewSyntax(STYLESHEET_WITH_IF, "3.0")).toBeNull();
+  });
+
+  it("does not read comments or literal output as XPath", () => {
+    // Only expression attributes and {…} count; text is text.
+    const xslt =
+      '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">' +
+      "<!-- if (a) then b else c -->" +
+      '<xsl:template match="/"><p>if (a) then b else c</p></xsl:template>' +
+      "</xsl:stylesheet>";
+    expect(detectTooNewSyntax(xslt, "1.0")).toBeNull();
+  });
+
+  it("stays quiet on ordinary 1.0 stylesheets", () => {
+    const xslt =
+      '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">' +
+      '<xsl:template match="/"><out class="{@id}"><xsl:value-of select="count(//item)"/></out></xsl:template>' +
+      "</xsl:stylesheet>";
+    expect(detectTooNewSyntax(xslt, "1.0")).toBeNull();
+  });
+
+  it("says nothing about what it cannot parse", () => {
+    expect(detectTooNewSyntax("<xsl:stylesheet", "1.0")).toBeNull();
+    expect(detectTooNewSyntax("", "1.0")).toBeNull();
   });
 });
 

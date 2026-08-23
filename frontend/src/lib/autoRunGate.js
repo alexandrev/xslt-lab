@@ -1,3 +1,11 @@
+// The checks that decide whether the automatic run is worth a round-trip.
+//
+// The editor re-runs on a debounce as the user types, so without these the app
+// spends much of its backend capacity transforming documents that cannot
+// possibly compile, and flashes the resulting errors at someone who is still
+// typing. Everything here is a fact provable in the browser; anything we cannot
+// prove runs exactly as before, and none of it gates an explicit Run.
+//
 // The other half of the mid-keystroke problem.
 //
 // checkWellFormed() stops a document that is not yet valid XML, which removed
@@ -18,7 +26,7 @@
 // like the well-formedness gate, this only holds back the automatic run, never
 // an explicit one.
 
-const XSLT_NS = "http://www.w3.org/1999/XSL/Transform";
+export const XSLT_NS = "http://www.w3.org/1999/XSL/Transform";
 
 // Elements that cannot compile without the listed attribute. xsl:value-of is
 // the exception: XSLT 2.0 lets a sequence constructor stand in for select, so
@@ -33,7 +41,7 @@ const REQUIRED = {
 };
 
 // Attributes holding an XPath expression or a match pattern.
-const XPATH_ATTRS = [
+export const XPATH_ATTRS = [
   "select",
   "test",
   "match",
@@ -121,6 +129,7 @@ function scan(value) {
   let round = 0;
   let square = 0;
   let danglingBefore = null;
+  let unopened = null;
   let prev = ""; // last significant character, whitespace skipped
   for (const ch of value) {
     if (quote) {
@@ -143,12 +152,12 @@ function scan(value) {
       }
     }
     if (ch === "(") round += 1;
-    else if (ch === ")") round -= 1;
+    else if (ch === ")") { round -= 1; if (round < 0) unopened = unopened ?? ")"; }
     else if (ch === "[") square += 1;
-    else if (ch === "]") square -= 1;
+    else if (ch === "]") { square -= 1; if (square < 0) unopened = unopened ?? "]"; }
     prev = ch;
   }
-  return { openQuote: Boolean(quote), round, square, danglingBefore };
+  return { openQuote: Boolean(quote), round, square, danglingBefore, unopened };
 }
 
 // Returns a short reason when the expression is provably incomplete, else null.
@@ -156,19 +165,19 @@ export function describeUnfinished(value) {
   const text = (value || "").trim();
   if (!text) return "is empty";
 
-  const { openQuote, round, square, danglingBefore } = scan(text);
+  const { openQuote, round, square, danglingBefore, unopened } = scan(text);
   if (openQuote) return "has a quote that is still open";
   if (round > 0) return "has a ( that is never closed";
   if (square > 0) return "has a [ that is never closed";
+  // The mirror image, and just as impossible: a close with nothing open. Seen
+  // in production as Saxon's "Unexpected token \"]\" beyond end of expression",
+  // seven times in one sitting — someone deleting the opening bracket.
+  if (unopened) return `has a ${unopened} with nothing open`;
   if (danglingBefore) {
     return danglingBefore === "]"
       ? "has an empty predicate"
       : `stops at "${danglingBefore}" inside a bracket`;
   }
-  // Unbalanced the other way is a mistake, not an unfinished edit: let the
-  // processor report it properly.
-  if (round < 0 || square < 0) return null;
-
   // "/" on its own is the root pattern, not a path someone abandoned midway.
   if (text === "/") return null;
 
@@ -235,4 +244,38 @@ export function findUnfinishedExpression(xslt) {
     }
   }
   return null;
+}
+
+
+// A document whose root element does not bring in the XSLT namespace cannot be
+// a stylesheet under any reading: not xsl:stylesheet, not xsl:transform, not a
+// simplified stylesheet (which needs the namespace for its xsl:version). It is
+// usually an input document pasted into the wrong pane, and the processor
+// answers with "The input document is not a stylesheet" — 92 times in 48 hours,
+// the single most common error in production, once per keystroke.
+export function findNotAStylesheet(xslt) {
+  if (!xslt || !xslt.trim()) return null;
+  let doc;
+  try {
+    doc = new DOMParser().parseFromString(xslt, "application/xml");
+  } catch {
+    return null; // no parser here: let the backend decide, as before
+  }
+  if (doc.querySelector("parsererror")) return null;
+  const root = doc.documentElement;
+  if (!root) return null;
+
+  // Either the root itself lives in the XSLT namespace (xsl:stylesheet,
+  // xsl:transform, or the same under any prefix or none)…
+  if (root.namespaceURI === XSLT_NS) return null;
+  // …or it declares it, which is what a simplified stylesheet does to carry
+  // xsl:version on a literal result element.
+  const declares = Array.from(root.attributes || []).some(
+    (a) => a.value === XSLT_NS,
+  );
+  if (declares) return null;
+
+  return {
+    message: `<${root.nodeName}> is not a stylesheet: its root element does not declare the XSLT namespace (xmlns:xsl="${XSLT_NS}")`,
+  };
 }

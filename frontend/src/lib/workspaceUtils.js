@@ -1,3 +1,4 @@
+import { findNotAStylesheet, XPATH_ATTRS, XSLT_NS } from "./autoRunGate";
 const PARAM_START = "<!--PARAMS_START-->";
 const PARAM_END = "<!--PARAMS_END-->";
 
@@ -200,7 +201,66 @@ const FN_MIN_VERSION = {
 // Given an error message and the current version, detect whether the failure is
 // caused by calling a function from a newer XSLT version. Returns
 // { func, version } (the minimum version that supports it) or null.
-export function detectVersionUpgradeHint(errorText, currentVersion) {
+// XPath 2.0/3.0 *syntax* — not function names, so nothing in the error message
+// gives it away. An XSLT 1.0 processor reports these about as unhelpfully as it
+// can: `<xsl:element namespace="{if (…) then $ns else ''}">` comes back as
+// "Error parsing XPath expression 'null'", which was 29 failed attempts by one
+// person in 48 hours. The stylesheet says plainly what the error will not.
+const SYNTAX_MIN_VERSION = [
+  // `.*?` rather than `[^)]*`: the condition usually contains calls of its own,
+  // as in `if (namespace-uri() != '') then …`, so the match has to cross a `)`.
+  [/\bif\s*\(.*?\)\s*then\b/s, "if … then … else", "2.0"],
+  [/\bfor\s+\$[\w:.-]+\s+in\b/, "for $x in … return", "2.0"],
+  [/\b(?:some|every)\s+\$[\w:.-]+\s+in\b/, "some/every … satisfies", "2.0"],
+  [/\binstance\s+of\b/, "instance of", "2.0"],
+  [/\bcastable\s+as\b/, "castable as", "2.0"],
+  [/\bcast\s+as\b/, "cast as", "2.0"],
+  [/\btreat\s+as\b/, "treat as", "2.0"],
+  [/=>\s*[\w:.-]+\s*\(/, "=> (arrow operator)", "3.0"],
+];
+
+// Collects the parts of a stylesheet that are actually XPath: the expression
+// attributes of XSLT elements, and the {…} of any attribute value template.
+// Reading the raw text instead would match inside comments and literal output.
+function xpathFragments(doc) {
+  const out = [];
+  for (const el of Array.from(doc.getElementsByTagName("*"))) {
+    for (const attr of Array.from(el.attributes || [])) {
+      const isXPathAttr =
+        el.namespaceURI === XSLT_NS && XPATH_ATTRS.includes(attr.name);
+      if (isXPathAttr) {
+        out.push(attr.value);
+        continue;
+      }
+      for (const m of attr.value.matchAll(/\{([^{}]*)\}/g)) out.push(m[1]);
+    }
+  }
+  return out;
+}
+
+// Looks for syntax the selected version cannot parse. Returns the same shape as
+// the function check below, with a label to print verbatim.
+export function detectTooNewSyntax(xslt, currentVersion) {
+  const cur = parseFloat(currentVersion);
+  if (!xslt || !Number.isFinite(cur)) return null;
+  let doc;
+  try {
+    doc = new DOMParser().parseFromString(xslt, "application/xml");
+  } catch {
+    return null;
+  }
+  if (doc.querySelector("parsererror")) return null;
+  const fragments = xpathFragments(doc);
+  for (const [re, label, minV] of SYNTAX_MIN_VERSION) {
+    if (parseFloat(minV) <= cur) continue;
+    if (fragments.some((f) => re.test(f))) {
+      return { func: label, label, version: minV };
+    }
+  }
+  return null;
+}
+
+export function detectVersionUpgradeHint(errorText, currentVersion, xslt) {
   if (!errorText || !currentVersion) return null;
   const cur = parseFloat(currentVersion);
   if (!Number.isFinite(cur)) return null;
@@ -214,16 +274,20 @@ export function detectVersionUpgradeHint(errorText, currentVersion) {
     const re = new RegExp(`(?:funcall\\(\\s*)?\\b${fn}\\b\\s*[(,]`);
     if (re.test(errorText)) return { func: fn, version: minV };
   }
-  return null;
+  // Nothing named in the error: the give-away may only be in the stylesheet.
+  return detectTooNewSyntax(xslt, currentVersion);
 }
 
-// True when the stylesheet can no longer be repaired by editing — it is empty
-// or not well-formed XML — so the UI can offer to restore the starter skeleton.
+// True when there is no stylesheet to work with — it is empty, it is not
+// well-formed XML, or it is a perfectly good document that simply isn't a
+// stylesheet (input XML pasted into the wrong pane) — so the UI can offer to
+// restore the starter skeleton.
 export function needsStylesheetReset(xslt) {
   if (!xslt || !xslt.trim()) return true;
   try {
     const doc = new DOMParser().parseFromString(xslt, "application/xml");
-    return Boolean(doc.querySelector("parsererror"));
+    if (doc.querySelector("parsererror")) return true;
+    return Boolean(findNotAStylesheet(xslt));
   } catch {
     return false;
   }
