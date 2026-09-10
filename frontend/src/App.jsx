@@ -3297,6 +3297,15 @@ export default function App() {
           >
             Blog &amp; Tutorials
           </a>
+          <a
+            className="news-link bmc-link"
+            href="https://buymeacoffee.com/alexandrev"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Support the development of XSLT Playground"
+          >
+            ☕ Buy me a coffee
+          </a>
           <span className="footer-blog-links">
             <a href="/xslt-2-0/">XSLT 2.0</a>
             {" · "}
