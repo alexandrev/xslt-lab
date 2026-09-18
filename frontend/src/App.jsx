@@ -850,7 +850,11 @@ export default function App() {
   const workspaceImportRef = useRef(null);
   const resultResizeState = useRef({ startY: 0, startHeight: MIN_RESULT_HEIGHT });
   const paramResizeState = useRef({ startX: 0, startWidth: DEFAULT_PARAM_WIDTH });
-  const lastAdRefreshRef = useRef(0);
+  // Seeded with the mount time, not 0: at 0 the "has a minute passed?" test
+  // below is true on the very first call, so the first transformation fired an
+  // immediate reload() seconds after the initial load — an extra ad decision
+  // per session that the 60s throttle was supposed to prevent.
+  const lastAdRefreshRef = useRef(Date.now());
   const adVisibleRef = useRef(false);
   const maybeRefreshAd = () => {
     const now = Date.now();
@@ -908,7 +912,6 @@ export default function App() {
     !IS_EMBED &&
     Boolean(ethicalAdsPublisher) &&
     (!isLocalhost || env.VITE_ETHICALADS_DEV === "true");
-  const ethicalAdVariant = "stickybox";
 
   const backendBase = (env.VITE_BACKEND_URL || "").replace(/\/$/, "");
 
@@ -2101,7 +2104,7 @@ export default function App() {
       }
     }, 1500);
     return () => window.clearTimeout(t);
-  }, [ethicalAdsEnabled, ethicalAdsReady, ethicalAdVariant]);
+  }, [ethicalAdsEnabled, ethicalAdsReady]);
 
 
   return (
@@ -2115,6 +2118,11 @@ export default function App() {
           data-ea-publisher={ethicalAdsPublisher}
           data-ea-type="text"
           data-ea-style="fixedheader"
+          // Without this the client auto-initialises every [data-ea-publisher]
+          // div on load, and the explicit load() below would then be a SECOND
+          // init of the same slot: two decisions and the same view beacon sent
+          // twice, which halves the reported click-through rate.
+          data-ea-manual="true"
           aria-label="Advertisement"
         />
       )}
@@ -2390,17 +2398,13 @@ export default function App() {
                 </div>
               </div>
             </div>
-            {ethicalAdsEnabled && ethicalAdsReady && (
-              <div className="params-ad">
-                <div
-                  id="xsltplayground-params"
-                  className="ethical-ad"
-                  data-ea-publisher={ethicalAdsPublisher}
-                  data-ea-type="image"
-                  data-ea-style="stickybox"
-                />
-              </div>
-            )}
+            {/* There used to be a second EthicalAds unit here. It sat inside
+                the params panel, which ships collapsed, so it rendered at zero
+                width and never filled — while still requesting an ad on every
+                load and every reload(). It earned nothing and carried all of
+                the "one ad per page" policy risk. 610a3f8 moved it out of the
+                collapsed panel for this exact reason and 77a2d2c put it back;
+                removing it instead of moving it again. */}
             <div
               className={`pane-divider${isResizingParams ? " dragging" : ""}`}
               onMouseDown={handleParamResizeStart}

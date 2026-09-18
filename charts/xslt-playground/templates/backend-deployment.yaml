@@ -43,6 +43,29 @@ spec:
               readOnly: true
 {{- end }}
           resources: {{- toYaml .Values.resources.backend | nindent 12 }}
+          # /healthz asks the three JVM daemons whether they are answering, which
+          # "is the Go process alive?" cannot tell you: on 2026-09-18 the Saxon 12
+          # daemon ran out of heap and every XSLT 3.0 request timed out for forty
+          # minutes while the pod reported Ready with zero restarts.
+          # The failureThresholds are deliberately slack — one slow answer under
+          # load is not a dead daemon, and restarting a pod costs a JVM warm-up.
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            # start.sh only execs the Go server once all three daemons answer,
+            # so a slow boot cannot trip this; the delay covers image pull jitter.
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
           ports:
             - containerPort: {{ .Values.service.backend.port }}
               name: http

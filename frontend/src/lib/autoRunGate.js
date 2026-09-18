@@ -40,6 +40,28 @@ const REQUIRED = {
   when: "test",
 };
 
+// Elements whose @name is a QName the processor has to resolve. An empty one
+// cannot compile in any version — Saxon reports "XTSE0020: Invalid QName {}" —
+// and that is exactly what a declaration looks like while the name is being
+// typed: `<xsl:variable name="" select="Gran"/>`. @name is not an XPath, so
+// the XPATH_ATTRS pass below never looked at it, and the REQUIRED pass only
+// asks whether the attribute is *there*. Between the two, every keystroke of a
+// new variable went to the backend. Only the empty case is checked: anything
+// non-empty may be an attribute value template we cannot evaluate here.
+const QNAME_NAMED = new Set([
+  "variable",
+  "param",
+  "with-param",
+  "template",
+  "call-template",
+  "function",
+  "key",
+  "attribute",
+  "element",
+  "attribute-set",
+  "accumulator",
+]);
+
 // Attributes holding an XPath expression or a match pattern.
 export const XPATH_ATTRS = [
   "select",
@@ -228,6 +250,13 @@ export function findUnfinishedExpression(xslt) {
       return {
         message: `${elementLabel(el)} has no ${required} expression yet`,
       };
+    }
+    if (
+      QNAME_NAMED.has(el.localName) &&
+      el.hasAttribute("name") &&
+      !el.getAttribute("name").trim()
+    ) {
+      return { message: `${elementLabel(el)} has no name yet` };
     }
     for (const attr of XPATH_ATTRS) {
       if (!el.hasAttribute(attr)) continue;

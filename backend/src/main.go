@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"html"
 	"io"
 	"log"
@@ -114,8 +115,13 @@ func pickSourceXML(params map[string]string) (string, string) {
 var saxonErrorCodeRe = regexp.MustCompile(`\b[A-Z]{4}[0-9]{4}\b`)
 
 const (
-	errLogFieldMax     = 48_000 // per-field cap before base64 (Loki line limit safety)
-	errLogReproURLMax  = 30_000 // xslt+source above this → URL too long to be useful
+	// Caps are on the raw text, before base64, which inflates by 4/3. Two
+	// encoded fields plus a repro URL have to fit inside errLogLineMax, so the
+	// old 48_000 was never a "Loki line limit safety" at all: it allowed a
+	// single line of 128 KB, eight times the limit that actually bites.
+	errLogFieldMax     = 4_000  // per-field cap before base64
+	errLogReproURLMax  = 6_000  // xslt+source above this → URL too long to be useful
+	errLogLineMax      = 14_000 // containerd splits the line at 16 KB; stay under it
 	errLogMessageMax   = 4_000
 	errLogPublicOrigin = "https://xsltplayground.com"
 )
@@ -240,7 +246,7 @@ func parseHotspot(line string) (Hotspot, bool) {
 	return Hotspot{Count: count, Kind: parts[2], Label: parts[3], Line: lineNo}, true
 }
 
-func logTransformError(classOverride, version, errMsg string, req TransformRequest, sourceXML, sourceKey string) {
+func logTransformError(classOverride, version, errMsg string, req TransformRequest, sourceXML, sourceKey, clientIP string) {
 	code, class := classifyTransformError(errMsg)
 	if classOverride != "" {
 		class = classOverride
@@ -254,6 +260,7 @@ func logTransformError(classOverride, version, errMsg string, req TransformReque
 		"error":      truncateForLog(errMsg, errLogMessageMax),
 		"source_key": sourceKey,
 		"trace":      req.Trace,
+		"client_ip":  clientIP,
 		"xslt_b64":   b64url(truncateForLog(req.XSLT, errLogFieldMax)),
 	}
 	if paramsJSON, err := json.Marshal(req.Parameters); err == nil {
@@ -270,7 +277,33 @@ func logTransformError(classOverride, version, errMsg string, req TransformReque
 	}
 	// Write the raw JSON line (no log.Println timestamp prefix) so Loki's
 	// `| json` parser can consume it directly.
-	if line, err := json.Marshal(entry); err == nil {
+	//
+	// containerd splits a log line at 16 KB and promtail does not stitch the
+	// halves back together, so an oversized line reaches Loki as fragments that
+	// `| json` cannot parse. Measured on 2026-09-18: 96% of these lines were
+	// valid in `kubectl logs` and only 8.4% in Loki, and what it destroyed was
+	// the repro payload of precisely the large stylesheets worth debugging.
+	// The caps above keep the normal line well inside the budget; this loop is
+	// the guarantee, dropping the heavy fields — least useful first — until the
+	// line fits. A dropped field is named in `dropped` so the gap is visible
+	// rather than silent.
+	line, err := json.Marshal(entry)
+	for _, field := range []string{"params_b64", "xslt_b64", "repro_url"} {
+		if err != nil || len(line) <= errLogLineMax {
+			break
+		}
+		if _, present := entry[field]; !present {
+			continue
+		}
+		delete(entry, field)
+		dropped, _ := entry["dropped"].(string)
+		if dropped != "" {
+			dropped += ","
+		}
+		entry["dropped"] = dropped + field
+		line, err = json.Marshal(entry)
+	}
+	if err == nil {
 		os.Stdout.Write(append(line, '\n'))
 	}
 }
@@ -486,7 +519,7 @@ func main() {
 		if err != nil {
 			transformationsTotal.WithLabelValues(version, "unavailable").Inc()
 			log.Printf("daemon call failed: %v", err)
-			logTransformError("backend", version, "daemon unavailable: "+err.Error(), req, sourceXML, sourceKey)
+			logTransformError("backend", version, "daemon unavailable: "+err.Error(), req, sourceXML, sourceKey, c.ClientIP())
 			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "transform service unavailable"})
 			return
 		}
@@ -495,7 +528,7 @@ func main() {
 		respBody, err := io.ReadAll(resp.Body)
 		if err != nil {
 			transformationsTotal.WithLabelValues(version, "error").Inc()
-			logTransformError("backend", version, "cannot read daemon response: "+err.Error(), req, sourceXML, sourceKey)
+			logTransformError("backend", version, "cannot read daemon response: "+err.Error(), req, sourceXML, sourceKey, c.ClientIP())
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot read daemon response"})
 			return
 		}
@@ -511,7 +544,7 @@ func main() {
 		}
 		if err := json.Unmarshal(respBody, &daemonResp); err != nil {
 			transformationsTotal.WithLabelValues(version, "error").Inc()
-			logTransformError("backend", version, "cannot parse daemon response: "+truncateForLog(string(respBody), 500), req, sourceXML, sourceKey)
+			logTransformError("backend", version, "cannot parse daemon response: "+truncateForLog(string(respBody), 500), req, sourceXML, sourceKey, c.ClientIP())
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot parse daemon response"})
 			return
 		}
@@ -519,7 +552,7 @@ func main() {
 		if daemonResp.Error != "" {
 			transformationsTotal.WithLabelValues(version, "error").Inc()
 			log.Printf("transform error after %dms: %s", duration, daemonResp.Error)
-			logTransformError("", version, daemonResp.Error, req, sourceXML, sourceKey)
+			logTransformError("", version, daemonResp.Error, req, sourceXML, sourceKey, c.ClientIP())
 			c.JSON(http.StatusBadRequest, gin.H{"error": daemonResp.Error})
 			return
 		}
@@ -594,6 +627,40 @@ func main() {
 
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
+	// The work is done by three JVM daemons, and this process stays perfectly
+	// healthy when one of them does not. On 2026-09-18 the Saxon 12 daemon ran
+	// out of heap and spent 40 minutes in GC thrash answering nothing: every
+	// XSLT 3.0 request timed out, while the container reported Ready with zero
+	// restarts because nothing ever asked the daemons how they were. This is
+	// what a probe should call. start.sh already waits on the same endpoints at
+	// boot, so a daemon that fails here has degraded since.
+	healthClient := &http.Client{Timeout: 2 * time.Second}
+	r.GET("/healthz", func(c *gin.Context) {
+		daemons := map[string]string{"3.0": "8081", "1.0": "8082", "2.0": "8083"}
+		status := gin.H{}
+		allOK := true
+		for version, port := range daemons {
+			resp, err := healthClient.Get("http://127.0.0.1:" + port + "/health")
+			if err != nil {
+				status[version] = "unreachable: " + err.Error()
+				allOK = false
+				continue
+			}
+			resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				status[version] = fmt.Sprintf("http %d", resp.StatusCode)
+				allOK = false
+				continue
+			}
+			status[version] = "ok"
+		}
+		code := http.StatusOK
+		if !allOK {
+			code = http.StatusServiceUnavailable
+		}
+		c.JSON(code, gin.H{"status": map[bool]string{true: "ok", false: "degraded"}[allOK], "daemons": status})
 	})
 
 	if goPro {

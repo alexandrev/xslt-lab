@@ -169,6 +169,44 @@ describe("findUnfinishedExpression", () => {
       ).toBeNull();
     }
   });
+
+  it("stops a declaration whose name has not been typed yet", () => {
+    // Taken verbatim from a production log line (2026-09-18): the top XSLT 3.0
+    // error was XTSE0020 "Invalid QName {}", once per keystroke, because an
+    // attribute that is present but empty passed every check the gate had.
+    const found = findUnfinishedExpression(
+      `<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+         <xsl:variable name="" select="Gran"/>
+       </xsl:stylesheet>`,
+    );
+    expect(found.message).toContain("has no name yet");
+  });
+
+  it.each([
+    ["xsl:param", '<xsl:param name=""/>'],
+    ["xsl:template", '<xsl:template name="  "/>'],
+    ["xsl:function", '<xsl:function name=""/>'],
+    ["xsl:call-template", '<xsl:template match="/"><xsl:call-template name=""/></xsl:template>'],
+    ["xsl:attribute", '<xsl:template match="/"><xsl:attribute name=""/></xsl:template>'],
+  ])("stops %s with an empty name", (_label, body) => {
+    const xslt = `<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">${body}</xsl:stylesheet>`;
+    expect(findUnfinishedExpression(xslt).message).toContain("has no name yet");
+  });
+
+  it.each([
+    // A finished name, which is the overwhelmingly common case.
+    '<xsl:variable name="total" select="1"/>',
+    // An attribute value template: we cannot evaluate it here, so it runs.
+    '<xsl:template match="/"><xsl:element name="{$tag}"/></xsl:template>',
+    // No @name at all on an element where it is optional — that is not our
+    // business, and xsl:template matches on @match instead.
+    '<xsl:template match="/"><out/></xsl:template>',
+    // An element that carries a @name we deliberately do not police.
+    '<xsl:output name="" method="xml"/>',
+  ])("leaves %j alone", (body) => {
+    const xslt = `<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">${body}</xsl:stylesheet>`;
+    expect(findUnfinishedExpression(xslt)).toBeNull();
+  });
 });
 
 describe("cost", () => {

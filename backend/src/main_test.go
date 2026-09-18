@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -262,16 +264,96 @@ func TestLogTransformErrorIncrementsCounter(t *testing.T) {
 	req := TransformRequest{XSLT: "<xsl:stylesheet/>"}
 	m := transformErrorsTotal.WithLabelValues("stylesheet", "XPST0017", normalizeVersion("2.0"))
 	before := testutil.ToFloat64(m)
-	logTransformError("", "2.0", "XPST0017: function foo#1 is not defined", req, "", "key")
+	logTransformError("", "2.0", "XPST0017: function foo#1 is not defined", req, "", "key", "203.0.113.7")
 	if got := testutil.ToFloat64(m) - before; got != 1 {
 		t.Fatalf("counter delta = %v, want 1", got)
 	}
 	// backend override should count under class="backend"
 	mb := transformErrorsTotal.WithLabelValues("backend", "OTHER", normalizeVersion("2.0"))
 	b := testutil.ToFloat64(mb)
-	logTransformError("backend", "2.0", "daemon unavailable", req, "", "key")
+	logTransformError("backend", "2.0", "daemon unavailable", req, "", "key", "203.0.113.7")
 	if got := testutil.ToFloat64(mb) - b; got != 1 {
 		t.Fatalf("backend counter delta = %v, want 1", got)
+	}
+}
+
+// A log line above 16 KB is split by containerd and never reassembled, so it
+// reaches Loki as fragments that `| json` cannot parse. On 2026-09-18 that was
+// 92% of these lines. Whatever the stylesheet size, one parseable line has to
+// come out, and it has to say which fields it had to drop.
+func TestLogTransformErrorLineStaysParseable(t *testing.T) {
+	huge := strings.Repeat("<xsl:template match='a'/>", 40_000) // ~1 MB
+	req := TransformRequest{
+		XSLT:       huge,
+		Parameters: map[string]string{"input": huge},
+	}
+
+	stdout := os.Stdout
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: %v", err)
+	}
+	os.Stdout = w
+	logTransformError("", "3.0", "XTSE0020: Invalid QName {}", req, huge, "input", "203.0.113.7")
+	w.Close()
+	os.Stdout = stdout
+
+	line, err := io.ReadAll(r)
+	if err != nil {
+		t.Fatalf("read: %v", err)
+	}
+	if len(line) > errLogLineMax+1 { // +1 for the newline
+		t.Fatalf("line is %d bytes, above the %d budget", len(line), errLogLineMax)
+	}
+	var entry map[string]interface{}
+	if err := json.Unmarshal(line, &entry); err != nil {
+		t.Fatalf("line does not parse as JSON, which is the whole point: %v", err)
+	}
+	// The fields that identify and classify the failure must survive; only the
+	// payload is expendable.
+	for _, key := range []string{"event", "class", "error_code", "version", "error", "client_ip"} {
+		if _, ok := entry[key]; !ok {
+			t.Errorf("%q was dropped, but it is what makes the line useful", key)
+		}
+	}
+}
+
+// The per-field caps handle the huge case on their own; the drop loop is for
+// the awkward middle, where a stylesheet small enough to earn a repro URL still
+// pushes the line over the budget once everything is base64.
+func TestLogTransformErrorDropsFieldsAndSaysSo(t *testing.T) {
+	body := strings.Repeat("<a/>", 700) // 2.8 KB: under errLogReproURLMax
+	req := TransformRequest{
+		XSLT:       body,
+		Parameters: map[string]string{"input": body},
+	}
+
+	stdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+	logTransformError("", "3.0", strings.Repeat("e", errLogMessageMax), req, body, "input", "203.0.113.7")
+	w.Close()
+	os.Stdout = stdout
+
+	line, _ := io.ReadAll(r)
+	if len(line) > errLogLineMax+1 {
+		t.Fatalf("line is %d bytes, above the %d budget", len(line), errLogLineMax)
+	}
+	var entry map[string]interface{}
+	if err := json.Unmarshal(line, &entry); err != nil {
+		t.Fatalf("line does not parse as JSON: %v", err)
+	}
+	dropped, _ := entry["dropped"].(string)
+	if dropped == "" {
+		t.Fatal("expected this shape to trip the drop loop; if the budget changed, pick another size")
+	}
+	// Least useful first: params before the stylesheet, and the repro URL last
+	// because it carries both documents on its own.
+	if !strings.HasPrefix(dropped, "params_b64") {
+		t.Errorf("dropped = %q, want params_b64 to go first", dropped)
+	}
+	if _, ok := entry["repro_url"]; !ok {
+		t.Error("repro_url was dropped before the rest; it is the most useful field")
 	}
 }
 

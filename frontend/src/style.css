@@ -723,19 +723,6 @@ a:focus-visible {
   gap: 0.4rem;
 }
 
-.params-ad {
-  padding: 10px 12px;
-  border-top: 1px solid var(--border, #2a3347);
-  flex-shrink: 0;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-}
-
-.params-ad .ethical-ad {
-  max-width: 100%;
-}
-
 .param-footer .icon-button {
   border-radius: 999px;
   border: 1px solid #dfe5fb;
@@ -1158,11 +1145,6 @@ a:focus-visible {
   display: block;
   min-height: 50px;
   flex-shrink: 0;
-}
-
-/* EthicalAds — stickybox is position:fixed by EA itself, just needs to exist in DOM */
-.ea-sticky-slot {
-  display: block;
 }
 
 .result-body {
