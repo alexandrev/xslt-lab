@@ -98,6 +98,8 @@ If it runs clean at 1.0, your server-side migration is low-risk — and once you
 
 ## Related
 
+Two cases get their own page, because they are how most people arrive here: the [console warning that says this site uses XSLT](https://xsltplayground.com/blog/chrome-xslt/this-site-uses-xslt-warning/), and the [RSS feed whose stylesheet stops rendering](https://xsltplayground.com/blog/chrome-xslt/rss-feed-stylesheet/). Everything on the removal is indexed under [XSLT after Chrome removes it](https://xsltplayground.com/blog/chrome-xslt/).
+
 The browser removal lands the same year the venerable FreeFormatter site [shut down](https://xsltplayground.com/blog/posts/freeformatter-xsl-transformer-alternative/) — client-side and ad-supported XSLT are both winding down, while server-side XSLT keeps running payment migrations ([ISO 20022](https://xsltplayground.com/blog/posts/iso-20022-xslt-transformations/)) and e-invoicing validation ([Peppol/EN 16931](https://xsltplayground.com/blog/posts/validate-peppol-schematron-xslt-online/)) at scale. XSLT is not dying; it is relocating.
 
 Test your stylesheets now: **[xsltplayground.com](https://xsltplayground.com/)**.

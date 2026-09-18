@@ -5,6 +5,11 @@
   {{ with .Description }}<p class="lead">{{ . }}</p>{{ end }}
 </section>
 
+{{/* A section's _index.md body was silently dropped here, so any hub page that
+     introduces its section rendered as a bare list of links. The sections that
+     have no body are unaffected. */}}
+{{ with .Content }}<div class="section-intro">{{ . }}</div>{{ end }}
+
 <ul class="post-list spaced">
   {{ range .Paginator.Pages }}
     <li>

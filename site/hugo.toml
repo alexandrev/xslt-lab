@@ -57,6 +57,11 @@ publisher = "xsltplaygroundcom"
   weight = 4
 
   [[menu.main]]
+  name = "Chrome & XSLT"
+  url = "/chrome-xslt/"
+  weight = 5
+
+  [[menu.main]]
   name = "Charts"
   url = "https://alexandrev.github.io/xslt-lab/index.yaml"
   weight = 4
