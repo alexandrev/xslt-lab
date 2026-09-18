@@ -45,4 +45,9 @@ jobs:
           publish_branch: gh-pages
           destination_dir: docs
           keep_files: true
-          cname: blog.xsltplayground.com
+          # No cname: the custom domain was removed from GitHub Pages. Its
+          # certificate could not renew once blog.* stopped pointing at GitHub
+          # (the DNS moved with the /blog/ migration in July), and the NPM proxy
+          # now reaches the site at alexandrev.github.io, which is covered by the
+          # stable *.github.io certificate. Re-adding this line would restore the
+          # custom domain on the next deploy and bring the problem back.
