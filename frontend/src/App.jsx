@@ -862,9 +862,17 @@ export default function App() {
       adVisibleRef.current &&
       document.visibilityState === "visible" &&
       now - lastAdRefreshRef.current >= 60_000 &&
-      window.ethicalads
+      window.ethicalads &&
+      ethicalSlotRef.current
     ) {
-      window.ethicalads.reload();
+      // NOT reload(): it only rotates placements the client discovered by
+      // itself, and ours is data-ea-manual precisely so that it does not. The
+      // call succeeds and does nothing, which is the worst shape a bug can
+      // take — it cost the site its per-session ad refresh for five days
+      // before anyone noticed the revenue. load() is the manual equivalent and
+      // asks for exactly one decision, which is the point of the manual flag.
+      ethicalSlotRef.current.innerHTML = "";
+      window.ethicalads.load(ethicalSlotRef.current);
       lastAdRefreshRef.current = now;
     }
   };
