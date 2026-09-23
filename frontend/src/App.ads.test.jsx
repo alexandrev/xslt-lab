@@ -2,10 +2,12 @@
 // module scope, so the flag that enables ads has to be set before the import.
 //
 // What this pins: the app must refresh its ad through its own slot, never
-// through ethicalads.reload(). On 2026-09-18 the slot was marked
-// data-ea-manual to stop a duplicated view beacon, and that silently disabled
-// the refresh — reload() only rotates placements the client discovered by
-// itself, so it kept succeeding and doing nothing. The app monetises by
+// through ethicalads.reload(), and must unload the placement first. On
+// 2026-09-18 the slot was marked data-ea-manual to stop a duplicated view
+// beacon, and that silently disabled the refresh — reload() only rotates
+// placements the client discovered by itself. The first attempt at a fix,
+// load() on our own slot, was also a no-op: the client ignores load() on a
+// placement it has already filled. Both wrong versions reported success. The app monetises by
 // session length, one decision per page load is worth a fraction of one
 // refreshed every minute while somebody edits, and ad revenue halved for five
 // days before the drop was noticed. A call that succeeds and does nothing
@@ -52,7 +54,7 @@ beforeEach(async () => {
   );
   localStorage.clear();
 
-  ethicalads = { load: vi.fn(), reload: vi.fn() };
+  ethicalads = { load: vi.fn(), reload: vi.fn(), unload_placements: vi.fn() };
   window.ethicalads = ethicalads;
   // jsdom serves on localhost, so the ads path needs the dev opt-in.
   window.env = {
@@ -111,5 +113,11 @@ describe("ad refresh", () => {
     const refreshes = ethicalads.load.mock.calls.slice(loadsBefore);
     expect(refreshes.length).toBeGreaterThan(0);
     expect(refreshes.at(-1)[0]).toBe(slot);
+    // The client ignores load() on a placement it has already filled, so the
+    // unload has to come first or the refresh is a no-op that reports success.
+    expect(ethicalads.unload_placements).toHaveBeenCalled();
+    const unloadOrder = ethicalads.unload_placements.mock.invocationCallOrder.at(-1);
+    const loadOrder = ethicalads.load.mock.invocationCallOrder.at(-1);
+    expect(unloadOrder).toBeLessThan(loadOrder);
   }, 15000);
 });

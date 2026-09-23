@@ -865,13 +865,22 @@ export default function App() {
       window.ethicalads &&
       ethicalSlotRef.current
     ) {
-      // NOT reload(): it only rotates placements the client discovered by
-      // itself, and ours is data-ea-manual precisely so that it does not. The
-      // call succeeds and does nothing, which is the worst shape a bug can
-      // take — it cost the site its per-session ad refresh for five days
-      // before anyone noticed the revenue. load() is the manual equivalent and
-      // asks for exactly one decision, which is the point of the manual flag.
-      ethicalSlotRef.current.innerHTML = "";
+      // Two calls, and both are load-bearing. Measured against production:
+      //   load(slot)                      → no request at all
+      //   innerHTML = ""; load(slot)      → no request at all
+      //   unload_placements(); load(slot) → one decision, one view
+      // The client marks a filled placement and then ignores load() on it, so
+      // it has to be unloaded first; emptying the element is not enough,
+      // because the flag it checks is not the content. reload() is no use
+      // either: it only rotates the placements it discovered by itself, and
+      // ours is data-ea-manual so that it discovers nothing.
+      //
+      // So both of the obvious ways to refresh this slot succeed and do
+      // nothing, which is how the site lost its per-session ad refresh for
+      // five days without a single error. unload_placements() is global, and
+      // safe only because this page deliberately has exactly one ad — see the
+      // note where the second one used to be.
+      window.ethicalads.unload_placements();
       window.ethicalads.load(ethicalSlotRef.current);
       lastAdRefreshRef.current = now;
     }
