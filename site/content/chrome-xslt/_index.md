@@ -10,11 +10,11 @@ On **17 November 2026** Chrome 158 removes native XSLT. Two things stop working:
 
 This is the index for everything on the subject. Start with whichever describes you.
 
-## "I just saw a warning in the console"
+## "Chrome showed me a banner about XSLT"
 
-If Chrome showed you **"This site uses XSLT; that functionality is being removed from Chrome"**, that is the deprecation warning, not an error — the page still works today. What it means, how long you have, and how to find the code that triggered it:
+That banner is a heads-up, not an error: the page still works today. Whether you were just visiting the page or it is your own site, what it means and what to do is here:
 
-→ [This site uses XSLT: what Chrome's warning means](/blog/chrome-xslt/this-site-uses-xslt-warning/)
+→ [This site uses XSLT: what Chrome's banner means](/blog/chrome-xslt/this-site-uses-xslt-warning/)
 
 ## "I need to know whether this affects me"
 
