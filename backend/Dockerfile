@@ -34,6 +34,7 @@ RUN mkdir -p /tmp/classes12 && \
         -d /tmp/classes12 \
         com/xsltplayground/ext/CustomFunctions.java \
         com/xsltplayground/Runner.java \
+        com/xsltplayground/Deadline.java \
         com/xsltplayground/SaxonDaemon.java && \
     jar cf /tmp/custom-functions-12.jar -C /tmp/classes12 .
 
@@ -43,6 +44,7 @@ RUN mkdir -p /tmp/classes9 && \
     javac -cp "/tmp/saxon96/saxon9he.jar:/tmp/saxon96/gson.jar" \
         -d /tmp/classes9 \
         com/xsltplayground/ext/CustomFunctions.java \
+        com/xsltplayground/Deadline.java \
         com/xsltplayground/Saxon2Daemon.java && \
     jar cf /tmp/custom-functions-9.jar -C /tmp/classes9 .
 
@@ -50,6 +52,7 @@ RUN mkdir -p /tmp/classes9 && \
 RUN mkdir -p /tmp/classesxalan && \
     javac -cp "/tmp/saxon12/gson.jar" \
         -d /tmp/classesxalan \
+        com/xsltplayground/Deadline.java \
         com/xsltplayground/XalanDaemon.java && \
     jar cf /tmp/custom-functions-xalan.jar -C /tmp/classesxalan .
 

@@ -56,11 +56,12 @@ public class XalanDaemon {
 
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", PORT), 32);
-        server.createContext("/transform", new TransformHandler());
+        server.createContext("/transform", Deadline.guard(new TransformHandler()));
         server.createContext("/health", exchange -> {
-            byte[] resp = "ok".getBytes(StandardCharsets.UTF_8);
+            boolean ok = !Deadline.poisoned();
+            byte[] resp = (ok ? "ok" : "stuck transformation").getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "text/plain");
-            exchange.sendResponseHeaders(200, resp.length);
+            exchange.sendResponseHeaders(ok ? 200 : 503, resp.length);
             try (OutputStream os = exchange.getResponseBody()) { os.write(resp); }
         });
         int threads = Math.max(2, Runtime.getRuntime().availableProcessors());
