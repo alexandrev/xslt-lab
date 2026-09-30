@@ -100,6 +100,7 @@ import { history, historyKeymap, defaultKeymap, indentWithTab } from "@codemirro
 import {
   syntaxHighlighting,
   defaultHighlightStyle,
+  HighlightStyle,
   indentOnInput,
   bracketMatching,
   syntaxTree,
@@ -207,10 +208,19 @@ function runWhenIdle(callback, timeout = 2000) {
 
 // Theme extension for a given app theme. oneDark carries its own highlight
 // style; light mode uses the default one.
+// defaultHighlightStyle draws type names — in XML, every element name — in
+// #085, which falls short of 4.5:1 on the editor's tinted and active-line
+// backgrounds (4.0–4.3 in Lighthouse). Same style, that one colour darkened.
+// Two highlighters cannot be layered to override a colour (both classes land on
+// the token and the stylesheet order decides), so this replaces the default.
+const lightHighlightStyle = HighlightStyle.define(
+  defaultHighlightStyle.specs.map((spec) =>
+    spec.color === "#085" ? { ...spec, color: "#00754a" } : spec,
+  ),
+);
+
 function cmThemeExt(theme) {
-  return theme === "vs-dark"
-    ? oneDark
-    : syntaxHighlighting(defaultHighlightStyle);
+  return theme === "vs-dark" ? oneDark : syntaxHighlighting(lightHighlightStyle);
 }
 
 // Static, always-critical extensions derived from options. Kept in a compartment
@@ -313,6 +323,7 @@ function Editor({
   language,
   onMount,
   xsltVersion,
+  ariaLabel,
 }) {
   const editable = !options.readOnly;
   const extras = useEditorExtras(editable);
@@ -354,7 +365,10 @@ function Editor({
       doc: value ?? "",
       extensions: [
         cmSizeTheme,
-        syntaxHighlighting(defaultHighlightStyle),
+        // The editable surface is a contenteditable with role="textbox"; without
+        // a label, screen readers and AI agents see five anonymous text boxes.
+        EditorView.contentAttributes.of({ "aria-label": ariaLabel || "Code editor" }),
+        syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
         c.theme.of(cmThemeExt(theme)),
         c.base.of(cmBaseExt(options, editable)),
         c.extras.of(cmExtrasExt(extras, editable, xsltVersion)),
@@ -703,6 +717,7 @@ function SecondaryResultItem({ href, content, theme }) {
       {!collapsed && (
         <div className="secondary-result-body">
           <Editor
+            ariaLabel={`Secondary result ${href}`}
             height="200px"
             language="xml"
             theme={theme}
@@ -2256,7 +2271,7 @@ export default function App() {
         </div>
       </div>
       )}
-      <div className="main">
+      <div className="main" role="main">
         {paramsCollapsed ? (
           <div className="params-collapsed">
             <button
@@ -2311,6 +2326,7 @@ export default function App() {
                       }}
                     >
                       <Editor
+                        ariaLabel="Input XML"
                         height="220px"
                         language="xml"
                         theme={editorTheme}
@@ -2381,6 +2397,7 @@ export default function App() {
                       >
                         <div className="param-editor">
                           <Editor
+                            ariaLabel={`Parameter ${p.name || i + 1}`}
                             height="150px"
                             language="xml"
                             theme={editorTheme}
@@ -2645,6 +2662,7 @@ export default function App() {
           <div className="editor-split">
             <div className="xslt-editor-wrap">
               <Editor
+                ariaLabel="XSLT stylesheet"
                 eager
                 height="100%"
                 language="xml"
@@ -3313,6 +3331,7 @@ export default function App() {
                   </div>
                 ) : (
                   <Editor
+                    ariaLabel="Transformation result"
                     height="100%"
                     language="xml"
                     theme={editorTheme}
@@ -3349,8 +3368,8 @@ export default function App() {
       </div>
       <div className="footer">
         <div className="footer-left">
-          <a href="/" className="footer-brand" aria-label="XSLT Playground home">
-            <img src={logo} alt="XSLT Playground logo" className="logo" />
+          <a href="/" className="footer-brand">
+            <img src={logo} alt="" className="logo" />
             <strong>xsltplayground.com</strong>
           </a>
           <span className="footer-tagline">Free XSLT Editor &amp; Tester</span>

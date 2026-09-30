@@ -26,7 +26,7 @@ a:focus-visible {
 }
 
 .news-link {
-  color: #007acc;
+  color: #006bb3; /* #007acc was 4.3:1 on the footer's #fafafa */
   text-decoration: none;
   font-weight: 500;
 }
@@ -365,7 +365,7 @@ a:focus-visible {
 }
 
 .success-server-time {
-  opacity: 0.65;
+  /* Was opacity 0.65, which faded #070 to 2.9:1 on the green banner. */
   font-weight: 400;
   font-size: 0.85em;
 }

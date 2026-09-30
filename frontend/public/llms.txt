@@ -1,34 +1,42 @@
 # XSLT Playground
 
-> XSLT Playground (xsltplayground.com) is a free online XSLT editor and tester that runs XSLT 1.0, 2.0, and 3.0 transformations using the Saxon processor. No installation required.
+> XSLT Playground (xsltplayground.com) is a free online XSLT editor and tester. It runs XSLT 1.0, 2.0 and 3.0 on real server-side processors (XSLTC for 1.0, Saxon 9 for 2.0, Saxon HE 12.9 for 3.0), so results match what those processors do in production. No installation or sign-up.
+
+## Tools
+
+- [XSLT Playground](https://xsltplayground.com/): the editor. Stylesheet, XML input, named parameters and result side by side; XSLT 1.0, 2.0 or 3.0.
+- [XSLT 2.0 tester](https://xsltplayground.com/xslt-2-0/): run stylesheets on Saxon in XSLT 2.0 mode.
+- [XSLT 3.0 tester](https://xsltplayground.com/xslt-3-0/): run stylesheets on Saxon HE 12.9, including maps, arrays and JSON functions.
+- [XPath tester](https://xsltplayground.com/xpath-tester/): evaluate XPath expressions against an XML document.
+- [XML to JSON](https://xsltplayground.com/xml-to-json/): convert XML to JSON with XSLT 3.0.
 
 ## What it does
 
-- Run and test XSLT stylesheets directly in the browser
-- Supports XSLT 1.0, 2.0, and 3.0 (Saxon-powered backend)
 - Multiple XML inputs and parameters per transformation
-- Trace output to inspect execution step by step
-- Up to 3 independent workspaces, each with its own XSLT, XML input, parameters, and result
-- Export and import workspaces as JSON to share setups
+- Trace of variables and a count of how often each construct ran, to see what a stylesheet actually did
+- Errors reported with their code and line; clicking one jumps to that line
+- Saved transformations with a short shareable link
+- Up to 3 independent workspaces, exportable as JSON
 
-## Who uses it
+## Reference
 
-Integration engineers, developers working with enterprise middleware (SAP, MuleSoft, Tibco, IBM), XML data engineers, and anyone who needs to write or debug XSLT without a heavy desktop IDE.
+- [XSLT and XPath function reference](https://xsltplayground.com/blog/xslt/functions/): 229+ functions, each with an example you can run.
+- [XSLT and Saxon error reference](https://xsltplayground.com/blog/xslt/errors/): common error codes explained, with fixes.
+- [XSLT after Chrome removes it](https://xsltplayground.com/blog/chrome-xslt/): what stops working in Chrome 158 (17 November 2026) and how to migrate.
 
-## Custom Saxon extensions
+## Guides
 
-The backend exposes custom extension functions under `xmlns:tib="http://www.tibco.com/bw/xslt/custom-functions"`, including:
-- `tib:uuid()` — generate a UUID
-- `tib:timestamp()` — current timestamp
-- `tib:addToDate()` — date arithmetic
-- `tib:base64encode()` / `tib:base64decode()`
+- [XSLT for beginners](https://xsltplayground.com/blog/posts/xslt-for-beginners/)
+- [XSLT 3.0 new features](https://xsltplayground.com/blog/posts/xslt-3-new-features/)
+- [Grouping with xsl:for-each-group](https://xsltplayground.com/blog/posts/xslt-grouping-for-each-group/)
+- [Transforming XML to JSON and CSV](https://xsltplayground.com/blog/posts/xslt-xml-to-json-csv/)
+- [XSLT debugging patterns](https://xsltplayground.com/blog/posts/xslt-debugging-patterns/)
+- [All articles](https://xsltplayground.com/blog/)
 
-## Blog
+## Custom extension functions
 
-Tutorials, guides, and release notes at xsltplayground.com/blog. Topics include XSLT 3.0 features, debugging patterns, integration architecture, performance tuning, and XML-to-JSON transformations.
+The 2.0 and 3.0 processors expose extension functions under `xmlns:tib="http://www.tibco.com/bw/xslt/custom-functions"`, for stylesheets written for TIBCO BusinessWorks: about 50 of them, among them `tib:uuid`, `tib:timestamp`, `tib:add-to-date`, `tib:parse-date-time`, `tib:string-to-base64`, `tib:base64-to-string`, `tib:pad` and `tib:substring-after-last`. Each is registered under both its kebab-case and camelCase name.
 
-## Links
+## Optional
 
-- Tool: https://xsltplayground.com
-- Blog: https://xsltplayground.com/blog
-- Source: https://github.com/alexandrev/xslt-lab
+- [Source code](https://github.com/alexandrev/xslt-lab)
