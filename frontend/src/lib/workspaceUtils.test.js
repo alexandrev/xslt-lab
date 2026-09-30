@@ -9,6 +9,7 @@ import {
   extractParamNames,
   injectParamBlock,
   parseErrorLines,
+  stylesheetErrorLine,
   setStylesheetVersion,
   stripParamBlock,
 } from "./workspaceUtils";
@@ -225,5 +226,35 @@ describe("checkWellFormed", () => {
   it("stays silent on empty input, which is legitimate", () => {
     expect(checkWellFormed("")).toBeNull();
     expect(checkWellFormed("   ")).toBeNull();
+  });
+});
+
+describe("stylesheetErrorLine", () => {
+  it("reads Saxon's trailing (line N)", () => {
+    expect(stylesheetErrorLine("XTSE0010: xsl:choose must contain at least one xsl:when (line 10)")).toBe(10);
+  });
+  it("reads XSLTC's leading line N:", () => {
+    expect(stylesheetErrorLine("line 11: Variable 'remainingQuota' is multiply defined in the same scope.")).toBe(11);
+  });
+  it("ignores XML parser errors, which may be about the input", () => {
+    expect(stylesheetErrorLine("SXXP0003:  Error reported by XML parser: Premature end of file. (line 1)")).toBeNull();
+    expect(stylesheetErrorLine("org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 1; Premature end of file.")).toBeNull();
+  });
+  it("returns null when there is no line", () => {
+    expect(stylesheetErrorLine("Errors were reported during stylesheet compilation")).toBeNull();
+    expect(stylesheetErrorLine("")).toBeNull();
+  });
+});
+
+describe("parseErrorLines with one compile error per line", () => {
+  it("gives each coded error its own row", () => {
+    const txt = "XPST0081: Undeclared namespace prefix {foo} (line 4)\nXPST0008: Variable nope has not been declared (line 5)";
+    expect(parseErrorLines(txt)).toEqual([
+      "XPST0081: Undeclared namespace prefix {foo} (line 4)",
+      "XPST0008: Variable nope has not been declared (line 5)",
+    ]);
+  });
+  it("keeps a multi-line message that is not a list of errors together", () => {
+    expect(parseErrorLines("Something failed\n  at somewhere")).toEqual(["Something failed\n  at somewhere"]);
   });
 });

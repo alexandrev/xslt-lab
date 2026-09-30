@@ -14,6 +14,7 @@ import {
   findErrorReference,
   needsStylesheetReset,
   checkWellFormed,
+  stylesheetErrorLine,
 } from "./lib/workspaceUtils";
 import { templateToWorkspace, findTemplate, STARTER_STYLESHEET } from "./lib/templates";
 import { findUnfinishedExpression, findNotAStylesheet } from "./lib/autoRunGate";
@@ -264,6 +265,38 @@ function cmExtrasExt(extras, editable, xsltVersion) {
     );
   }
   return ext;
+}
+
+// One error message. When it names a stylesheet line it becomes a control
+// that jumps there; otherwise it stays plain text.
+function ErrorText({ text, onJump, as: Tag }) {
+  const line = stylesheetErrorLine(text);
+  if (!line) {
+    return (
+      <Tag className="error-text" title={text}>
+        {text}
+      </Tag>
+    );
+  }
+  const go = () => onJump(line);
+  return (
+    <Tag
+      className="error-text error-text--jump"
+      title={`${text}\n\nClick to go to line ${line}`}
+      role="button"
+      tabIndex={0}
+      onClick={go}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          go();
+        }
+      }}
+    >
+      <span className="error-jump-line">line {line}</span>
+      {text}
+    </Tag>
+  );
 }
 
 function Editor({
@@ -815,6 +848,20 @@ export default function App() {
   const isDarkTheme = theme === THEME_DARK;
   const editorTheme = isDarkTheme ? "vs-dark" : "light";
   const resultEditorRef = useRef(null);
+  const xsltEditorRef = useRef(null);
+  // Clarity's dead-click heatmap had the error text among its top five: people
+  // click an error expecting to be taken to it. When it names a stylesheet
+  // line, it now does.
+  const jumpToStylesheetLine = useCallback((n) => {
+    const view = xsltEditorRef.current;
+    if (!view) return;
+    const line = view.state.doc.line(Math.min(n, view.state.doc.lines));
+    view.dispatch({
+      selection: { anchor: line.from, head: line.to },
+      effects: EditorView.scrollIntoView(line.from, { y: "center" }),
+    });
+    view.focus();
+  }, []);
   const traceHoverTimeoutRef = useRef(null);
   const traceTableWrapRef = useRef(null);
   const traceNameRefs = useRef([]);
@@ -2614,6 +2661,7 @@ export default function App() {
                     ),
                 }}
                 value={injectParamBlock(activeTab.xslt, activeTab.params)}
+                onMount={(view) => (xsltEditorRef.current = view)}
                 onChange={(v) =>
                   setTabs((tabs) =>
                     tabs.map((tab) =>
@@ -2846,9 +2894,7 @@ export default function App() {
                       <td className="error-icon" aria-hidden>
                         <Icon name="alert" />
                       </td>
-                      <td className="error-text" title={l}>
-                        {l}
-                      </td>
+                      <ErrorText text={l} onJump={jumpToStylesheetLine} as="td" />
                     </tr>
                   ))}
                 </tbody>
@@ -2858,9 +2904,7 @@ export default function App() {
                 <span className="error-icon" aria-hidden>
                   <Icon name="alert" />
                 </span>
-                <span className="error-text" title={error || ""}>
-                  {error}
-                </span>
+                <ErrorText text={error || ""} onJump={jumpToStylesheetLine} as="span" />
               </div>
             )}
             {hasHiddenErrors && (

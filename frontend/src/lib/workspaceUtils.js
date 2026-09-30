@@ -12,6 +12,13 @@ export function parseErrorLines(txt) {
     starts.push(start);
   }
   if (starts.length === 0) {
+    // Several compile errors arrive one per line, each opening with its code
+    // ("XTSE0010: …") or, from XSLTC, "line N:". Give each its own row so each
+    // can be read, and clicked, on its own.
+    const rows = txt.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    if (rows.length > 1 && rows.every((l) => /^(?:[A-Z]{4}\d{4}|line \d+):/.test(l))) {
+      return rows;
+    }
     return [txt.trim()].filter(Boolean);
   }
   const lines = [];
@@ -316,4 +323,18 @@ export function checkWellFormed(text) {
     message: raw.replace(/Below is a rendering.*$/s, "").trim(),
     line: lineMatch ? parseInt(lineMatch[1], 10) : null,
   };
+}
+
+// The stylesheet line an error message points at, or null. Saxon reports
+// "CODE: message (line N)"; the JDK's XSLTC (XSLT 1.0) starts with "line N:".
+// XML parser errors are left alone: they can come from the input document as
+// easily as from the stylesheet, and jumping to the wrong editor is worse
+// than not jumping at all.
+export function stylesheetErrorLine(msg) {
+  if (!msg) return null;
+  if (/SXXP0003|SAXParseException|XML parser|WrappedRuntimeException/i.test(msg)) return null;
+  const m = msg.match(/\(line (\d+)\)/) || msg.match(/(?:^|\n)\s*line (\d+):/);
+  if (!m) return null;
+  const n = Number(m[1]);
+  return n > 0 ? n : null;
 }

@@ -1,6 +1,7 @@
 import { render, screen, waitFor, cleanup, fireEvent, act } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App, { buildBugReportUrl } from "./App";
+import { EditorView } from "@codemirror/view";
 
 vi.mock("@monaco-editor/react", () => ({
   default: () => <div data-testid="monaco-editor" />,
@@ -113,6 +114,30 @@ describe("server error reporting", () => {
       expect(screen.getByText(/xslt syntax error/i)).toBeInTheDocument(),
     { timeout: 3000 });
     expect(screen.queryByText(/report this bug/i)).not.toBeInTheDocument();
+  });
+});
+
+describe("clicking an error", () => {
+  it("selects the stylesheet line it names", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve({
+          ok: false,
+          status: 400,
+          statusText: "Bad Request",
+          json: async () => ({ error: "XTSE0010: xsl:choose must contain at least one xsl:when (line 3)" }),
+        }),
+      ),
+    );
+    render(<App />);
+    fireEvent.pointerDown(window);
+    const target = await screen.findByRole("button", { name: /line 3.*XTSE0010/ }, { timeout: 3000 });
+    fireEvent.click(target);
+    const view = EditorView.findFromDOM(document.querySelector(".xslt-editor-wrap .cm-editor"));
+    const line = view.state.doc.line(3);
+    expect(view.state.selection.main.from).toBe(line.from);
+    expect(view.state.selection.main.to).toBe(line.to);
   });
 });
 

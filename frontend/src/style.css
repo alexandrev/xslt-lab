@@ -2419,3 +2419,31 @@ a:focus-visible {
   border-color: #2b3645;
   color: #e6edf3;
 }
+
+/* An error that names a stylesheet line jumps there on click. */
+.error-text--jump {
+  cursor: pointer;
+}
+.error-text--jump:hover,
+.error-text--jump:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+.error-jump-line {
+  display: inline-block;
+  margin-right: 0.4rem;
+  padding: 0 0.3rem;
+  border-radius: 3px;
+  background: rgba(221, 0, 0, 0.1);
+  color: #b00;
+  font-size: 0.72rem;
+  text-decoration: none;
+}
+
+/* .error-text is display:block and .error-icon inline-flex, which is right for
+   the single-error <span>s but takes the <td>s out of the table row: the icon
+   sat on a line of its own above every message. */
+.error-table td.error-icon,
+.error-table td.error-text {
+  display: table-cell;
+}

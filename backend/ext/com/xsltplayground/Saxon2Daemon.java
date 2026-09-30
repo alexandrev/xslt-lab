@@ -91,20 +91,32 @@ public class Saxon2Daemon {
                 Map<String, String> params     = jsonObjectToMap(req, "parameters");
                 Map<String, String> fileParams = jsonObjectToMap(req, "fileParameters");
 
-                // Saxon 9.6 uses JAXP ErrorListener (no ErrorReporter API)
+                // Saxon 9.6 uses JAXP ErrorListener (no ErrorReporter API).
+                // Static errors are collected rather than rethrown: rethrowing
+                // made compile() fail with only its summary, "Errors were
+                // reported during stylesheet compilation", which was all a
+                // 2.0 user ever saw — about 240 times a day. Collecting them
+                // gives the same "CODE: message (line N)" the 3.0 daemon shows.
                 StringBuilder warnings = new StringBuilder();
+                Set<String> compileErrors = new LinkedHashSet<>();
                 ErrorListener errorListener = new ErrorListener() {
                     @Override public void warning(TransformerException e) {
                         warnings.append("Warning: ").append(e.getMessage()).append("\n");
                     }
-                    @Override public void error(TransformerException e) throws TransformerException { throw e; }
-                    @Override public void fatalError(TransformerException e) throws TransformerException { throw e; }
+                    @Override public void error(TransformerException e) { compileErrors.add(describe(e)); }
+                    @Override public void fatalError(TransformerException e) { compileErrors.add(describe(e)); }
                 };
 
                 XsltCompiler compiler = PROCESSOR.newXsltCompiler();
                 compiler.setErrorListener(errorListener);
 
-                XsltExecutable exec = compiler.compile(new StreamSource(new StringReader(xslt)));
+                XsltExecutable exec;
+                try {
+                    exec = compiler.compile(new StreamSource(new StringReader(xslt)));
+                } catch (SaxonApiException e) {
+                    if (compileErrors.isEmpty()) throw e;
+                    throw new SaxonApiException(String.join("\n", compileErrors));
+                }
                 XsltTransformer transformer = exec.load();
 
                 if (source != null && !source.isEmpty()) {
@@ -174,6 +186,18 @@ public class Saxon2Daemon {
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(status, respBytes.length);
             try (OutputStream os = exchange.getResponseBody()) { os.write(respBytes); }
+        }
+
+        private static String describe(TransformerException e) {
+            StringBuilder sb = new StringBuilder();
+            if (e instanceof net.sf.saxon.trans.XPathException) {
+                String code = ((net.sf.saxon.trans.XPathException) e).getErrorCodeLocalPart();
+                if (code != null) sb.append(code).append(": ");
+            }
+            sb.append(e.getMessage() != null ? e.getMessage() : "static error");
+            int line = e.getLocator() != null ? e.getLocator().getLineNumber() : -1;
+            if (line > 0) sb.append(" (line ").append(line).append(")");
+            return sb.toString();
         }
 
         private Map<String, String> jsonObjectToMap(JsonObject req, String key) {
