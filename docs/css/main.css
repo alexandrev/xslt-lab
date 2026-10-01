@@ -507,3 +507,30 @@ code {
   border-radius: 8px;
   background: #fff;
 }
+
+/* ── Direct sponsor ─────────────────────────────────────────────── */
+.sponsor-card {
+  border: 1px solid var(--border, #dde6f5);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  background: #f7f9fd;
+  font-size: 0.92rem;
+  max-width: 260px;
+}
+.sponsor-card__tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #4b5563;
+  border: 1px solid #c3cfe2;
+  border-radius: 4px;
+  padding: 0.05rem 0.4rem;
+  margin-bottom: 0.4rem;
+}
+.sponsor-card__link { display: block; color: #1d4ed8; text-decoration: none; }
+.sponsor-card__link:hover { text-decoration: underline; }
+.sponsor-card__tagline { margin: 0.3rem 0 0.5rem; color: #374151; line-height: 1.5; }
+.sponsor-card__about { font-size: 0.78rem; color: #4b5563; }
+.ad .sponsor-card, .sponsor-strip .sponsor-card { max-width: none; }
+.sponsor-strip { margin-top: 1rem; }
