@@ -21,15 +21,16 @@
   <meta property="og:url" content="{{ .Permalink }}">
   {{ partial "schema-app.html" . }}
   {{ partial "adsense/head.html" . }}
-  {{- if and .Site.Params.ethicalads.publisher (ne hugo.Environment "development") -}}
+  {{- if and .Site.Params.ethicalads.publisher (not .Site.Params.sponsor.name) (ne hugo.Environment "development") -}}
   <script async src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
   {{- end -}}
   <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
 </head>
-{{- $ethicalAds := and .Site.Params.ethicalads.publisher (ne hugo.Environment "development") -}}
+{{- $ethicalAds := and .Site.Params.ethicalads.publisher (not .Site.Params.sponsor.name) (ne hugo.Environment "development") -}}
 {{- $ethicalAdsHeader := and $ethicalAds (not .IsPage) -}}
 <body{{ if $ethicalAdsHeader }} class="has-ethicalads"{{ end }}>
   {{- if $ethicalAdsHeader -}}{{ partial "ethicalads.html" . }}{{- end -}}
+  {{- if and .Site.Params.sponsor.name (not .IsPage) -}}<div class="container sponsor-strip">{{ partial "sponsor-card.html" . }}</div>{{- end -}}
   <header class="site-header">
     <div class="container header-grid">
       <div>
@@ -51,7 +52,7 @@
   <footer class="site-footer">
     <div class="container footer-grid">
       <p>Built with Hugo · {{ now.Format "2006-01-02" }}</p>
-      <p class="muted">Repo: <a href="https://github.com/alexandrev/xslt-lab">alexandrev/xslt-lab</a></p>
+      <p class="muted">Repo: <a href="https://github.com/alexandrev/xslt-lab">alexandrev/xslt-lab</a> · <a href="https://xsltplayground.com/sponsor/">Sponsor this site</a></p>
     </div>
   </footer>
   {{ block "scripts" . }}{{ end }}

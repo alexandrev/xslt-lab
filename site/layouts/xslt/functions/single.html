@@ -23,9 +23,11 @@
   <div class="content">
     {{ .Content }}
   </div>
-  {{- if and .Site.Params.ethicalads.publisher (ne hugo.Environment "development") -}}
+  {{- if .Site.Params.sponsor.name -}}
+  <div class="ad">{{ partial "sponsor-card.html" . }}</div>
+  {{- else if and .Site.Params.ethicalads.publisher (ne hugo.Environment "development") -}}
   <div class="ad">
-    <div class="ethical-ad" data-ea-publisher="{{ .Site.Params.ethicalads.publisher }}" data-ea-type="text"></div>
+    <div class="ethical-ad" data-ea-publisher="{{ .Site.Params.ethicalads.publisher }}" data-ea-type="text" data-ea-campaign-types="paid|publisher-house"></div>
   </div>
   {{- end }}
   <div class="ref-try">

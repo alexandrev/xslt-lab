@@ -2447,3 +2447,51 @@ a:focus-visible {
 .error-table td.error-text {
   display: table-cell;
 }
+
+/* Direct sponsor bar: takes the place of the ad slot while a sponsor is set. */
+.sponsor-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 50px;
+  padding: 0.4rem 1rem;
+  flex-shrink: 0;
+  background: #f4f7fc;
+  border-bottom: 1px solid #dde6f5;
+  font-size: 0.9rem;
+  color: #374151;
+}
+.sponsor-bar__tag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #4b5563;
+  border: 1px solid #c3cfe2;
+  border-radius: 4px;
+  padding: 0.05rem 0.4rem;
+}
+.sponsor-bar__link {
+  color: #1d4ed8;
+  text-decoration: none;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sponsor-bar__link:hover strong { text-decoration: underline; }
+.sponsor-bar__tagline { color: #374151; }
+.sponsor-bar__about {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: #4b5563;
+  white-space: nowrap;
+}
+:root[data-theme="dark"] .sponsor-bar {
+  background: #1b2433;
+  border-bottom-color: #2c3a50;
+  color: #d1d9e6;
+}
+:root[data-theme="dark"] .sponsor-bar__link { color: #8ab4ff; }
+:root[data-theme="dark"] .sponsor-bar__tagline,
+:root[data-theme="dark"] .sponsor-bar__about { color: #b8c4d6; }
+:root[data-theme="dark"] .sponsor-bar__tag { color: #b8c4d6; border-color: #3b4b63; }

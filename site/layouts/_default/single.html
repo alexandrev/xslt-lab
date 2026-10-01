@@ -1,5 +1,6 @@
 {{ define "main" }}
-{{- $showAd := and .Site.Params.ethicalads.publisher (ne hugo.Environment "development") -}}
+{{- $sponsor := .Site.Params.sponsor.name -}}
+{{- $showAd := or $sponsor (and .Site.Params.ethicalads.publisher (ne hugo.Environment "development")) -}}
 <div class="article-layout{{ if not $showAd }} article-layout--no-ad{{ end }}">
   <article class="post">
     <p class="eyebrow">{{ .Section | title }}</p>
@@ -16,11 +17,16 @@
   </article>
   {{- if $showAd -}}
   <aside class="article-sidebar">
+    {{- if $sponsor -}}
+    {{ partial "sponsor-card.html" . }}
+    {{- else -}}
     <div
       id="xsltplayground-blog"
       data-ea-publisher="{{ .Site.Params.ethicalads.publisher }}"
       data-ea-type="image"
+      data-ea-campaign-types="paid|publisher-house"
     ></div>
+    {{- end -}}
   </aside>
   {{- end -}}
 </div>

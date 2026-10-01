@@ -1,0 +1,14 @@
+{{- /* The direct sponsor, set in hugo.toml under [params.sponsor]. While one is
+       set it takes every place an EthicalAds unit would go and the EthicalAds
+       script is not loaded at all. UTM tags let the sponsor read the traffic in
+       their own analytics. */ -}}
+{{- with .Site.Params.sponsor -}}
+{{- $sep := cond (strings.Contains .url "?") "&" "?" -}}
+{{- $url := cond (strings.Contains .url "utm_source=") .url (printf "%s%sutm_source=xsltplayground&utm_medium=sponsorship&utm_campaign=blog" .url $sep) -}}
+<aside class="sponsor-card" aria-label="Sponsor">
+  <span class="sponsor-card__tag">Sponsor</span>
+  <a class="sponsor-card__link" href="{{ $url }}" target="_blank" rel="sponsored noopener"><strong>{{ .name }}</strong></a>
+  {{- with .tagline }}<p class="sponsor-card__tagline">{{ . }}</p>{{ end }}
+  <a class="sponsor-card__about" href="https://xsltplayground.com/sponsor/">Sponsor this site</a>
+</aside>
+{{- end -}}

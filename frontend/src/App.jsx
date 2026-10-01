@@ -277,6 +277,48 @@ function cmExtrasExt(extras, editable, xsltVersion) {
   return ext;
 }
 
+// The sponsor's bar, in the slot the ad would otherwise take. It reports one
+// impression per page load, once at least half of it has been on screen, and
+// each click — the two numbers a sponsor's monthly report is made of.
+function SponsorBar({ sponsor }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return undefined;
+    let seen = false;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!seen && entry.isIntersecting) {
+          seen = true;
+          window.gtag?.("event", "sponsor_impression", { sponsor: sponsor.name });
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [sponsor.name]);
+  return (
+    <div ref={ref} className="sponsor-bar" role="complementary" aria-label="Sponsor">
+      <span className="sponsor-bar__tag">Sponsor</span>
+      <a
+        className="sponsor-bar__link"
+        href={sponsor.url}
+        target="_blank"
+        rel="sponsored noopener"
+        onClick={() => window.gtag?.("event", "sponsor_click", { sponsor: sponsor.name })}
+      >
+        <strong>{sponsor.name}</strong>
+        {sponsor.tagline && <span className="sponsor-bar__tagline"> — {sponsor.tagline}</span>}
+      </a>
+      <a className="sponsor-bar__about" href="/sponsor/">
+        Sponsor this tool
+      </a>
+    </div>
+  );
+}
+
 // One error message. When it names a stylesheet line it becomes a control
 // that jumps there; otherwise it stays plain text.
 function ErrorText({ text, onJump, as: Tag }) {
@@ -466,6 +508,36 @@ const env = window.env || import.meta.env;
 const goPro = env.VITE_GO_PRO === "true";
 const adsenseClient = env.VITE_ADSENSE_CLIENT;
 const adsenseSlot = env.VITE_ADSENSE_SLOT;
+// A direct sponsor, set at deploy time as JSON in VITE_SPONSOR:
+//   {"name":"…","tagline":"…","url":"https://…"}
+// While one is set it is the only promotion in the editor: the EthicalAds slot
+// is not rendered at all. Anything unparseable or without a name and an
+// http(s) URL counts as no sponsor, so a typo in the config falls back to ads
+// instead of showing a broken bar.
+export function parseSponsor(raw) {
+  if (!raw) return null;
+  try {
+    const s = typeof raw === "string" ? JSON.parse(raw) : raw;
+    if (!s || typeof s.name !== "string" || !s.name.trim()) return null;
+    const url = new URL(s.url);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+    // Sponsors read their results in their own analytics, so tag the link
+    // unless they supplied their own UTM parameters.
+    if (!url.searchParams.has("utm_source")) {
+      url.searchParams.set("utm_source", "xsltplayground");
+      url.searchParams.set("utm_medium", "sponsorship");
+      url.searchParams.set("utm_campaign", "editor-bar");
+    }
+    return {
+      name: s.name.trim(),
+      tagline: typeof s.tagline === "string" ? s.tagline.trim() : "",
+      url: url.toString(),
+    };
+  } catch {
+    return null;
+  }
+}
+const sponsor = parseSponsor(env.VITE_SPONSOR);
 const ethicalAdsPublisher = env.VITE_ETHICALADS_PUBLISHER || "xsltplaygroundcom";
 const defaultRepoUrl = "https://github.com/alexandrev/xslt-lab";
 const repoUrl = env.VITE_REPO_URL || defaultRepoUrl;
@@ -989,6 +1061,7 @@ export default function App() {
     /^(localhost|127(?:\\.[0-9]+){3}|mac)$/i.test(window.location.hostname);
   const ethicalAdsEnabled =
     !IS_EMBED &&
+    !sponsor &&
     Boolean(ethicalAdsPublisher) &&
     (!isLocalhost || env.VITE_ETHICALADS_DEV === "true");
 
@@ -2202,9 +2275,14 @@ export default function App() {
           // init of the same slot: two decisions and the same view beacon sent
           // twice, which halves the reported click-through rate.
           data-ea-manual="true"
+          // Paid ads, or our own fallback ad when none is available — not
+          // EthicalAds' community and house ads, which fill the slot and pay
+          // nothing. The fallback is created in the EthicalAds dashboard.
+          data-ea-campaign-types="paid|publisher-house"
           aria-label="Advertisement"
         />
       )}
+      {!IS_EMBED && sponsor && <SponsorBar sponsor={sponsor} />}
       {IS_EMBED && (
         <div className="embed-bar">
           <span>XSLT Playground</span>
@@ -3389,6 +3467,9 @@ export default function App() {
             title="Support the development of XSLT Playground"
           >
             ☕ Buy me a coffee
+          </a>
+          <a className="news-link" href="/sponsor/" title="Sponsor XSLT Playground">
+            Sponsor
           </a>
           <span className="footer-blog-links">
             <a href="/xslt-2-0/">XSLT 2.0</a>
