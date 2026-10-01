@@ -42,6 +42,10 @@ spec:
             - name: VITE_FEEDBACK_WEBHOOK_URL
               value: {{ .Values.frontend.feedbackWebhookUrl | quote }}
 {{- end }}
+{{- with .Values.frontend.sponsor }}
+            - name: VITE_SPONSOR
+              value: {{ toJson . | quote }}
+{{- end }}
 {{- if .Values.adsTxt }}
           volumeMounts:
             - name: ads

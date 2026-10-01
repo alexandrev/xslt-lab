@@ -83,6 +83,14 @@ frontend:
   clarityId: ""
   # Optional n8n webhook URL for in-app feedback form
   feedbackWebhookUrl: ""
+  # Optional direct sponsor for the editor bar. While set, it replaces the
+  # EthicalAds slot in the editor (EthicalAds allows no other promotion on the
+  # same page). Leave empty for ads.
+  #   sponsor:
+  #     name: Acme XML
+  #     tagline: Validate Peppol invoices at scale
+  #     url: https://acme.example/xml
+  sponsor: {}
 
 # Content for the optional ads.txt file served by the frontend
 adsTxt: ""
