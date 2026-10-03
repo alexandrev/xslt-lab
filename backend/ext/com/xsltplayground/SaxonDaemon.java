@@ -104,8 +104,10 @@ public class SaxonDaemon {
                 // Collect detailed compile diagnostics (code + message + line) so the
                 // user sees the real error instead of Saxon's generic summary
                 // ("Errors were reported during stylesheet compilation").
+                // Kept outside the reporter so a retry can forget it together
+                // with compileErrors (see below).
+                final Set<String> seen = new LinkedHashSet<>();
                 final ErrorReporter collector = new ErrorReporter() {
-                    private final Set<String> seen = new LinkedHashSet<>();
                     @Override public void report(XmlProcessingError error) {
                         if (error == null || error.isWarning()) return;
                         StringBuilder sb = new StringBuilder();
@@ -133,7 +135,14 @@ public class SaxonDaemon {
                     exec = compiler.compile(new StreamSource(new StringReader(xslt)));
                 } catch (SaxonApiException e) {
                     if (trace && instrumentationEnabled) {
-                        // Retry without instrumentation
+                        // Retry without instrumentation. Forget what the first
+                        // attempt saw as well as what it collected: clearing only
+                        // compileErrors left `seen` full, so the retry's errors —
+                        // the same ones — were all dropped as duplicates and the
+                        // user got Saxon's bare "Errors were reported during
+                        // stylesheet compilation". Every traced compile error, in
+                        // 2.0 and 3.0, came out that way.
+                        seen.clear();
                         compileErrors.clear();
                         compiler = proc.newXsltCompiler();
                         compiler.setErrorReporter(new Runner.DeduplicatingErrorReporter(collector));
