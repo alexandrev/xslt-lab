@@ -379,3 +379,22 @@ func TestParseHotspot(t *testing.T) {
 		t.Errorf("expected an unparseable line number to become -1, got %+v", h)
 	}
 }
+
+func TestExplainMissingInput(t *testing.T) {
+	// XSLTC with no document: the raw parser error becomes an instruction.
+	if msg, ok := explainMissingInput("1.0", "", "javax.xml.transform.TransformerException: Premature end of file."); !ok || !strings.Contains(msg, "No input XML") {
+		t.Errorf("expected a missing-input explanation for 1.0, got %q %v", msg, ok)
+	}
+	// Saxon 9 phrases it differently; 2.0 also gets the initial-template hint.
+	if msg, ok := explainMissingInput("2.0", "  ", "Either a source document, an initial template or an initial function must be specified"); !ok || !strings.Contains(msg, "xsl:initial-template") {
+		t.Errorf("expected a missing-input explanation for 2.0, got %q %v", msg, ok)
+	}
+	// With an input present the same words mean a truncated document: leave them alone.
+	if _, ok := explainMissingInput("1.0", "<a>", "Premature end of file."); ok {
+		t.Error("an input was provided; the parser error must pass through unchanged")
+	}
+	// Unrelated errors pass through even without an input.
+	if _, ok := explainMissingInput("1.0", "", "line 3: Required attribute 'select' is missing."); ok {
+		t.Error("an unrelated error must pass through unchanged")
+	}
+}

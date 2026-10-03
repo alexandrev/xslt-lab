@@ -86,6 +86,31 @@ func decodeSourceXML(val string) string {
 	return trimmed
 }
 
+// explainMissingInput turns the parser's reaction to an absent input document
+// into something a person can act on. With no input, XSLTC (1.0) reports
+// "Premature end of file" and Saxon 9 (2.0) "Either a source document, an
+// initial template or an initial function must be specified" — accurate, and
+// opaque to anyone who simply has not pasted their XML yet. Saxon 12 (3.0)
+// already gets its own explanation from the daemon. The original message is
+// still what gets logged and classified.
+func explainMissingInput(version, sourceXML, msg string) (string, bool) {
+	if strings.TrimSpace(sourceXML) != "" {
+		return "", false
+	}
+	lower := strings.ToLower(msg)
+	if !strings.Contains(lower, "premature end of file") &&
+		!strings.Contains(lower, "initial template or an initial function") {
+		return "", false
+	}
+	if version == "1.0" {
+		return "No input XML was provided. XSLT 1.0 always transforms an input document: " +
+			"paste one into the Input XML pane (it has to start with \"<\").", true
+	}
+	return "No input XML was provided. Paste an input document into the Input XML pane " +
+		"(it has to start with \"<\"), or, if this stylesheet does not read one, " +
+		"start it from <xsl:template name=\"xsl:initial-template\">.", true
+}
+
 func pickSourceXML(params map[string]string) (string, string) {
 	looksLikeXML := func(s string) bool {
 		trimmed := strings.TrimSpace(s)
@@ -355,6 +380,12 @@ func corsMiddleware() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+		// The editor's POST carries Content-Type: application/json, so every one
+		// is preceded by a CORS preflight. Without Max-Age the browser keeps the
+		// answer for a few seconds and asks again: 6,483 OPTIONS against 14,916
+		// POSTs, an extra round trip in front of a large share of transforms.
+		// A day (Chrome caps it at two hours anyway).
+		c.Writer.Header().Set("Access-Control-Max-Age", "86400")
 		if c.Request.Method == http.MethodOptions {
 			c.AbortWithStatus(http.StatusNoContent)
 			return
@@ -553,7 +584,11 @@ func main() {
 			transformationsTotal.WithLabelValues(version, "error").Inc()
 			log.Printf("transform error after %dms: %s", duration, daemonResp.Error)
 			logTransformError("", version, daemonResp.Error, req, sourceXML, sourceKey, c.ClientIP())
-			c.JSON(http.StatusBadRequest, gin.H{"error": daemonResp.Error})
+			userMsg := daemonResp.Error
+			if friendly, ok := explainMissingInput(version, sourceXML, daemonResp.Error); ok {
+				userMsg = friendly
+			}
+			c.JSON(http.StatusBadRequest, gin.H{"error": userMsg})
 			return
 		}
 
