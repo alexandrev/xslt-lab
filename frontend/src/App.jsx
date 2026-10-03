@@ -496,13 +496,7 @@ function Editor({
   return <div style={style} {...wrapperProps} ref={containerRef} />;
 }
 
-function debounce(fn, delay) {
-  let t;
-  return (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...args), delay);
-  };
-}
+const AUTO_RUN_DELAY_MS = 2000;
 
 const env = window.env || import.meta.env;
 const goPro = env.VITE_GO_PRO === "true";
@@ -935,6 +929,10 @@ export default function App() {
   const isDarkTheme = theme === THEME_DARK;
   const editorTheme = isDarkTheme ? "vs-dark" : "light";
   const resultEditorRef = useRef(null);
+  const transformTimerRef = useRef(null);
+  const transformSeqRef = useRef(0);
+  const transformAbortRef = useRef(null);
+  const runTransformNowRef = useRef(null);
   const xsltEditorRef = useRef(null);
   // Clarity's dead-click heatmap had the error text among its top five: people
   // click an error expecting to be taken to it. When it names a stylesheet
@@ -1796,7 +1794,16 @@ export default function App() {
     [setTabs, setWorkspaceStatus],
   );
 
-  const runTransform = debounce(async (xsltText, ver, p, tabId) => {
+  // The run that answers is always the newest one. Each run aborts the request
+  // still in flight and takes a sequence number; anything that comes back for
+  // an older number is dropped, so a slow early response can never overwrite
+  // the result of the text that is on screen now.
+  const runTransformNow = async (xsltText, ver, p, tabId) => {
+    const seq = ++transformSeqRef.current;
+    transformAbortRef.current?.abort();
+    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    transformAbortRef.current = controller;
+    const stale = () => seq !== transformSeqRef.current;
     updateWorkspaceStatus(tabId, (prev) => ({ ...prev, isRunning: true }));
     const paramObj = {};
     p.forEach((pr) => {
@@ -1806,6 +1813,7 @@ export default function App() {
     try {
       const res = await fetch(`${backendBase}/transform`, {
         method: "POST",
+        signal: controller?.signal,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           xslt: xsltText,
@@ -1814,6 +1822,7 @@ export default function App() {
           trace: traceEnabled,
         }),
       });
+      if (stale()) return;
       if (!res.ok) {
         let txt = "";
         try {
@@ -1828,6 +1837,7 @@ export default function App() {
           // Fallback to raw text
           txt = await res.text();
         }
+        if (stale()) return;
         const lines = parseErrorLines(txt || res.statusText || "");
         updateWorkspaceStatus(tabId, {
           error: txt || res.statusText,
@@ -1847,6 +1857,7 @@ export default function App() {
         return;
       }
       const data = await res.json();
+      if (stale()) return;
       // Round-trip the user actually experiences (network + server), so the
       // displayed time isn't just the server-side Saxon compute (data.duration_ms).
       const roundTripMs = Math.round(performance.now() - clientStart);
@@ -1880,6 +1891,8 @@ export default function App() {
         clampTraceNameWidth();
       });
     } catch (e) {
+      // Aborted because a newer run started, or answered after one did.
+      if (stale() || e?.name === "AbortError") return;
       const txt = String(e);
       updateWorkspaceStatus(tabId, {
         error: txt,
@@ -1896,7 +1909,24 @@ export default function App() {
       });
       setServerErrorCount((count) => count + 1);
     }
-  }, 2000);
+  };
+  runTransformNowRef.current = runTransformNow;
+
+  // Wait for a 2 s pause in typing, then run once. This used to be
+  // debounce(...) created in the component body, which made a new debounced
+  // function, with its own timer, on every render: clearTimeout never saw the
+  // previous keystroke's timer, so every keystroke ran its own transformation
+  // 2 s later. Measured in production, 12 keystrokes sent 12 requests. The
+  // timer now lives in a ref, so each call really does replace the last one,
+  // and the ref to the function means the run uses the latest state.
+  const runTransform = (...args) => {
+    window.clearTimeout(transformTimerRef.current);
+    transformTimerRef.current = window.setTimeout(
+      () => runTransformNowRef.current(...args),
+      AUTO_RUN_DELAY_MS,
+    );
+  };
+  useEffect(() => () => window.clearTimeout(transformTimerRef.current), []);
 
   useEffect(() => {
     if (!activeTab || !autoRunReady) return;

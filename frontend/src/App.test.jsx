@@ -117,6 +117,26 @@ describe("server error reporting", () => {
   });
 });
 
+describe("auto-run", () => {
+  it("runs once after a burst of edits, not once per edit", async () => {
+    render(<App />);
+    fireEvent.pointerDown(window);
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1), { timeout: 4000 });
+
+    // Three edits in quick succession, as when typing. Each one changes the
+    // workspace and schedules a run; only the last should reach the backend.
+    const select = screen.getByLabelText("XSLT version");
+    fireEvent.change(select, { target: { value: "2.0" } });
+    fireEvent.change(select, { target: { value: "3.0" } });
+    fireEvent.change(select, { target: { value: "2.0" } });
+
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2), { timeout: 4000 });
+    await new Promise((r) => setTimeout(r, 2500));
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(fetch.mock.calls[1][1].body).version).toBe("2.0");
+  }, 15000);
+});
+
 describe("clicking an error", () => {
   it("selects the stylesheet line it names", async () => {
     vi.stubGlobal(
