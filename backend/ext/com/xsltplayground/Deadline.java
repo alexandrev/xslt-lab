@@ -24,9 +24,11 @@ import java.util.concurrent.atomic.AtomicReference;
  * interrupted, and if it ignores that (Saxon does not poll for interrupts) it
  * is stopped. The caller gets an ordinary error before Go's timeout, so the
  * user sees why rather than a 503. Thread.stop still works on the JDK 17
- * runtime the image installs; if it ever stops working, the daemon reports
- * itself unhealthy and the liveness probe replaces the container instead of
- * letting it burn CPU unnoticed.
+ * runtime the image installs. A thread that survives even that leaves this JVM
+ * burning a core for good, so the daemon answers the request and then exits;
+ * start.sh restarts that one JVM in seconds. (Until 2026-10-01 it only
+ * reported itself unhealthy, and the liveness probe replaced the whole
+ * container, all three daemons and the Go server with it.)
  *
  * It also answers for a handler that died without answering. The handlers
  * catch Exception, but runaway recursion ends in StackOverflowError (Saxon 9)
@@ -94,10 +96,11 @@ final class Deadline {
                 return;
             }
 
-            if (worker.isAlive()) {
+            boolean survived = worker.isAlive();
+            if (survived) {
                 POISONED.set(true);
                 System.err.println("Deadline: " + worker.getName()
-                        + " survived Thread.stop; reporting unhealthy so the container is replaced");
+                        + " survived Thread.stop; exiting so start.sh restarts this JVM");
             } else {
                 System.err.println("Deadline: stopped " + worker.getName()
                         + " after " + LIMIT_MS + " ms");
@@ -106,7 +109,18 @@ final class Deadline {
                     + "Look for a template or function that recurses without end, or a loop over a very "
                     + "large input. Tracing makes a transformation many times slower, so if trace is on, "
                     + "try it with trace off.");
+            if (survived) exitSoon();
         };
+    }
+
+    /** Exit once the reply above has had time to leave; start.sh restarts us. */
+    private static void exitSoon() {
+        Thread t = new Thread(() -> {
+            try { Thread.sleep(300); } catch (InterruptedException ignored) { }
+            System.exit(3);
+        }, "deadline-exit");
+        t.setDaemon(false);
+        t.start();
     }
 
     private static String diagnose(Throwable t) {
