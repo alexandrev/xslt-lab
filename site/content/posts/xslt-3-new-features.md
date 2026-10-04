@@ -95,3 +95,7 @@ Packages reduce coupling and enable reuse across projects without copy-paste.
 All the examples above run in the [XSLT 3.0 Online Tester](https://xsltplayground.com/xslt-3-0/) — Saxon 12 included, no install. Maps and JSON support are the quickest to explore. Paste the `json-to-xml()` example, provide a JSON string as input, and see the intermediate representation immediately.
 
 XSLT 3.0 is available today. If your integration still targets 2.0, the features above are the best reasons to upgrade.
+
+## What comes after 3.0
+
+XSLT 4.0 is in draft, and most of its additions are shortcuts for things you already do in 3.0 — `xsl:switch`, optional function parameters, `xsl:array`, ordered maps. [XSLT 4.0: what's new](https://xsltplayground.com/blog/posts/xslt-4-0-new-features/) shows each one next to the 3.0 code that does the same job today.
