@@ -379,7 +379,7 @@ func corsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, X-Synthetic-Check")
 		// The editor's POST carries Content-Type: application/json, so every one
 		// is preceded by a CORS preflight. Without Max-Age the browser keeps the
 		// answer for a few seconds and asks again: 6,483 OPTIONS against 14,916
@@ -458,16 +458,31 @@ func main() {
 	registerFiddleRoutes(r, db)
 
 	r.POST("/transform", func(c *gin.Context) {
+		// The production smoke test (charts/…/smoke) runs every 15 minutes and
+		// marks its requests. They are served normally but kept out of the
+		// metrics and the error log, which would otherwise count ~40 synthetic
+		// transformations an hour alongside real use.
+		synthetic := c.GetHeader("X-Synthetic-Check") != ""
+		countTransform := func(version, status string) {
+			if !synthetic {
+				transformationsTotal.WithLabelValues(version, status).Inc()
+			}
+		}
+		logError := func(classOverride, version, errMsg string, req TransformRequest, sourceXML, sourceKey, clientIP string) {
+			if !synthetic {
+				logTransformError(classOverride, version, errMsg, req, sourceXML, sourceKey, clientIP)
+			}
+		}
 		var req TransformRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
-			transformationsTotal.WithLabelValues("unknown", "bad_request").Inc()
+			countTransform("unknown", "bad_request")
 			log.Printf("bind request failed: %v (content-length=%d)", err, c.Request.ContentLength)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 		version := normalizeVersion(req.Version)
 		if req.Version != "" && version == "invalid" {
-			transformationsTotal.WithLabelValues("invalid", "bad_request").Inc()
+			countTransform("invalid", "bad_request")
 			c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported XSLT version: must be 1.0, 2.0 or 3.0"})
 			return
 		}
@@ -511,7 +526,7 @@ func main() {
 		}
 		daemonBody, err := json.Marshal(daemonReq)
 		if err != nil {
-			transformationsTotal.WithLabelValues(version, "error").Inc()
+			countTransform(version, "error")
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot encode request"})
 			return
 		}
@@ -548,9 +563,9 @@ func main() {
 			bytes.NewReader(daemonBody),
 		)
 		if err != nil {
-			transformationsTotal.WithLabelValues(version, "unavailable").Inc()
+			countTransform(version, "unavailable")
 			log.Printf("daemon call failed: %v", err)
-			logTransformError("backend", version, "daemon unavailable: "+err.Error(), req, sourceXML, sourceKey, c.ClientIP())
+			logError("backend", version, "daemon unavailable: "+err.Error(), req, sourceXML, sourceKey, c.ClientIP())
 			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "transform service unavailable"})
 			return
 		}
@@ -558,13 +573,15 @@ func main() {
 
 		respBody, err := io.ReadAll(resp.Body)
 		if err != nil {
-			transformationsTotal.WithLabelValues(version, "error").Inc()
-			logTransformError("backend", version, "cannot read daemon response: "+err.Error(), req, sourceXML, sourceKey, c.ClientIP())
+			countTransform(version, "error")
+			logError("backend", version, "cannot read daemon response: "+err.Error(), req, sourceXML, sourceKey, c.ClientIP())
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot read daemon response"})
 			return
 		}
 		elapsed := time.Since(start)
-		transformationDuration.WithLabelValues(version).Observe(elapsed.Seconds())
+		if !synthetic {
+			transformationDuration.WithLabelValues(version).Observe(elapsed.Seconds())
+		}
 		duration := elapsed.Milliseconds()
 
 		var daemonResp struct {
@@ -574,16 +591,16 @@ func main() {
 			SecondaryResults map[string]string `json:"secondaryResults"`
 		}
 		if err := json.Unmarshal(respBody, &daemonResp); err != nil {
-			transformationsTotal.WithLabelValues(version, "error").Inc()
-			logTransformError("backend", version, "cannot parse daemon response: "+truncateForLog(string(respBody), 500), req, sourceXML, sourceKey, c.ClientIP())
+			countTransform(version, "error")
+			logError("backend", version, "cannot parse daemon response: "+truncateForLog(string(respBody), 500), req, sourceXML, sourceKey, c.ClientIP())
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot parse daemon response"})
 			return
 		}
 
 		if daemonResp.Error != "" {
-			transformationsTotal.WithLabelValues(version, "error").Inc()
+			countTransform(version, "error")
 			log.Printf("transform error after %dms: %s", duration, daemonResp.Error)
-			logTransformError("", version, daemonResp.Error, req, sourceXML, sourceKey, c.ClientIP())
+			logError("", version, daemonResp.Error, req, sourceXML, sourceKey, c.ClientIP())
 			userMsg := daemonResp.Error
 			if friendly, ok := explainMissingInput(version, sourceXML, daemonResp.Error); ok {
 				userMsg = friendly
@@ -647,7 +664,7 @@ func main() {
 			traceText = strings.Join(filtered, "\n")
 		}
 
-		transformationsTotal.WithLabelValues(version, "success").Inc()
+		countTransform(version, "success")
 
 		c.JSON(http.StatusOK, TransformResponse{
 			Result:           daemonResp.Result,

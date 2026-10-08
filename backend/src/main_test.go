@@ -208,6 +208,15 @@ func TestCorsMiddlewareHandlesOptionsRequests(t *testing.T) {
 	if handlerCalled {
 		t.Fatalf("handler should not be called for OPTIONS requests")
 	}
+	// The browser caches the preflight for this long instead of repeating it.
+	if got := rec.Header().Get("Access-Control-Max-Age"); got != "86400" {
+		t.Errorf("expected Access-Control-Max-Age 86400, got %q", got)
+	}
+	// The production smoke test marks its requests with this header; if CORS
+	// does not allow it, the browser blocks every one of its transformations.
+	if got := rec.Header().Get("Access-Control-Allow-Headers"); !strings.Contains(got, "X-Synthetic-Check") {
+		t.Errorf("expected X-Synthetic-Check in Access-Control-Allow-Headers, got %q", got)
+	}
 }
 
 func TestClassifyTransformError(t *testing.T) {
