@@ -1,0 +1,113 @@
+{{- if .Values.smoke.enabled }}
+{{- $name := printf "%s-smoke" (include "xslt-playground.fullname" .) }}
+# Production smoke test: Playwright against the public site every few minutes.
+# The spec lives in files/smoke/ and also runs in CI. It blocks analytics,
+# drops ad decisions and marks its requests as synthetic, so it does not show
+# up in the numbers it is guarding.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "xslt-playground.labels" . | nindent 4 }}
+data:
+  smoke.spec.js: |-
+{{ .Files.Get "files/smoke/smoke.spec.js" | indent 4 }}
+  playwright.config.js: |-
+{{ .Files.Get "files/smoke/playwright.config.js" | indent 4 }}
+  package.json: |-
+{{ .Files.Get "files/smoke/package.json" | indent 4 }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "xslt-playground.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.smoke.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: {{ .Values.smoke.deadlineSeconds }}
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/component: smoke
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: smoke
+              # The image's Playwright version and the npm package must match.
+              image: "mcr.microsoft.com/playwright:v{{ .Values.smoke.playwrightVersion }}-jammy"
+              env:
+                - name: SMOKE_BASE_URL
+                  value: {{ .Values.smoke.baseUrl | quote }}
+                - name: SMOKE_BACKEND_URL
+                  value: {{ .Values.smoke.backendUrl | quote }}
+                - name: CI
+                  value: "true"
+              command:
+                - sh
+                - -c
+                - |
+                  set -e
+                  mkdir -p /work && cp /smoke/* /work/ && cd /work
+                  npm install --no-audit --no-fund --silent @playwright/test@{{ .Values.smoke.playwrightVersion }}
+                  npx playwright test
+              volumeMounts:
+                - name: spec
+                  mountPath: /smoke
+              resources:
+                requests:
+                  cpu: 200m
+                  memory: 512Mi
+                limits:
+                  memory: 1536Mi
+          volumes:
+            - name: spec
+              configMap:
+                name: {{ $name }}
+{{- if .Values.smoke.alert.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "xslt-playground.labels" . | nindent 4 }}
+    {{- toYaml .Values.smoke.alert.labels | nindent 4 }}
+spec:
+  groups:
+    - name: xslt-playground-smoke
+      rules:
+        # No successful run for a while. kube_job_status_completion_time is only
+        # set on jobs that succeeded, so this catches failures and a CronJob
+        # that stopped running alike.
+        - alert: XsltPlaygroundSmokeTestFailing
+          expr: |
+            time() - max(kube_job_status_completion_time{namespace="{{ .Release.Namespace }}", job_name=~"{{ $name }}-.*"}) > {{ .Values.smoke.alert.staleSeconds }}
+          for: 5m
+          labels:
+            severity: {{ .Values.smoke.alert.severity }}
+          annotations:
+            summary: "XSLT Playground smoke test has not passed recently"
+            description: "No successful run of the production smoke test for more than {{ div .Values.smoke.alert.staleSeconds 60 }} minutes. Logs: kubectl -n {{ .Release.Namespace }} logs job/<latest {{ $name }} job>."
+        # Never succeeded at all (or every successful job has been cleaned up).
+        # Kept apart, with a longer wait, so a fresh install does not alert
+        # before its first scheduled run.
+        - alert: XsltPlaygroundSmokeTestNeverPassed
+          expr: |
+            absent(kube_job_status_completion_time{namespace="{{ .Release.Namespace }}", job_name=~"{{ $name }}-.*"})
+          for: 45m
+          labels:
+            severity: {{ .Values.smoke.alert.severity }}
+          annotations:
+            summary: "XSLT Playground smoke test has no successful run on record"
+            description: "kube-state-metrics shows no completed {{ $name }} job. Check the CronJob and its latest pod logs in {{ .Release.Namespace }}."
+{{- end }}
+{{- end }}

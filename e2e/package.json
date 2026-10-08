@@ -1,0 +1,12 @@
+{
+  "name": "xslt-lab-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --project=smoke"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0"
+  }
+}

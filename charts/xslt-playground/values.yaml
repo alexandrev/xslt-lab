@@ -124,3 +124,21 @@ metrics:
     label: grafana_dashboard
     labelValue: "1"
 
+
+# Production smoke test (Playwright, files/smoke/). Off by default; gitops
+# enables it for the public deployment.
+smoke:
+  enabled: false
+  schedule: "*/15 * * * *"
+  baseUrl: https://xsltplayground.com
+  backendUrl: https://backend.xsltplayground.com
+  playwrightVersion: "1.64.0"
+  deadlineSeconds: 300
+  alert:
+    enabled: true
+    # Two missed runs and a bit: 15-minute schedule.
+    staleSeconds: 2700
+    severity: warning
+    # kube-prometheus-stack only loads rules carrying its release label.
+    labels:
+      release: kube-prom-stack

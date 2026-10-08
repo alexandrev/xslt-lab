@@ -1,0 +1,15 @@
+# Overlay for the end-to-end tests (e2e/), on top of docker-compose.local.yml:
+#   docker compose -f docker-compose.local.yml -f docker-compose.e2e.yml up -d --build
+# Adds a second frontend with a sponsor configured, to test the sponsor bar and
+# an env.js carrying a JSON value with quotes.
+services:
+  frontend-sponsor:
+    build:
+      context: ./frontend
+    environment:
+      VITE_BACKEND_URL: http://localhost:8000
+      VITE_SPONSOR: '{"name":"Acme \"XML\" Tools","tagline":"Validate at scale","url":"https://acme.example/xml"}'
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
