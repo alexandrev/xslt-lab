@@ -21,6 +21,8 @@ import { findUnfinishedExpression, findNotAStylesheet } from "./lib/autoRunGate"
 import { reviewWorkspace } from "./lib/reviewRules";
 import { diffLines } from "./lib/diffUtils";
 import { encodeCompact, decodeCompact, toSharePayload, fromSharePayload, saveFiddle, loadFiddle } from "./lib/shareLink";
+import { openInKotej, fileNameFor } from "./lib/kotej";
+import { recordRun, loadHistory, saveHistory, pruneHistories, ago } from "./lib/runHistory";
 
 /* global __APP_VERSION__, __GIT_COMMIT__ */
 
@@ -975,6 +977,8 @@ export default function App() {
   const forcedTextRef = useRef(null);
   const [forceRun, setForceRun] = useState(0);
   const [compareOpen, setCompareOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [versions, setVersions] = useState([]); // historial de versiones de la pestaña activa
   const [fiddleState, setFiddleState] = useState(null); // { id, revision } de la pestaña activa
   const [fiddleSaving, setFiddleSaving] = useState(false);
   const [xsltBeforeFormat, setXsltBeforeFormat] = useState(null);
@@ -1114,6 +1118,16 @@ export default function App() {
     } catch {}
   }, [workspaceStatus]);
 
+  // Each tab's version history lives under its own key, so it never weighs on
+  // saving the workspaces, and goes when the tab does.
+  useEffect(() => {
+    setVersions(loadHistory(active));
+  }, [active]);
+  const tabIdsKey = tabs.map((t) => t.id).join(",");
+  useEffect(() => {
+    if (tabIdsKey) pruneHistories(tabIdsKey.split(","));
+  }, [tabIdsKey]);
+
   useEffect(() => {
     try { localStorage.setItem("traceEnabled", JSON.stringify(traceEnabled)); } catch {}
   }, [traceEnabled]);
@@ -1247,6 +1261,27 @@ export default function App() {
   const canCopyErrors = Boolean((errorLines && errorLines.length) || error);
   const showResultPane = !error;
   const canRenderHtml = useMemo(() => looksLikeHtml(result), [result]);
+
+  // Comparisons open in Kotej, which diffs XML by structure and lays the
+  // differences out side by side, unified or word by word.
+  const sendToKotej = (kind, sides) => {
+    if (!openInKotej(kind, sides)) {
+      window.alert("Your browser blocked the Kotej window. Allow pop-ups for this site and try again.");
+    }
+  };
+  const restoreVersion = (v) => {
+    setTabs((current) =>
+      current.map((t) => {
+        if (t.id !== active) return t;
+        const params =
+          typeof v.input === "string" && t.params?.length
+            ? t.params.map((p, i) => (i === 0 ? { ...p, value: v.input } : p))
+            : t.params;
+        return { ...t, xslt: v.xslt, version: v.version || t.version, params };
+      }),
+    );
+    window.gtag?.("event", "version_restored", { event_category: "engagement" });
+  };
   const effectiveResultView = canRenderHtml ? resultView || "source" : "source";
   const TRACE_NAME_LIMIT = 80;
   const TRACE_VALUE_LIMIT = 200;
@@ -1804,6 +1839,9 @@ export default function App() {
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
     transformAbortRef.current = controller;
     const stale = () => seq !== transformSeqRef.current;
+    // What ran, as the user wrote it (before the parameter block is injected),
+    // for the version history.
+    const ranTab = tabs.find((t) => t.id === tabId);
     updateWorkspaceStatus(tabId, (prev) => ({ ...prev, isRunning: true }));
     const paramObj = {};
     p.forEach((pr) => {
@@ -1864,6 +1902,15 @@ export default function App() {
       const defaultView = looksLikeHtml(data.result) ? "render" : "source";
       setTransformCount((prev) => prev + 1);
       if (userInteracted) setUserHasTransformed(true);
+      if (ranTab && typeof data.result === "string") {
+        const history = saveHistory(tabId, recordRun(loadHistory(tabId), {
+          xslt: ranTab.xslt,
+          input: ranTab.params?.[0]?.value,
+          output: data.result,
+          version: ranTab.version,
+        }));
+        if (tabId === active) setVersions(history);
+      }
       maybeRefreshAd();
       setResultBeforeFormat(null);
       setXsltBeforeFormat(null);
@@ -3317,6 +3364,19 @@ export default function App() {
                           <span className="diff-removed">−</span> expected but missing ·
                           whitespace ignored
                         </p>
+                        <button
+                          type="button"
+                          className="history-btn kotej-open"
+                          title="Compare in Kotej: XML by structure, so attribute order and formatting don't count"
+                          onClick={() =>
+                            sendToKotej("expected", {
+                              left: { name: fileNameFor("expected", activeTab.expected), text: activeTab.expected },
+                              right: { name: fileNameFor("output", result), text: result },
+                            })
+                          }
+                        >
+                          Open full diff in Kotej ↗
+                        </button>
                       </>
                     );
                   })()
@@ -3324,6 +3384,110 @@ export default function App() {
                   <p className="compare-legend">
                     Run the transform and paste an expected result to compare them.
                   </p>
+                )}
+              </div>
+            )}
+            {historyOpen && (
+              <div className="compare-panel history-panel">
+                <p className="compare-label">Version history</p>
+                {versions.length === 0 ? (
+                  <p className="compare-legend">
+                    Every run is kept here as a version, so you can compare it
+                    with the current one or bring it back.
+                  </p>
+                ) : (
+                  <ul className="history-list">
+                    {versions.map((v) => {
+                      const sameStylesheet = v.xslt === activeTab.xslt;
+                      const isCurrent = sameStylesheet && v.output === result;
+                      return (
+                        <li key={v.n} className="history-item">
+                          <span className="history-name">v{v.n}</span>
+                          <span className="history-when">
+                            {ago(v.at)}
+                            {isCurrent ? " · current" : ""}
+                          </span>
+                          <span className="history-actions">
+                            <button
+                              type="button"
+                              className="history-btn"
+                              disabled={isCurrent || !result}
+                              title="Compare this version's output with the current output, in Kotej"
+                              onClick={() =>
+                                sendToKotej("history", {
+                                  left: { name: fileNameFor(`output v${v.n}`, v.output), text: v.output },
+                                  right: { name: fileNameFor("output now", result), text: result },
+                                })
+                              }
+                            >
+                              Diff output
+                            </button>
+                            <button
+                              type="button"
+                              className="history-btn"
+                              disabled={sameStylesheet}
+                              title="Compare this version's stylesheet with the current one, in Kotej"
+                              onClick={() =>
+                                sendToKotej("history", {
+                                  left: { name: `stylesheet v${v.n}.xsl`, text: v.xslt },
+                                  right: { name: "stylesheet now.xsl", text: activeTab.xslt },
+                                })
+                              }
+                            >
+                              Diff stylesheet
+                            </button>
+                            <button
+                              type="button"
+                              className="history-btn"
+                              disabled={isCurrent}
+                              title="Bring this version's stylesheet and input back"
+                              onClick={() => restoreVersion(v)}
+                            >
+                              Restore
+                            </button>
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                {fiddleState?.revision > 1 && (
+                  <>
+                    <p className="compare-label">Saved revisions of fiddle {fiddleState.id}</p>
+                    <ul className="history-list">
+                      {Array.from(
+                        { length: Math.min(fiddleState.revision, 10) },
+                        (_, i) => fiddleState.revision - i,
+                      ).map((rev) => (
+                        <li key={rev} className="history-item">
+                          <span className="history-name">rev {rev}</span>
+                          <span className="history-actions">
+                            <button
+                              type="button"
+                              className="history-btn"
+                              title="Compare this saved revision's stylesheet with the current one, in Kotej"
+                              onClick={() => {
+                                const now = activeTab.xslt;
+                                const id = fiddleState.id;
+                                sendToKotej(
+                                  "revision",
+                                  loadFiddle(backendBase, id, rev).then((res) => {
+                                    if (!res) throw new Error("revision not found");
+                                    return {
+                                      left: { name: `fiddle ${id} rev ${rev}.xsl`, text: res.overrides.xslt },
+                                      right: { name: "stylesheet now.xsl", text: now },
+                                    };
+                                  }),
+                                );
+                              }}
+                            >
+                              Diff stylesheet
+                            </button>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
                 )}
               </div>
             )}
@@ -3335,6 +3499,14 @@ export default function App() {
                 title="Compare the output against an expected result"
               >
                 Compare
+              </button>
+              <button
+                type="button"
+                className={`compare-toggle${historyOpen ? " active" : ""}`}
+                onClick={() => setHistoryOpen((v) => !v)}
+                title="Earlier versions of this stylesheet and their output"
+              >
+                History{versions.length ? ` (${versions.length})` : ""}
               </button>
               <button
                 type="button"
