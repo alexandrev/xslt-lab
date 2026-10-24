@@ -1,5 +1,5 @@
 // Opening a comparison in Kotej, the folder and file comparator
-// (https://kotej.alexandre-vazquez.cloud): two versions of a stylesheet or of
+// (https://kotej.app): two versions of a stylesheet or of
 // its output, or the output against the expected result, shown with Kotej's
 // semantic XML diff and its unified and word-by-word layouts.
 //
@@ -11,7 +11,7 @@
 const env = (typeof window !== "undefined" && window.env) || import.meta.env || {};
 
 /** Where Kotej lives. Overridable at runtime for a move to another domain. */
-export const KOTEJ_URL = (env.VITE_KOTEJ_URL || "https://kotej.alexandre-vazquez.cloud").replace(/\/$/, "");
+export const KOTEJ_URL = (env.VITE_KOTEJ_URL || "https://kotej.app").replace(/\/$/, "");
 
 // Its origins: the current one, and the domain it is moving to, so a redirect
 // between the two doesn't break the exchange.
