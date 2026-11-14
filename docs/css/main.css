@@ -462,13 +462,16 @@ code {
 
 .article-layout {
   display: grid;
-  grid-template-columns: 1fr 160px;
+  /* minmax(0, …), not 1fr: a bare 1fr column grows to fit its widest code
+     block, which pushed every post (and its call-to-action box) past the
+     screen edge on phones. */
+  grid-template-columns: minmax(0, 1fr) 160px;
   gap: 48px;
   align-items: start;
 }
 
 .article-layout--no-ad {
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .article-sidebar {
@@ -481,7 +484,7 @@ code {
 
 @media (max-width: 860px) {
   .article-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .article-sidebar {
     display: none;
@@ -534,3 +537,15 @@ code {
 .sponsor-card__about { font-size: 0.78rem; color: #4b5563; }
 .ad .sponsor-card, .sponsor-strip .sponsor-card { max-width: none; }
 .sponsor-strip { margin-top: 1rem; }
+
+/* Long code lines and wide tables scroll inside their own box instead of
+   widening the page. */
+.content pre,
+.content table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.content table {
+  display: block;
+}
