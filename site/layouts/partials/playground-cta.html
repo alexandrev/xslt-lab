@@ -1,4 +1,18 @@
-{{- if eq .Section "posts" -}}
+{{- if or (eq .Section "posts") (eq .Section "chrome-xslt") -}}
+{{- if in .Params.tags "chrome" -}}
+{{- /* The Chrome pages bring in most of the blog's search traffic, but the
+       generic box below never reached the banner page (wrong section) and
+       read as an ad to people fixing their own site. This one offers the
+       one step every migration path starts with. */ -}}
+<aside class="playground-cta">
+  <div class="playground-cta__body">
+    <p class="playground-cta__eyebrow">Moving XSLT out of the browser?</p>
+    <p class="playground-cta__headline">Run your stylesheet outside the browser</p>
+    <p class="playground-cta__sub">XSLT Playground runs it with a real XSLT 1.0 processor, the version Chrome supported. Paste the stylesheet and a sample XML file and compare the result with what the browser showed. Free, no sign-up.</p>
+  </div>
+  <a class="button" href="https://xsltplayground.com/?template=xml-to-html" target="_blank" rel="noopener">Test my stylesheet →</a>
+</aside>
+{{- else -}}
 <aside class="playground-cta">
   <div class="playground-cta__body">
     <p class="playground-cta__eyebrow">XSLT Playground</p>
@@ -7,4 +21,5 @@
   </div>
   <a class="button" href="https://xsltplayground.com" target="_blank" rel="noopener noreferrer">Try it free →</a>
 </aside>
+{{- end -}}
 {{- end -}}

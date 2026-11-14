@@ -5,7 +5,7 @@ date: 2026-08-14T00:00:00Z
 tags: ["xslt", "chrome", "browser", "deprecation", "migration"]
 ---
 
-**Quick answer:** Chrome removes built-in XSLT support in **version 158, shipping November 17, 2026**, with deprecation warnings already appearing since Chrome 142–143 ([official announcement](https://developer.chrome.com/docs/web-platform/deprecating-xslt)). Both the `XSLTProcessor` JavaScript API and `<?xml-stylesheet?>` processing instructions stop working. Firefox and WebKit have signalled they will follow. Your migration options are a WASM polyfill, server-side transformation, or build-time precompilation — and you can verify today whether your stylesheets run correctly outside the browser.
+**Quick answer:** Chrome removes built-in XSLT support in **version 158, shipping November 17, 2026**, with deprecation warnings already appearing since Chrome 142–143 ([official announcement](https://developer.chrome.com/docs/web-platform/deprecating-xslt)). Both the `XSLTProcessor` JavaScript API and `<?xml-stylesheet?>` processing instructions stop working. Firefox and WebKit have signalled they will follow. Your migration options are a WASM polyfill, server-side transformation, or build-time precompilation — and you can [check whether your stylesheets run correctly outside the browser](https://xsltplayground.com/?template=xml-to-html) right now, before you pick one.
 
 ## What exactly is being removed
 
@@ -38,7 +38,7 @@ Our take: the polyfill is a reasonable *bridge* for a large `XSLTProcessor` code
 
 ## Test your stylesheets outside the browser — today
 
-Before choosing, find out whether your stylesheets even behave the same outside the browser. Paste one into [XSLT Playground](https://xsltplayground.com/) together with a sample XML input and run it with **version = 1.0**. That executes a JAXP (Xalan-class) XSLT 1.0 processor — same spec level and very close semantics to what the browser did, so differences surface immediately (typical ones: reliance on browser-specific output quirks, `document()` calls resolving against URLs, disable-output-escaping).
+Before choosing, find out whether your stylesheets even behave the same outside the browser. Paste one into [XSLT Playground](https://xsltplayground.com/?template=xml-to-html) together with a sample XML input and run it with **version = 1.0**. That executes a JAXP (Xalan-class) XSLT 1.0 processor — same spec level and very close semantics to what the browser did, so differences surface immediately (typical ones: reliance on browser-specific output quirks, `document()` calls resolving against URLs, disable-output-escaping).
 
 Here is a browser-typical stylesheet — XML rendered as an HTML table — run exactly that way:
 
@@ -102,4 +102,4 @@ Two cases get their own page, because they are how most people arrive here: the 
 
 The browser removal lands the same year the venerable FreeFormatter site [shut down](https://xsltplayground.com/blog/posts/freeformatter-xsl-transformer-alternative/) — client-side and ad-supported XSLT are both winding down, while server-side XSLT keeps running payment migrations ([ISO 20022](https://xsltplayground.com/blog/posts/iso-20022-xslt-transformations/)) and e-invoicing validation ([Peppol/EN 16931](https://xsltplayground.com/blog/posts/validate-peppol-schematron-xslt-online/)) at scale. XSLT is not dying; it is relocating.
 
-Test your stylesheets now: **[xsltplayground.com](https://xsltplayground.com/)**.
+Test your stylesheets now: **[run one in XSLT Playground](https://xsltplayground.com/?template=xml-to-html)**.

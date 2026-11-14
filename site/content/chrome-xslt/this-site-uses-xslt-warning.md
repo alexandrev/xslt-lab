@@ -3,7 +3,7 @@ title: "This site uses XSLT: what Chrome's banner means"
 seoTitle: "\"This site uses XSLT; that functionality is being removed\" — what to do"
 description: "Chrome showed a banner saying this site uses XSLT and the page may stop displaying correctly? Nothing is wrong with your computer. Which extension keeps the page working, and what to change if the site is yours."
 date: 2026-09-18T00:00:00Z
-lastmod: 2026-09-28T00:00:00Z
+lastmod: 2026-11-14T00:00:00Z
 tags: ["xslt", "chrome", "deprecation", "migration"]
 ---
 
@@ -13,7 +13,7 @@ This is the banner Chrome shows across the top of certain pages:
 
 **Quick answer:** nothing is wrong with your computer, and it is not a virus or a scam. Chrome is dropping an old feature called XSLT that this page uses to display itself. The page keeps working until **Chrome 158 on 17 November 2026**. After that, you can keep it working by installing the free [XSLT Polyfill extension](https://chromewebstore.google.com/detail/xslt-polyfill/hlahhpnhgficldhfioiafojgdhcppklm), the one [Chrome's own documentation](https://developer.chrome.com/docs/web-platform/deprecating-xslt) points to.
 
-What you do next depends on whose site it is.
+What you do next depends on whose site it is. If it is yours, [test its stylesheet outside the browser](https://xsltplayground.com/?template=xml-to-html) first: every way of fixing it starts there.
 
 ## You were just visiting the site
 
@@ -30,6 +30,8 @@ After 17 November, if you skip all three, you will see a wall of raw code or pla
 ## The site is yours
 
 The banner means Chrome found XSLT on the page. Nothing is broken yet. From Chrome 158 on 17 November 2026 the transformation silently stops happening, and every visitor on Chrome sees the result. You have until then to move it somewhere else.
+
+**Start by running the stylesheet outside the browser.** Whichever fix you choose, the transformation ends up running somewhere other than Chrome. [Open XSLT Playground](https://xsltplayground.com/?template=xml-to-html), paste your stylesheet and a sample of the XML, and run it with a real XSLT 1.0 processor. If the output matches what the browser showed, the rest is plumbing.
 
 ### What triggered it
 
@@ -79,4 +81,4 @@ If yours is a feed, the answer is usually smaller than you fear: [your RSS feed'
 
 Whichever path you take, the transformation moves out of the browser and becomes something you run. That is worth verifying before you plan around it, because browser XSLT is XSLT 1.0 and has its own habits. A stylesheet that worked in Chrome for a decade can turn out to lean on something Chrome was lenient about.
 
-Paste your stylesheet and a sample document into [XSLT Playground](https://xsltplayground.com/?version=1.0) and run it against a real 1.0 processor. If the output matches what the browser produced, your migration is a plumbing exercise. If it doesn't, better to learn that now than in November.
+Paste your stylesheet and a sample document into [XSLT Playground](https://xsltplayground.com/?template=xml-to-html) and run it against a real 1.0 processor. If the output matches what the browser produced, your migration is a plumbing exercise. If it doesn't, better to learn that now than in November.
