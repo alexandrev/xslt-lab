@@ -32,3 +32,5 @@ When moving between XML and JSON/CSV, consider creating a normalized intermediat
 Testing is crucial because formatting errors are easy to miss. Validate JSON output with a JSON parser and load CSV into a spreadsheet or a small parser to confirm columns align. This is also where you will notice if a newline or a stray comma slipped in. To keep iteration fast, run your transform with a tool that allows quick input swaps and immediate output inspection.
 
 If you want a quick way to experiment with JSON or CSV output, the online editor at [https://xsltplayground.com](https://xsltplayground.com) is a great option. It lets you run transforms with multiple inputs and see the serialized output instantly, which makes it easy to refine your JSON and CSV strategies.
+
+Need the opposite direction — reading CSV into XML? [Parsing CSV in XSLT](https://xsltplayground.com/blog/posts/xslt-parse-csv/) has a tested 3.0 parser that handles quoted commas, escaped quotes and line breaks inside fields.
