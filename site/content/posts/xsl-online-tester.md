@@ -3,6 +3,9 @@ title: "XSL online tester: run XSL and XSLT transforms in your browser"
 description: "Free XSL online tester and editor. Run XSL transformations, test XSLT stylesheets and validate XSL-FO output without installing anything."
 date: 2026-04-13T00:00:00Z
 tags: ["xsl", "xslt", "online", "tools"]
+# Old Medium-style URL, still crawled by Google (GSC 404, 19-nov-2026).
+aliases:
+  - /posts/xsl-online-tester/run-xsl-and-xslt-transforms-in-your-browser-a7999776bfb3/
 ---
 
 XSL (Extensible Stylesheet Language) is an umbrella term that covers three related specifications: XSLT for transformations, XPath for node selection, and XSL-FO for formatting objects. When developers search for an "XSL tester" or "XSL online editor", they are usually looking for a way to run XSLT stylesheets against XML input without a local install. [XSLT Playground](https://xsltplayground.com) does exactly that.
