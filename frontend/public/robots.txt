@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://xsltplayground.com/sitemap.xml
+Sitemap: https://xsltplayground.com/blog/sitemap.xml
