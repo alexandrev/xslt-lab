@@ -58,7 +58,7 @@
         "name": "How do I view an XML file with its XSL stylesheet?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Open the XML file in a text editor and find the line that starts with <?xml-stylesheet; its href is the stylesheet's address. Open both files, paste the stylesheet into the left pane of XSLT Playground and the XML into the input parameter. If the result is HTML, it is shown rendered."
+          "text": "Open the XML file in a text editor and find the line that starts with <?xml-stylesheet; its href is the stylesheet's address. Open both files, paste the stylesheet into the left pane of XSLT Playground and the XML into the input parameter. If the result is an HTML page, it is shown rendered."
         }
       },
       {
@@ -74,7 +74,7 @@
         "name": "Can I view XSLT output as HTML?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. When the output looks like HTML it is rendered in a sandboxed frame. A button above the result switches between the rendered page and its source."
+          "text": "Yes. When the output is an HTML page (it starts with <html>, <body> or a doctype) it is rendered in a sandboxed frame. A button above the result switches between the rendered page and its source."
         }
       },
       {
@@ -259,7 +259,7 @@
     <div class="feature-grid">
       <div class="feature-card">
         <h3>Renders the result</h3>
-        <p>When the stylesheet produces HTML, you see the page, in a sandboxed frame, as a browser would have shown it.</p>
+        <p>When the stylesheet produces an HTML page (output starting with <code>&lt;html&gt;</code>, <code>&lt;body&gt;</code> or a doctype), you see it rendered in a sandboxed frame, as a browser would have shown it.</p>
       </div>
       <div class="feature-card">
         <h3>Shows the source</h3>
@@ -280,7 +280,7 @@
         <a href="https://xsltplayground.com/?template=xml-to-html&utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-viewer">viewer</a>.</li>
       <li><strong>Paste the XML</strong> into the <strong>input</strong> parameter. You can leave the
         <code>&lt;?xml-stylesheet?&gt;</code> line in; it is ignored.</li>
-      <li><strong>Read the result.</strong> HTML output is shown rendered. Use the button above it to switch to the source.</li>
+      <li><strong>Read the result.</strong> An HTML page is shown rendered. Use the button above it to switch to the source.</li>
     </ol>
 
     <h2>An example</h2>
@@ -290,22 +290,27 @@
   &lt;order id="2" country="FR" total="80.00"/&gt;
   ...
 &lt;/orders&gt;</code></pre>
-    <p>and an XSLT 1.0 stylesheet that turns it into an HTML table:</p>
+    <p>and an XSLT 1.0 stylesheet that turns it into an HTML page with a table:</p>
     <pre><code>&lt;xsl:output method="html" indent="yes"/&gt;
 
 &lt;xsl:template match="/"&gt;
-  &lt;table border="1"&gt;
-    &lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Country&lt;/th&gt;&lt;th&gt;Total&lt;/th&gt;&lt;/tr&gt;
-    &lt;xsl:for-each select="orders/order"&gt;
-      &lt;tr&gt;
-        &lt;td&gt;&lt;xsl:value-of select="@id"/&gt;&lt;/td&gt;
-        &lt;td&gt;&lt;xsl:value-of select="@country"/&gt;&lt;/td&gt;
-        &lt;td&gt;&lt;xsl:value-of select="@total"/&gt;&lt;/td&gt;
-      &lt;/tr&gt;
-    &lt;/xsl:for-each&gt;
-  &lt;/table&gt;
+  &lt;html&gt;
+    &lt;body&gt;
+      &lt;h1&gt;Orders&lt;/h1&gt;
+      &lt;table border="1"&gt;
+        &lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Country&lt;/th&gt;&lt;th&gt;Total&lt;/th&gt;&lt;/tr&gt;
+        &lt;xsl:for-each select="orders/order"&gt;
+          &lt;tr&gt;
+            &lt;td&gt;&lt;xsl:value-of select="@id"/&gt;&lt;/td&gt;
+            &lt;td&gt;&lt;xsl:value-of select="@country"/&gt;&lt;/td&gt;
+            &lt;td&gt;&lt;xsl:value-of select="@total"/&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/xsl:for-each&gt;
+      &lt;/table&gt;
+    &lt;/body&gt;
+  &lt;/html&gt;
 &lt;/xsl:template&gt;</code></pre>
-    <p>The result pane shows the table rendered. Replace either side with your own files and it updates as you type.</p>
+    <p>The result pane shows the page rendered. Replace either side with your own files and it updates as you type.</p>
 
     <h2>When the result does not look like the original</h2>
     <ul>
@@ -330,13 +335,13 @@
     <h2>Frequently Asked Questions</h2>
     <dl>
       <dt>How do I view an XML file with its XSL stylesheet?</dt>
-      <dd>Open the XML file in a text editor and find the line that starts with &lt;?xml-stylesheet; its href is the stylesheet's address. Open both files, paste the stylesheet into the left pane of <a href="https://xsltplayground.com/?template=xml-to-html&utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-viewer">XSLT Playground</a> and the XML into the input parameter. If the result is HTML, it is shown rendered.</dd>
+      <dd>Open the XML file in a text editor and find the line that starts with &lt;?xml-stylesheet; its href is the stylesheet's address. Open both files, paste the stylesheet into the left pane of <a href="https://xsltplayground.com/?template=xml-to-html&utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-viewer">XSLT Playground</a> and the XML into the input parameter. If the result is an HTML page, it is shown rendered.</dd>
 
       <dt>Why does Chrome show my XML file as plain text now?</dt>
       <dd>Chrome 158, released on 17 November 2026, removed XSLT. Files that relied on an &lt;?xml-stylesheet?&gt; line to display themselves now show raw XML and the message "This document cannot be formatted as intended". The data is intact; the browser just no longer applies the stylesheet.</dd>
 
       <dt>Can I view XSLT output as HTML?</dt>
-      <dd>Yes. When the output looks like HTML it is rendered in a sandboxed frame. A button above the result switches between the rendered page and its source.</dd>
+      <dd>Yes. When the output is an HTML page (it starts with &lt;html&gt;, &lt;body&gt; or a doctype) it is rendered in a sandboxed frame. A button above the result switches between the rendered page and its source.</dd>
 
       <dt>Why do images or styles not appear in the rendered output?</dt>
       <dd>Relative addresses in the output, such as images/logo.png or style.css, were relative to the original site. In the viewer they point nowhere. Make them absolute URLs to see them. JavaScript in the output does not run in the preview.</dd>

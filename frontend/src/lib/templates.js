@@ -33,23 +33,31 @@ export const TEMPLATES = [
   {
     id: "xml-to-html",
     title: "XML → HTML table",
-    description: "Render a document as an HTML table with xsl:for-each.",
+    description: "Render a document as an HTML page with a table, using xsl:for-each.",
     version: "1.0",
+    // A whole page, not a bare <table>: the result pane only renders output
+    // that starts with <html>, <body> or a doctype, and the /xslt-viewer/
+    // landing opens this template to show the rendered result.
     xslt: sheet(
       "1.0",
       `  <xsl:output method="html" indent="yes"/>
 
   <xsl:template match="/">
-    <table border="1">
-      <tr><th>ID</th><th>Country</th><th>Total</th></tr>
-      <xsl:for-each select="orders/order">
-        <tr>
-          <td><xsl:value-of select="@id"/></td>
-          <td><xsl:value-of select="@country"/></td>
-          <td><xsl:value-of select="@total"/></td>
-        </tr>
-      </xsl:for-each>
-    </table>
+    <html>
+      <body>
+        <h1>Orders</h1>
+        <table border="1">
+          <tr><th>ID</th><th>Country</th><th>Total</th></tr>
+          <xsl:for-each select="orders/order">
+            <tr>
+              <td><xsl:value-of select="@id"/></td>
+              <td><xsl:value-of select="@country"/></td>
+              <td><xsl:value-of select="@total"/></td>
+            </tr>
+          </xsl:for-each>
+        </table>
+      </body>
+    </html>
   </xsl:template>`,
     ),
     params: [{ name: "input", value: ORDERS_XML, open: true }],
