@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XSLT Validator Online — Check XSLT 1.0, 2.0 and 3.0 Stylesheets | XSLT Playground</title>
+  <meta name="description" content="Validate XSLT online for free. Paste a stylesheet and get the real processor's error with its line number: XSLT 1.0 on XSLTC, 2.0 and 3.0 on Saxon HE 12.9. No install, no sign-up." />
+  <link rel="canonical" href="https://xsltplayground.com/xslt-validator/" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <meta property="og:title" content="XSLT Validator Online — Check XSLT 1.0, 2.0 and 3.0 Stylesheets" />
+  <meta property="og:description" content="Paste a stylesheet, get the real processor's error and the line it is on. XSLT 1.0, 2.0 and 3.0, free, no install." />
+  <meta property="og:url" content="https://xsltplayground.com/xslt-validator/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://xsltplayground.com/og-image.png" />
+  <script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": [
+      "WebApplication",
+      "SoftwareApplication"
+    ],
+    "name": "XSLT Validator Online",
+    "url": "https://xsltplayground.com/xslt-validator/",
+    "description": "Free online XSLT validator. Checks that a stylesheet is well-formed XML, compiles it with a real XSLT processor (XSLTC for 1.0, Saxon HE 12.9 for 2.0 and 3.0) and runs it against sample input, reporting each error with its line number.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "XSLT Online",
+        "item": "https://xsltplayground.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "XSLT Validator",
+        "item": "https://xsltplayground.com/xslt-validator/"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I validate an XSLT stylesheet online?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Paste it into the left pane of XSLT Playground, add a sample XML document as the input, and pick the XSLT version. The stylesheet is checked for well-formedness as you type, then compiled and run by a real XSLT processor. Any error appears below the editor with its line number; click it to jump there."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does an XSLT validator check against a schema?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "XSLT has no single schema that catches real mistakes. A stylesheet can be valid against the XSLT schema and still fail to compile because of a bad XPath expression, an undeclared variable or a function the version does not have. That is why this validator compiles the stylesheet with the processor that will run it, instead of checking it against a schema."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does my stylesheet work in XSLT 2.0 but not in 1.0?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Functions such as upper-case(), tokenize(), replace(), format-date() and current-group() do not exist in XSLT 1.0. When the error comes from one of them, the editor says which version the function needs and offers to switch the stylesheet to it."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the stylesheet validated against my real data?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, if you paste it. Some errors only appear at run time with particular input, such as a type error on an empty attribute or a division by zero, so validating with a representative sample catches more than compiling alone."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the XSLT validator free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. No account, no installation and no limit on stylesheets. Transformations run on our server with a timeout of a few seconds each."
+        }
+      }
+    ]
+  }
+]
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; color: #21426c; background: #f5f7fb; }
+    a { color: #2563eb; }
+    header {
+      background: #21426c;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    header img { width: 28px; height: 28px; }
+    header a { color: #fff; text-decoration: none; font-weight: 700; font-size: 1rem; }
+    header nav { margin-left: auto; display: flex; gap: 1.25rem; font-size: 0.9rem; }
+    header nav a { color: #c8d8f0; font-weight: 400; }
+    .hero {
+      background: linear-gradient(135deg, #1a3a5c 0%, #0f5499 100%);
+      color: #fff;
+      padding: 3.5rem 1.5rem 3rem;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2.2rem; margin: 0 0 1rem; }
+    .hero p { color: #fff; font-size: 1.15rem; opacity: 0.9; max-width: 640px; margin: 0 auto 2rem; }
+    .cta-btn {
+      display: inline-block;
+      background: #fff;
+      color: #21426c;
+      font-weight: 700;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1.05rem;
+      transition: background 0.2s;
+    }
+    .cta-btn:hover { background: #e8f0fe; }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 20px;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+    }
+    main { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    h2 { font-size: 1.4rem; margin: 2.5rem 0 0.6rem; color: #1a365d; }
+    h3 { font-size: 1.05rem; margin: 1.8rem 0 0.4rem; color: #21426c; }
+    p { line-height: 1.75; color: #374151; }
+    ul, ol { color: #374151; line-height: 1.75; padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+    code { background: #eef2ff; padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 1rem 1.25rem; border-radius: 8px; overflow-x: auto; line-height: 1.5; }
+    pre code { background: none; padding: 0; color: inherit; font-size: 0.86rem; }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .feature-card {
+      background: #fff;
+      border: 1px solid #dde6f5;
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem;
+    }
+    .feature-card h3 { margin: 0 0 0.4rem; font-size: 1rem; color: #21426c; }
+    .feature-card p { margin: 0; font-size: 0.92rem; }
+    dl dt { font-weight: 700; margin-top: 1.4rem; color: #21426c; }
+    dl dd { margin: 0.25rem 0 0; color: #374151; line-height: 1.7; }
+    .nav-versions { display: flex; gap: 1rem; margin: 2rem 0; flex-wrap: wrap; }
+    .nav-versions a {
+      padding: 0.5rem 1.2rem;
+      border: 2px solid #21426c;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #21426c;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+    .nav-versions a.active { background: #21426c; color: #fff; }
+    .callout {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.5rem 0;
+    }
+    .callout strong { color: #1d4ed8; }
+    .table-wrap { overflow-x: auto; margin: 1.5rem 0; }
+    table { border-collapse: collapse; width: 100%; background: #fff; font-size: 0.92rem; }
+    th, td { border: 1px solid #dde6f5; padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; }
+    th { background: #eef2ff; color: #21426c; }
+    td { color: #374151; line-height: 1.6; }
+    footer {
+      background: #21426c;
+      color: #c8d8f0;
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.88rem;
+    }
+    footer p { color: #c8d8f0; margin: 0; }
+    footer a { color: #93c5fd; }
+    .ea-slot {
+      margin: 0 0 1.5rem;
+      min-height: 90px;
+    }
+    .ea-slot .ethical-ad { max-width: 100%; }
+  </style>
+  <script async src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
+  <!-- Umami: self-hosted, cookieless. The landing pages had no analytics at
+       all, so their traffic was invisible outside Search Console. -->
+  <script defer src="https://umami.alexandre-vazquez.cloud/script.js" data-website-id="043e327b-723e-4efd-9ac9-46589219c706"></script>
+</head>
+<body>
+  <header>
+    <img src="/logo.svg" alt="XSLT Playground logo" />
+    <a href="/?utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-validator">XSLT Playground</a>
+    <nav>
+      <a href="/?utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-validator">Editor</a>
+      <a href="/xslt-2-0/">XSLT 2.0</a>
+      <a href="/xslt-3-0/">XSLT 3.0</a>
+      <a href="https://xsltplayground.com/blog/">Blog</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div class="badge">XSLT 1.0 · 2.0 · 3.0</div>
+    <h1>XSLT Validator Online</h1>
+    <p>Paste a stylesheet and find out whether it actually compiles and runs, with the processor's own error message and the line it points at. Free, no install, no sign-up.</p>
+    <a class="cta-btn" href="https://xsltplayground.com/?utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-validator">Validate my stylesheet →</a>
+  </div>
+
+  <main>
+    <div class="nav-versions">
+      <a href="/?utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-validator">Editor</a>
+      <a href="/xslt-validator/" class="active">Validator</a>
+      <a href="/xslt-viewer/">Viewer</a>
+      <a href="/xpath-tester/">XPath Tester</a>
+      <a href="/xslt-2-0/">XSLT 2.0</a>
+      <a href="/xslt-3-0/">XSLT 3.0</a>
+    </div>
+
+    <!-- One EthicalAds unit: their policy allows a single ad per page, above or
+         below the main content but never inside it. -->
+    <div class="ea-slot">
+      <div class="ethical-ad" data-ea-publisher="xsltplaygroundcom" data-ea-campaign-types="paid|publisher-house" data-ea-type="image"></div>
+    </div>
+
+    <div class="callout">
+      <strong>Validating XSLT means compiling it.</strong>
+      A stylesheet can be perfectly well-formed XML and still be broken: an XPath expression with a missing
+      bracket, a variable that is never declared, a function your XSLT version does not have. Only the
+      processor finds those. This validator runs yours through the real one and shows you exactly what it says.
+    </div>
+
+    <h2>What gets checked</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>1. Well-formed XML</h3>
+        <p>As you type, in your browser. An unclosed tag or a stray <code>&amp;</code> is reported before anything is sent to the server, with the line it is on.</p>
+      </div>
+      <div class="feature-card">
+        <h3>2. Compilation</h3>
+        <p>The stylesheet is compiled by the processor for its version: <strong>XSLTC</strong> for XSLT 1.0, <strong>Saxon HE 12.9</strong> for 2.0 and 3.0. Static errors such as <code>XPST0003</code> come back with their line number.</p>
+      </div>
+      <div class="feature-card">
+        <h3>3. A real run</h3>
+        <p>It is then run against your input. Dynamic errors (type mismatches, missing documents, <code>xsl:message terminate="yes"</code>) only show up here, and so does output that is valid but wrong.</p>
+      </div>
+    </div>
+
+    <h2>An example</h2>
+    <p>This XSLT 3.0 stylesheet is well-formed XML, so an XML validator would accept it. The XPath expression on line 3 is missing its closing bracket:</p>
+    <pre><code>&lt;xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;
+  &lt;xsl:template match="/"&gt;
+    &lt;total&gt;&lt;xsl:value-of select="sum(orders/order/@total"/&gt;&lt;/total&gt;
+  &lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;</code></pre>
+    <p>Saxon rejects it at compile time, and this is the message you get, verbatim:</p>
+    <pre><code>XPST0003: expected ")", found "&lt;eof&gt;" (line 3)</code></pre>
+    <p>
+      The error code is the W3C one, so it means the same thing in every Saxon-based tool, and the editor
+      turns <code>(line 3)</code> into a link that puts the cursor on the line. For the common codes there
+      is a page explaining the usual causes in the
+      <a href="https://xsltplayground.com/blog/xslt/errors/">XSLT error reference</a>.
+    </p>
+
+    <h2>Validating against the right version</h2>
+    <p>
+      The version matters more than it looks. The same stylesheet can be valid in 2.0 and invalid in 1.0,
+      because XSLT 1.0 has a much smaller function library. Validating with the wrong processor gives you a
+      pass that means nothing in production.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Version</th><th>Processor here</th><th>Use it when your stylesheet runs on</th></tr></thead>
+        <tbody>
+          <tr><td>XSLT 1.0</td><td>XSLTC (the JDK's built-in XSLT 1.0 compiler)</td><td>Java's default <code>TransformerFactory</code>, .NET <code>XslCompiledTransform</code>, libxslt, PHP, Python lxml, and stylesheets written for browsers</td></tr>
+          <tr><td>XSLT 2.0</td><td>Saxon HE 12.9</td><td>Saxon in 2.0 mode, older integration platforms</td></tr>
+          <tr><td>XSLT 3.0</td><td>Saxon HE 12.9</td><td>Saxon 9.8 and later, SaxonJS, modern integration platforms</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      When an XSLT 1.0 stylesheet fails because it calls a 2.0 function, the editor names the function and
+      the version it needs, and offers to switch. Try <code>upper-case(@country)</code> in a 1.0 stylesheet
+      to see it.
+    </p>
+
+    <h2>How to validate your stylesheet</h2>
+    <ol>
+      <li><a href="https://xsltplayground.com/?utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-validator">Open the editor</a> and paste your stylesheet into the left pane.</li>
+      <li>Paste a sample of the XML it processes into the <strong>input</strong> parameter.</li>
+      <li>Pick the version from the dropdown, or leave the one in your <code>xsl:stylesheet</code> element.</li>
+      <li>It runs as you type. Fix the first error, and the next one shows up.</li>
+    </ol>
+    <p>
+      If the stylesheet compiles and the output is still not what you expected, switch on
+      <strong>trace</strong> (XSLT 2.0 and 3.0) to see which templates fired and in what order.
+    </p>
+
+    <h2>Also available</h2>
+    <p>Need to see what a stylesheet renders rather than whether it compiles? <a href="/xslt-viewer/">Use the XSLT viewer →</a></p>
+    <p>Debugging the XPath inside it? <a href="/xpath-tester/">Try the XPath tester →</a> · Version-specific pages: <a href="/xslt-2-0/">XSLT 2.0</a>, <a href="/xslt-3-0/">XSLT 3.0</a>.</p>
+
+    <h2>Frequently Asked Questions</h2>
+    <dl>
+      <dt>How do I validate an XSLT stylesheet online?</dt>
+      <dd>Paste it into the left pane of <a href="https://xsltplayground.com/?utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-validator">XSLT Playground</a>, add a sample XML document as the input, and pick the XSLT version. The stylesheet is checked for well-formedness as you type, then compiled and run by a real XSLT processor. Any error appears below the editor with its line number; click it to jump there.</dd>
+
+      <dt>Does an XSLT validator check against a schema?</dt>
+      <dd>XSLT has no single schema that catches real mistakes. A stylesheet can be valid against the XSLT schema and still fail to compile because of a bad XPath expression, an undeclared variable or a function the version does not have. That is why this validator compiles the stylesheet with the processor that will run it, instead of checking it against a schema.</dd>
+
+      <dt>Why does my stylesheet work in XSLT 2.0 but not in 1.0?</dt>
+      <dd>Functions such as upper-case(), tokenize(), replace(), format-date() and current-group() do not exist in XSLT 1.0. When the error comes from one of them, the editor says which version the function needs and offers to switch the stylesheet to it.</dd>
+
+      <dt>Is the stylesheet validated against my real data?</dt>
+      <dd>Yes, if you paste it. Some errors only appear at run time with particular input, such as a type error on an empty attribute or a division by zero, so validating with a representative sample catches more than compiling alone.</dd>
+
+      <dt>Is the XSLT validator free?</dt>
+      <dd>Yes. No account, no installation and no limit on stylesheets. Transformations run on our server with a timeout of a few seconds each.</dd>
+    </dl>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 <a href="https://xsltplayground.com/?utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-validator">XSLT Playground</a> — Free Online XSLT Editor, Tester &amp; Validator</p>
+  </footer>
+</body>
+</html>

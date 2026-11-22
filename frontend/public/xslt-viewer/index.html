@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XSLT Viewer Online — View XML with Its XSL Stylesheet | XSLT Playground</title>
+  <meta name="description" content="View an XML file through its XSL stylesheet online, now that Chrome no longer does. Paste both, see the rendered HTML and its source. XSLT 1.0, 2.0 and 3.0, free, no install." />
+  <link rel="canonical" href="https://xsltplayground.com/xslt-viewer/" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <meta property="og:title" content="XSLT Viewer Online — View XML with Its XSL Stylesheet" />
+  <meta property="og:description" content="Paste the XML and its XSL stylesheet and see the page they make, rendered. Works for the files Chrome now shows as raw XML." />
+  <meta property="og:url" content="https://xsltplayground.com/xslt-viewer/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://xsltplayground.com/og-image.png" />
+  <script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": [
+      "WebApplication",
+      "SoftwareApplication"
+    ],
+    "name": "XSLT Viewer Online",
+    "url": "https://xsltplayground.com/xslt-viewer/",
+    "description": "Free online XSLT viewer. Applies an XSL stylesheet to an XML document with a real XSLT processor and shows the result rendered as a web page or as source. Supports XSLT 1.0, 2.0 and 3.0.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "XSLT Online",
+        "item": "https://xsltplayground.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "XSLT Viewer",
+        "item": "https://xsltplayground.com/xslt-viewer/"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I view an XML file with its XSL stylesheet?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Open the XML file in a text editor and find the line that starts with <?xml-stylesheet; its href is the stylesheet's address. Open both files, paste the stylesheet into the left pane of XSLT Playground and the XML into the input parameter. If the result is HTML, it is shown rendered."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does Chrome show my XML file as plain text now?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Chrome 158, released on 17 November 2026, removed XSLT. Files that relied on an <?xml-stylesheet?> line to display themselves now show raw XML and the message \"This document cannot be formatted as intended\". The data is intact; the browser just no longer applies the stylesheet."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I view XSLT output as HTML?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. When the output looks like HTML it is rendered in a sandboxed frame. A button above the result switches between the rendered page and its source."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why do images or styles not appear in the rendered output?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Relative addresses in the output, such as images/logo.png or style.css, were relative to the original site. In the viewer they point nowhere. Make them absolute URLs to see them. JavaScript in the output does not run in the preview."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the XSLT viewer free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. No account and no installation. The transformation runs on our server and the result comes back to your browser."
+        }
+      }
+    ]
+  }
+]
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; color: #21426c; background: #f5f7fb; }
+    a { color: #2563eb; }
+    header {
+      background: #21426c;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    header img { width: 28px; height: 28px; }
+    header a { color: #fff; text-decoration: none; font-weight: 700; font-size: 1rem; }
+    header nav { margin-left: auto; display: flex; gap: 1.25rem; font-size: 0.9rem; }
+    header nav a { color: #c8d8f0; font-weight: 400; }
+    .hero {
+      background: linear-gradient(135deg, #1a3a5c 0%, #0f5499 100%);
+      color: #fff;
+      padding: 3.5rem 1.5rem 3rem;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2.2rem; margin: 0 0 1rem; }
+    .hero p { color: #fff; font-size: 1.15rem; opacity: 0.9; max-width: 640px; margin: 0 auto 2rem; }
+    .cta-btn {
+      display: inline-block;
+      background: #fff;
+      color: #21426c;
+      font-weight: 700;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1.05rem;
+      transition: background 0.2s;
+    }
+    .cta-btn:hover { background: #e8f0fe; }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 20px;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+    }
+    main { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    h2 { font-size: 1.4rem; margin: 2.5rem 0 0.6rem; color: #1a365d; }
+    h3 { font-size: 1.05rem; margin: 1.8rem 0 0.4rem; color: #21426c; }
+    p { line-height: 1.75; color: #374151; }
+    ul, ol { color: #374151; line-height: 1.75; padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+    code { background: #eef2ff; padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 1rem 1.25rem; border-radius: 8px; overflow-x: auto; line-height: 1.5; }
+    pre code { background: none; padding: 0; color: inherit; font-size: 0.86rem; }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .feature-card {
+      background: #fff;
+      border: 1px solid #dde6f5;
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem;
+    }
+    .feature-card h3 { margin: 0 0 0.4rem; font-size: 1rem; color: #21426c; }
+    .feature-card p { margin: 0; font-size: 0.92rem; }
+    dl dt { font-weight: 700; margin-top: 1.4rem; color: #21426c; }
+    dl dd { margin: 0.25rem 0 0; color: #374151; line-height: 1.7; }
+    .nav-versions { display: flex; gap: 1rem; margin: 2rem 0; flex-wrap: wrap; }
+    .nav-versions a {
+      padding: 0.5rem 1.2rem;
+      border: 2px solid #21426c;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #21426c;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+    .nav-versions a.active { background: #21426c; color: #fff; }
+    .callout {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.5rem 0;
+    }
+    .callout strong { color: #1d4ed8; }
+    .table-wrap { overflow-x: auto; margin: 1.5rem 0; }
+    table { border-collapse: collapse; width: 100%; background: #fff; font-size: 0.92rem; }
+    th, td { border: 1px solid #dde6f5; padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; }
+    th { background: #eef2ff; color: #21426c; }
+    td { color: #374151; line-height: 1.6; }
+    footer {
+      background: #21426c;
+      color: #c8d8f0;
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.88rem;
+    }
+    footer p { color: #c8d8f0; margin: 0; }
+    footer a { color: #93c5fd; }
+    .ea-slot {
+      margin: 0 0 1.5rem;
+      min-height: 90px;
+    }
+    .ea-slot .ethical-ad { max-width: 100%; }
+  </style>
+  <script async src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
+  <!-- Umami: self-hosted, cookieless. The landing pages had no analytics at
+       all, so their traffic was invisible outside Search Console. -->
+  <script defer src="https://umami.alexandre-vazquez.cloud/script.js" data-website-id="043e327b-723e-4efd-9ac9-46589219c706"></script>
+</head>
+<body>
+  <header>
+    <img src="/logo.svg" alt="XSLT Playground logo" />
+    <a href="/?utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-viewer">XSLT Playground</a>
+    <nav>
+      <a href="/?utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-viewer">Editor</a>
+      <a href="/xslt-2-0/">XSLT 2.0</a>
+      <a href="/xslt-3-0/">XSLT 3.0</a>
+      <a href="https://xsltplayground.com/blog/">Blog</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div class="badge">Chrome stopped rendering XSLT on 17 November 2026</div>
+    <h1>XSLT Viewer Online</h1>
+    <p>Paste an XML file and the XSL stylesheet it points to, and see the page they produce: rendered, the way a browser used to show it, or as source.</p>
+    <a class="cta-btn" href="https://xsltplayground.com/?template=xml-to-html&utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-viewer">Open the XSLT viewer →</a>
+  </div>
+
+  <main>
+    <div class="nav-versions">
+      <a href="/?utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-viewer">Editor</a>
+      <a href="/xslt-validator/">Validator</a>
+      <a href="/xslt-viewer/" class="active">Viewer</a>
+      <a href="/xpath-tester/">XPath Tester</a>
+      <a href="/xslt-2-0/">XSLT 2.0</a>
+      <a href="/xslt-3-0/">XSLT 3.0</a>
+    </div>
+
+    <!-- One EthicalAds unit: their policy allows a single ad per page, above or
+         below the main content but never inside it. -->
+    <div class="ea-slot">
+      <div class="ethical-ad" data-ea-publisher="xsltplaygroundcom" data-ea-campaign-types="paid|publisher-house" data-ea-type="image"></div>
+    </div>
+
+    <div class="callout">
+      <strong>Getting raw XML in Chrome?</strong>
+      Since Chrome 158 (17 November 2026), XML files with an <code>&lt;?xml-stylesheet?&gt;</code> line show up
+      as raw XML with the message <em>"This document cannot be formatted as intended"</em>. If you only want to
+      read one page, the <a href="https://xsltplayground.com/blog/chrome-xslt/xslt-polyfill-extension/">XSLT Polyfill extension</a>
+      is the quickest fix. If you want to see what the stylesheet produces, inspect it or fix it, use the viewer below.
+      <a href="https://xsltplayground.com/blog/chrome-xslt/document-cannot-be-formatted/">More on the Chrome message</a>.
+    </div>
+
+    <h2>What the viewer does</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>Renders the result</h3>
+        <p>When the stylesheet produces HTML, you see the page, in a sandboxed frame, as a browser would have shown it.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Shows the source</h3>
+        <p>One click switches to the generated markup, highlighted and formatted, ready to copy or compare.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Runs on a real processor</h3>
+        <p>XSLT 1.0 on XSLTC, the same language browsers implemented; 2.0 and 3.0 on Saxon HE 12.9, which no browser ever had.</p>
+      </div>
+    </div>
+
+    <h2>How to view an XML file through its stylesheet</h2>
+    <ol>
+      <li><strong>Find the stylesheet.</strong> Near the top of the XML file is a line like
+        <code>&lt;?xml-stylesheet type="text/xsl" href="report.xsl"?&gt;</code>. The <code>href</code> is the stylesheet,
+        usually next to the XML file on the same site.</li>
+      <li><strong>Paste the stylesheet</strong> into the left pane of the
+        <a href="https://xsltplayground.com/?template=xml-to-html&utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-viewer">viewer</a>.</li>
+      <li><strong>Paste the XML</strong> into the <strong>input</strong> parameter. You can leave the
+        <code>&lt;?xml-stylesheet?&gt;</code> line in; it is ignored.</li>
+      <li><strong>Read the result.</strong> HTML output is shown rendered. Use the button above it to switch to the source.</li>
+    </ol>
+
+    <h2>An example</h2>
+    <p>The viewer opens with this pair loaded. The XML:</p>
+    <pre><code>&lt;orders&gt;
+  &lt;order id="1" country="ES" total="120.50"/&gt;
+  &lt;order id="2" country="FR" total="80.00"/&gt;
+  ...
+&lt;/orders&gt;</code></pre>
+    <p>and an XSLT 1.0 stylesheet that turns it into an HTML table:</p>
+    <pre><code>&lt;xsl:output method="html" indent="yes"/&gt;
+
+&lt;xsl:template match="/"&gt;
+  &lt;table border="1"&gt;
+    &lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Country&lt;/th&gt;&lt;th&gt;Total&lt;/th&gt;&lt;/tr&gt;
+    &lt;xsl:for-each select="orders/order"&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;xsl:value-of select="@id"/&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;xsl:value-of select="@country"/&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;xsl:value-of select="@total"/&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/xsl:for-each&gt;
+  &lt;/table&gt;
+&lt;/xsl:template&gt;</code></pre>
+    <p>The result pane shows the table rendered. Replace either side with your own files and it updates as you type.</p>
+
+    <h2>When the result does not look like the original</h2>
+    <ul>
+      <li><strong>Missing images and CSS.</strong> Relative links in the output were relative to the original site. Make them absolute to see them.</li>
+      <li><strong>The stylesheet imports others.</strong> <code>xsl:include</code> and <code>xsl:import</code> with relative paths point at files the viewer does not have. Paste their templates into the main stylesheet.</li>
+      <li><strong>Scripts.</strong> JavaScript in the output does not run in the preview frame.</li>
+      <li><strong>Small differences from the browser.</strong> Browsers used their own XSLT 1.0 engine (libxslt in Chrome). XSLTC implements the same standard, but processor-specific extensions and output details can differ.</li>
+    </ul>
+
+    <h2>If the site is yours</h2>
+    <p>
+      Viewing the output is the first step of moving the transformation out of the browser, to the server or to
+      build time. Check that it still produces what the browser showed, then follow
+      <a href="https://xsltplayground.com/blog/posts/chrome-removing-xslt-what-to-do/">Chrome removed XSLT: what to do</a>.
+      For a feed, read <a href="https://xsltplayground.com/blog/chrome-xslt/rss-feed-stylesheet/">your RSS feed's stylesheet stopped rendering</a>.
+    </p>
+
+    <h2>Also available</h2>
+    <p>Want to know whether a stylesheet compiles before you look at its output? <a href="/xslt-validator/">Use the XSLT validator →</a></p>
+    <p><a href="/xpath-tester/">XPath tester</a> · <a href="/xml-to-json/">XML to JSON</a> · <a href="/xslt-2-0/">XSLT 2.0</a> · <a href="/xslt-3-0/">XSLT 3.0</a></p>
+
+    <h2>Frequently Asked Questions</h2>
+    <dl>
+      <dt>How do I view an XML file with its XSL stylesheet?</dt>
+      <dd>Open the XML file in a text editor and find the line that starts with &lt;?xml-stylesheet; its href is the stylesheet's address. Open both files, paste the stylesheet into the left pane of <a href="https://xsltplayground.com/?template=xml-to-html&utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-viewer">XSLT Playground</a> and the XML into the input parameter. If the result is HTML, it is shown rendered.</dd>
+
+      <dt>Why does Chrome show my XML file as plain text now?</dt>
+      <dd>Chrome 158, released on 17 November 2026, removed XSLT. Files that relied on an &lt;?xml-stylesheet?&gt; line to display themselves now show raw XML and the message "This document cannot be formatted as intended". The data is intact; the browser just no longer applies the stylesheet.</dd>
+
+      <dt>Can I view XSLT output as HTML?</dt>
+      <dd>Yes. When the output looks like HTML it is rendered in a sandboxed frame. A button above the result switches between the rendered page and its source.</dd>
+
+      <dt>Why do images or styles not appear in the rendered output?</dt>
+      <dd>Relative addresses in the output, such as images/logo.png or style.css, were relative to the original site. In the viewer they point nowhere. Make them absolute URLs to see them. JavaScript in the output does not run in the preview.</dd>
+
+      <dt>Is the XSLT viewer free?</dt>
+      <dd>Yes. No account and no installation. The transformation runs on our server and the result comes back to your browser.</dd>
+    </dl>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 <a href="https://xsltplayground.com/?utm_source=xsltplayground&amp;utm_medium=landing&amp;utm_campaign=xslt-viewer">XSLT Playground</a> — Free Online XSLT Editor, Tester &amp; Validator</p>
+  </footer>
+</body>
+</html>
