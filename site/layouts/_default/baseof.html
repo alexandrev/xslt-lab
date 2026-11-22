@@ -25,6 +25,7 @@
   <script async src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
   {{- end -}}
   <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
+  {{ partial "analytics.html" . }}
 </head>
 {{- $ethicalAds := and .Site.Params.ethicalads.publisher (not .Site.Params.sponsor.name) (ne hugo.Environment "development") -}}
 {{- $ethicalAdsHeader := and $ethicalAds (not .IsPage) -}}

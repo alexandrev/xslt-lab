@@ -1,0 +1,37 @@
+{{- /* The blog gets about 45% of the site's Google clicks but had no analytics
+       at all: GA4, Umami and Clarity were only in the app. Same GA4 stream,
+       Umami website and Clarity project as the app (same host), so /blog/
+       paths show up next to the app's and a CTA click can be followed into
+       the editor. Loaded after the page so they never delay reading. */ -}}
+{{- with .Site.Params.analytics -}}
+{{- if ne hugo.Environment "development" -}}
+{{- with .umamiWebsiteId }}
+<script defer src="https://umami.alexandre-vazquez.cloud/script.js" data-website-id="{{ . }}"></script>
+{{- end }}
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+window.addEventListener("load", function () {
+  {{- with .ga4Id }}
+  var g = document.createElement("script");
+  g.async = true; g.src = "https://www.googletagmanager.com/gtag/js?id={{ . }}";
+  document.head.appendChild(g);
+  gtag("js", new Date());
+  gtag("config", "{{ . }}");
+  {{- end }}
+  {{- with .clarityId }}
+  (function (c, l, a, r, i, t, y) {
+    c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+    t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+    y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+  })(window, document, "clarity", "script", "{{ . }}");
+  {{- end }}
+}, { once: true });
+document.addEventListener("click", function (e) {
+  var a = e.target.closest && e.target.closest("a[data-cta]");
+  if (!a) return;
+  gtag("event", "blog_cta_click", { cta: a.getAttribute("data-cta"), page_path: location.pathname, transport_type: "beacon" });
+});
+</script>
+{{- end -}}
+{{- end -}}

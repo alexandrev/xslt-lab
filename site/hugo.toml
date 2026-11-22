@@ -32,6 +32,12 @@ lead = "Run and debug XSLT online with multi-parameter inputs, timing hints, and
 client = "ca-pub-1549720748100858"
 inArticleSlot = ""
 
+[params.analytics]
+# Same IDs as the app (frontend env.js / index.html): one host, one stream.
+ga4Id = "G-SHRCV4WZP8"
+umamiWebsiteId = "043e327b-723e-4efd-9ac9-46589219c706"
+clarityId = "wbgumqnbrz"
+
 [params.ethicalads]
 publisher = "xsltplaygroundcom"
 
