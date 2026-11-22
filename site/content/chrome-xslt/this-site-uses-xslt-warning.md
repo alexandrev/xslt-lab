@@ -3,11 +3,13 @@ title: "This site uses XSLT: what Chrome's banner means"
 seoTitle: "\"This site uses XSLT; that functionality is being removed\" — what to do"
 description: "Chrome showed a banner saying this site uses XSLT and the page may stop displaying correctly? Nothing is wrong with your computer. Which extension keeps the page working, and what to change if the site is yours."
 date: 2026-09-18T00:00:00Z
-lastmod: 2026-11-14T00:00:00Z
+lastmod: 2026-11-22T00:00:00Z
 tags: ["xslt", "chrome", "deprecation", "migration"]
 ---
 
-This is the banner Chrome shows across the top of certain pages:
+**Update, 22 November 2026:** Chrome 158 shipped on 17 November and the removal has happened. The banner is gone; affected pages now show raw XML and the message *"This document cannot be formatted as intended"*. If that is what you are seeing, go to [what that message means and how to view the page](/blog/chrome-xslt/document-cannot-be-formatted/). The rest of this page is kept for reference.
+
+This is the banner Chrome showed across the top of certain pages before the removal:
 
 > This site uses XSLT; that functionality is being removed from this browser very soon. When that happens, this page will likely no longer display correctly. You might be able to install a browser extension that allows you to continue viewing it. Otherwise, you should contact the maintainer of the site for further information.
 
@@ -75,7 +77,7 @@ If you cannot migrate before November, Chrome runs an **origin trial** that keep
 
 The choice depends on which case you are in, and the trade-offs are real enough to deserve their own page: [Chrome is removing XSLT: what breaks and what to do](/blog/posts/chrome-removing-xslt-what-to-do/) covers the WASM polyfill, moving the transformation server-side, and precompiling at build time, with the honest costs of each.
 
-If yours is a feed, the answer is usually smaller than you fear: [your RSS feed's stylesheet stops rendering](/blog/chrome-xslt/rss-feed-stylesheet/), but the feed itself is unaffected.
+If yours is a feed, the answer is usually smaller than you fear: [your RSS feed's stylesheet stopped rendering](/blog/chrome-xslt/rss-feed-stylesheet/), but the feed itself is unaffected.
 
 ### First, check the stylesheet still does what you think
 

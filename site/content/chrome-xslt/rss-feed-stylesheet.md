@@ -1,12 +1,13 @@
 ---
-title: "Your RSS feed's stylesheet stops rendering"
+title: "Your RSS feed's stylesheet stopped rendering"
 seoTitle: "RSS feed stylesheet stops working in Chrome 158 — what to do about xml-stylesheet"
 description: "A feed with <?xml-stylesheet?> renders as raw XML once Chrome removes XSLT. The feed itself keeps working — here is what actually changes and the three ways to keep a human-readable page."
 date: 2026-09-18T00:00:00Z
+lastmod: 2026-11-22T00:00:00Z
 tags: ["xslt", "chrome", "rss", "deprecation", "migration"]
 ---
 
-**Quick answer:** your feed keeps working. Feed readers never used the stylesheet — they parse the XML. What breaks on **17 November 2026** is only the friendly page a human sees when they click the feed link in a browser: instead of your styled "subscribe to this feed" page, Chrome shows the raw XML tree.
+**Quick answer:** your feed keeps working. Feed readers never used the stylesheet — they parse the XML. What broke on **17 November 2026**, with Chrome 158, is only the friendly page a human sees when they click the feed link in a browser: instead of your styled "subscribe to this feed" page, Chrome shows the raw XML tree.
 
 This is the most common way sites run into Chrome's XSLT removal, and the least damaging.
 

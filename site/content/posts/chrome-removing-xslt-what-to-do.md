@@ -2,8 +2,11 @@
 title: "Chrome is removing XSLT on November 17, 2026: what breaks and what to do"
 description: "Chrome 158 drops native XSLT — XSLTProcessor and xml-stylesheet stop working. Who is actually affected, honest pros and cons of the WASM polyfill vs server-side migration paths, and how to test your stylesheets outside the browser today."
 date: 2026-08-14T00:00:00Z
+lastmod: 2026-11-22T00:00:00Z
 tags: ["xslt", "chrome", "browser", "deprecation", "migration"]
 ---
+
+**Update, 22 November 2026:** Chrome 158 shipped on 17 November and XSLT is now gone. If a page shows raw XML or *"This document cannot be formatted as intended"*, see [how to view it again](/blog/chrome-xslt/document-cannot-be-formatted/) or install the [XSLT Polyfill extension](/blog/chrome-xslt/xslt-polyfill-extension/). The migration advice below still applies to site owners.
 
 **Quick answer:** Chrome removes built-in XSLT support in **version 158, shipping November 17, 2026**, with deprecation warnings already appearing since Chrome 142–143 ([official announcement](https://developer.chrome.com/docs/web-platform/deprecating-xslt)). Both the `XSLTProcessor` JavaScript API and `<?xml-stylesheet?>` processing instructions stop working. Firefox and WebKit have signalled they will follow. Your migration options are a WASM polyfill, server-side transformation, or build-time precompilation — and you can [check whether your stylesheets run correctly outside the browser](https://xsltplayground.com/?template=xml-to-html) right now, before you pick one.
 
